@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
+  "commitMessagePrefix": "⬆️",
+  "prHourlyLimit": 0,
+  "minimumReleaseAge": "3 days",
+  "prCreation": "not-pending",
+  "rangeStrategy": "pin"
+}
