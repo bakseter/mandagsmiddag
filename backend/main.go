@@ -103,6 +103,8 @@ func main() {
 		api.POST("/dinner", withDatabase(routes.PostDinner, database))
 		api.POST("/rating", withDatabase(routes.PostRating, database))
 		api.GET("/ratings", withDatabase(routes.GetAllRatings, database))
+		api.GET("/penalties", withDatabase(routes.GetAllPenalties, database))
+		api.POST("/penalty", withDatabase(routes.PostPenalty, database))
 		// api.DELETE("/transaction/:id", withDatabase(routes.DeleteTransaction, database))
 	}
 
