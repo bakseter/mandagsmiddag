@@ -80,7 +80,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = database.AutoMigrate(&models.User{}, &models.Dinner{})
+	err = database.AutoMigrate(
+		&models.User{}, 
+		&models.Dinner{}, 
+		&models.Film{}, 
+		&models.Penalty{}, 
+		&models.Rating{},
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,6 +101,8 @@ func main() {
 
 		api.GET("/dinners", withDatabase(routes.GetAllDinners, database))
 		api.POST("/dinner", withDatabase(routes.PostDinner, database))
+		api.POST("/rating", withDatabase(routes.PostRating, database))
+		api.GET("/ratings", withDatabase(routes.GetAllRatings, database))
 		// api.DELETE("/transaction/:id", withDatabase(routes.DeleteTransaction, database))
 	}
 
