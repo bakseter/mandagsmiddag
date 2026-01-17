@@ -5,6 +5,9 @@
     "install": {
       "bun": {
         "pkg-path": "bun"
+      },
+      "colima": {
+        "pkg-path": "colima"
       }
     },
     "hook": {},
@@ -27,12 +30,14 @@
       "rev_date": "2025-12-25T08:32:45Z",
       "scrape_date": "2025-12-26T03:02:30.446614Z",
       "stabilities": [
+        "stable",
         "staging",
         "unstable"
       ],
       "unfree": false,
       "version": "1.3.5",
       "outputs_to_install": [
+        "out",
         "out"
       ],
       "outputs": {
@@ -57,12 +62,14 @@
       "rev_date": "2025-12-25T08:32:45Z",
       "scrape_date": "2025-12-26T03:18:51.565057Z",
       "stabilities": [
+        "stable",
         "staging",
         "unstable"
       ],
       "unfree": false,
       "version": "1.3.5",
       "outputs_to_install": [
+        "out",
         "out"
       ],
       "outputs": {
@@ -87,12 +94,14 @@
       "rev_date": "2025-12-25T08:32:45Z",
       "scrape_date": "2025-12-26T03:34:56.818538Z",
       "stabilities": [
+        "stable",
         "staging",
         "unstable"
       ],
       "unfree": false,
       "version": "1.3.5",
       "outputs_to_install": [
+        "out",
         "out"
       ],
       "outputs": {
@@ -117,16 +126,142 @@
       "rev_date": "2025-12-25T08:32:45Z",
       "scrape_date": "2025-12-26T03:51:07.536957Z",
       "stabilities": [
+        "stable",
         "staging",
         "unstable"
       ],
       "unfree": false,
       "version": "1.3.5",
       "outputs_to_install": [
+        "out",
         "out"
       ],
       "outputs": {
         "out": "/nix/store/jw2mdc7mmp5zdgl9xrzidnnci5dx40ci-bun-1.3.5"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "colima",
+      "broken": false,
+      "derivation": "/nix/store/q8rsgmlc4yg4s7pflrbfm1hqgwz1nz66-colima-0.9.1.drv",
+      "description": "Container runtimes with minimal setup",
+      "install_id": "colima",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=3e2499d5539c16d0d173ba53552a4ff8547f4539",
+      "name": "colima-0.9.1",
+      "pname": "colima",
+      "rev": "3e2499d5539c16d0d173ba53552a4ff8547f4539",
+      "rev_count": 916364,
+      "rev_date": "2025-12-25T08:32:45Z",
+      "scrape_date": "2025-12-26T03:02:30.675903Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.9.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/6kjc6hi7nq8rsc94dayg6dqx1h550f7i-colima-0.9.1"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "colima",
+      "broken": false,
+      "derivation": "/nix/store/4sqwf2hg1x9nijiawafwica70zp45cga-colima-0.9.1.drv",
+      "description": "Container runtimes with minimal setup",
+      "install_id": "colima",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=3e2499d5539c16d0d173ba53552a4ff8547f4539",
+      "name": "colima-0.9.1",
+      "pname": "colima",
+      "rev": "3e2499d5539c16d0d173ba53552a4ff8547f4539",
+      "rev_count": 916364,
+      "rev_date": "2025-12-25T08:32:45Z",
+      "scrape_date": "2025-12-26T03:18:51.902590Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.9.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/1v2fijyp9v4428h3qm01qy70swd8achi-colima-0.9.1"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "colima",
+      "broken": false,
+      "derivation": "/nix/store/8xgf2r3jm91sp07yyfb0hn9pnilsjn46-colima-0.9.1.drv",
+      "description": "Container runtimes with minimal setup",
+      "install_id": "colima",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=3e2499d5539c16d0d173ba53552a4ff8547f4539",
+      "name": "colima-0.9.1",
+      "pname": "colima",
+      "rev": "3e2499d5539c16d0d173ba53552a4ff8547f4539",
+      "rev_count": 916364,
+      "rev_date": "2025-12-25T08:32:45Z",
+      "scrape_date": "2025-12-26T03:34:57.054954Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.9.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/hapmnzlfd5fiyvqydj3b7n6wd8k5bafq-colima-0.9.1"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "colima",
+      "broken": false,
+      "derivation": "/nix/store/mcxj5f17dp83599aiw6i6y9iswrpzac8-colima-0.9.1.drv",
+      "description": "Container runtimes with minimal setup",
+      "install_id": "colima",
+      "license": "MIT",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=3e2499d5539c16d0d173ba53552a4ff8547f4539",
+      "name": "colima-0.9.1",
+      "pname": "colima",
+      "rev": "3e2499d5539c16d0d173ba53552a4ff8547f4539",
+      "rev_count": 916364,
+      "rev_date": "2025-12-25T08:32:45Z",
+      "scrape_date": "2025-12-26T03:51:07.860198Z",
+      "stabilities": [
+        "stable",
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "0.9.1",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/drar3xlcqmy7wl2jddwn9cg5wvgkrzcq-colima-0.9.1"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
