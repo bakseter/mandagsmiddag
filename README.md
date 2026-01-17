@@ -2,6 +2,21 @@
 
 Dinner on a monday.
 
+## How to run:
+
+### Entire build
+
+(Requires flox to run, otherwise download Docker and bun separately)
+
+1. `flox activate`
+2. `colima start`
+3. `docker compose up --build`
+
+### Only dev build frontend
+
+1. `cd frontend`
+2. `npm run dev`
+
 ## User Stories - Monday Dinner Club Application
 
 ### 1. Register a Dinner
