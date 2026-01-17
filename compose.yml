@@ -1,4 +1,16 @@
 services:
+  frontend:
+    image: ghcr.io/bakseter/mandagsmiddag/frontend:latest
+    build:
+      context: ./frontend
+    ports:
+      - '3000:3000'
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./frontend/src
+          target: /app/src
+
   backend:
     image: ghcr.io/bakseter/mandagsmiddag/backend:latest
     build: ./backend
@@ -40,14 +52,3 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.4.6
-    env_file: keycloak.env
-    depends_on:
-      database:
-        condition: service_healthy
-    ports:
-      - 8090:8080
-    command:
-      - start-dev
