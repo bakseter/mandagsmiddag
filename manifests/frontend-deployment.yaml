@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # annotations:
+  #   keel.sh/match-tag: 'true'
+  #   keel.sh/policy: force
+  #   keel.sh/trigger: poll
+  name: frontend
+  namespace: mandagsmiddag
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/bakseter/mandagsmiddag/frontend:latest
+          ports:
+            - containerPort: 3000
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      securityContext:
+        fsGroup: 1001
+        runAsNonRoot: true
+        runAsGroup: 1001
+        runAsUser: 1001
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups:
+          - 1001
