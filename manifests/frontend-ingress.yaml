@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: frontend
   namespace: mandagsmiddag
+  annotations:
+    tailscale.com/funnel: 'true'
 spec:
   ingressClassName: tailscale
   rules:
