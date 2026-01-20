@@ -13,8 +13,8 @@ oauth2-proxy:
       - hosts:
           - mandagsmiddag
 
-    extraArgs:
-      provider: keycloak-oidc
-      redirect-url: https://mandagsmiddag.tail79d70a.ts.net/oauth2/callback
-      oidc-issuer-url: https://keycloak.tail79d70a.ts.net/realms/mandagsmiddag
-      code-challenge-method: S256
+  extraArgs:
+    provider: keycloak-oidc
+    redirect-url: https://mandagsmiddag.tail79d70a.ts.net/oauth2/callback
+    oidc-issuer-url: https://keycloak.tail79d70a.ts.net/realms/mandagsmiddag
+    code-challenge-method: S256
