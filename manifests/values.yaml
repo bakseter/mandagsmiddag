@@ -1,0 +1,11 @@
+oauth2-proxy:
+  ingress:
+    enabled: true
+    className: tailscale
+    annotations:
+      tailscale.com/funnel: 'true'
+    hosts:
+      - mandagsmiddag
+    tls:
+      - hosts:
+          - mandagsmiddag
