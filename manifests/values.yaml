@@ -1,4 +1,7 @@
 oauth2-proxy:
+  config:
+    exisitingSecret: mandagsmiddag-oauth2-proxy-keycloak-credentials
+
   ingress:
     enabled: true
     className: tailscale
@@ -9,3 +12,9 @@ oauth2-proxy:
     tls:
       - hosts:
           - mandagsmiddag
+
+    extraArgs:
+      provider: keycloak-oidc
+      redirect-url: https://mandagsmiddag.tail79d70a.ts.net/oauth2/callback
+      oidc-issuer-url: https://keycloak.tail79d70a.ts.net/realms/mandagsmiddag
+      code-challenge-method: S256
