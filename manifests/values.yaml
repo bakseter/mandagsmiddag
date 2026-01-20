@@ -21,3 +21,4 @@ oauth2-proxy:
     oidc-issuer-url: https://keycloak.tail79d70a.ts.net/realms/mandagsmiddag
     code-challenge-method: S256
     upstream: http://mandagsmiddag-frontend.mandagsmiddag.svc.cluster.local/
+    skip-provider-button: true
