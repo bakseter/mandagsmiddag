@@ -5,8 +5,8 @@ metadata:
   #   keel.sh/match-tag: 'true'
   #   keel.sh/policy: force
   #   keel.sh/trigger: poll
-  name: frontend
-  namespace: mandagsmiddag
+  name: '{{ .Chart.Name }}-frontend'
+  namespace: '{{ .Release.Namespace }}'
 spec:
   replicas: 1
   revisionHistoryLimit: 1
@@ -24,7 +24,7 @@ spec:
           ports:
             - containerPort: 3000
           securityContext:
-#           readOnlyRootFilesystem: true
+            #           readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
