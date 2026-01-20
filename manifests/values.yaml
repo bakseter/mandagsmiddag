@@ -1,6 +1,6 @@
 oauth2-proxy:
   config:
-    existingSecret: mandagsmiddag-oauth2-proxy-keycloak-credentials
+    existingSecret: mandagsmiddag-keycloak-credentials
 
   ingress:
     enabled: true
