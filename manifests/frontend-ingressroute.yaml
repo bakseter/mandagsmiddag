@@ -4,6 +4,8 @@ metadata:
   name: frontend
   namespace: mandagsmiddag
 spec:
+  entryPoints:
+    - public
   routes:
     - kind: Rule
       match: Host(`mandagsmiddag.bakseter.net`)
