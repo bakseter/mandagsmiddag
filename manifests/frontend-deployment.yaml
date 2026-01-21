@@ -5,8 +5,8 @@ metadata:
   #   keel.sh/match-tag: 'true'
   #   keel.sh/policy: force
   #   keel.sh/trigger: poll
-  name: '{{ .Chart.Name }}-frontend'
-  namespace: '{{ .Release.Namespace }}'
+  name: frontend
+  namespace: mandagsmiddag
 spec:
   replicas: 1
   revisionHistoryLimit: 1

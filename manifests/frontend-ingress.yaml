@@ -1,0 +1,14 @@
+kind: IngressRoute
+metadata:
+  name: frontend
+  namespace: mandagsmiddag
+spec:
+  routes:
+    - kind: Rule
+      match: Host(`mandagsmiddag.bakseter.net`)
+      services:
+        - name: frontend
+          port: 80
+      middlewares:
+        - name: forwardauth
+          namespace: oauth2-proxy
