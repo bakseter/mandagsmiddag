@@ -13,5 +13,5 @@ spec:
         - name: frontend
           port: 80
       middlewares:
-        - name: forwardauth
+        - name: forwardauth-public
           namespace: oauth2-proxy
