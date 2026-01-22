@@ -1,7 +1,7 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: frontend
+  name: oauth2-proxy
   namespace: mandagsmiddag
 spec:
   entryPoints:
