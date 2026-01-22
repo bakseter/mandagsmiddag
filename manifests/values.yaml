@@ -1,0 +1,23 @@
+oauth2-proxy:
+  config:
+    existingSecret: google-credentials
+
+  extraArgs:
+    provider: google
+    oidc-issuer-url: https://accounts.google.com
+    http-address: 0.0.0.0:4180
+    code-challenge-method: S256
+    redirect-url: https://mandagsmiddag.no/oauth2/callback
+    cookie-csrf-per-request: true
+    cookie-domain: .mandagsmiddag.no
+    cookie-secure: true
+    cookie-same-site: none
+    whitelist-domain: .mandagsmiddag.no
+    silence-ping-logging: true
+    skip-provider-button: true
+    real-client-ip-header: X-Forwarded-For
+    email-domain: '*'
+    set-xauthrequest: true
+    upstream:
+      - http://backend.mandagsmiddag.svc.cluster.local:8080/api/
+      - http://frontend.mandagsmiddag.svc.cluster.local:3000

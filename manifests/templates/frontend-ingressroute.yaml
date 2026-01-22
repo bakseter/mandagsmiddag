@@ -8,10 +8,7 @@ spec:
     - public
   routes:
     - kind: Rule
-      match: Host(`mandagsmiddag.bakseter.net`)
+      match: Host(`mandagsmiddag.no`)
       services:
-        - name: frontend
+        - name: oauth2-proxy
           port: 80
-      middlewares:
-        - name: forwardauth-public
-          namespace: oauth2-proxy
