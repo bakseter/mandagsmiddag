@@ -19,5 +19,7 @@ oauth2-proxy:
     email-domain: '*'
     set-xauthrequest: true
     upstream:
-      - http://backend.mandagsmiddag.svc.cluster.local:8080/api/
-      - http://frontend.mandagsmiddag.svc.cluster.local:3000
+      [
+        'http://backend.mandagsmiddag.svc.cluster.local:8080/api/',
+        'http://frontend.mandagsmiddag.svc.cluster.local:3000',
+      ]
