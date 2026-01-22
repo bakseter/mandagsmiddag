@@ -1,5 +1,5 @@
 # Build stage
-FROM oven/bun:1 AS builder
+FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
@@ -10,9 +10,12 @@ COPY . .
 RUN bun run build
 
 # Production stage
-FROM oven/bun:1-slim
+FROM oven/bun:1-alpine
 
 WORKDIR /app
+
+RUN apk update && \
+    apk upgrade --no-cache
 
 COPY --from=builder /app/dist ./dist
 
