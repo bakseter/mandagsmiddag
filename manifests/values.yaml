@@ -11,7 +11,7 @@ oauth2-proxy:
     cookie-csrf-per-request: true
     cookie-domain: .mandagsmiddag.no
     cookie-secure: true
-    cookie-same-site: none
+    cookie-samesite: none
     whitelist-domain: .mandagsmiddag.no
     silence-ping-logging: true
     skip-provider-button: true
