@@ -10,5 +10,5 @@ spec:
     - kind: Rule
       match: Host(`mandagsmiddag.no`)
       services:
-        - name: oauth2-proxy
+        - name: mandagsmiddag-oauth2-proxy
           port: 80
