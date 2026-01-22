@@ -5,36 +5,36 @@ metadata:
   #   keel.sh/match-tag: 'true'
   #   keel.sh/policy: force
   #   keel.sh/trigger: poll
-  name: frontend
+  name: backend
   namespace: mandagsmiddag
 spec:
   replicas: 1
   revisionHistoryLimit: 5
   selector:
     matchLabels:
-      app: frontend
+      app: backend
   template:
     metadata:
       labels:
-        app: frontend
+        app: backend
     spec:
       containers:
-        - name: frontend
-          image: ghcr.io/bakseter/mandagsmiddag/frontend:latest
+        - name: backend
+          image: ghcr.io/bakseter/mandagsmiddag/backend:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 8080
           securityContext:
-            #           readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
       securityContext:
-        fsGroup: 1001
+        fsGroup: 65534
         runAsNonRoot: true
-        runAsGroup: 1001
-        runAsUser: 1001
+        runAsGroup: 65534
+        runAsUser: 65534
         seccompProfile:
           type: RuntimeDefault
         supplementalGroups:
-          - 1001
+          - 65534
