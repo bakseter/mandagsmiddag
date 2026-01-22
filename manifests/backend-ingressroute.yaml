@@ -8,7 +8,7 @@ spec:
     - public
   routes:
     - kind: Rule
-      match: Host(`backend.mandagsmiddag.bakseter.net`)
+      match: Host(`api.mandagsmiddag.bakseter.net`)
       services:
         - name: backend
           port: 8080

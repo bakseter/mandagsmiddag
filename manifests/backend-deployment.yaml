@@ -23,6 +23,33 @@ spec:
           image: ghcr.io/bakseter/mandagsmiddag/backend:latest
           ports:
             - containerPort: 8080
+          env:
+            - name: HOST
+              value: https://api.mandagsmiddag.bakseter.net
+            - name: OAUTH2_USERINFO_ENDPOINT
+              value: https://auth.bakseter.net/oauth2/userinfo
+            - name: GIN_MODE
+              value: release
+            - name: DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: database-app
+                  key: host
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: database-app
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-app
+                  key: password
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: database-app
+                  key: dbname
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
