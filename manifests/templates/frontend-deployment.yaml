@@ -5,7 +5,7 @@ metadata:
   #   keel.sh/match-tag: 'true'
   #   keel.sh/policy: force
   #   keel.sh/trigger: poll
-  name: frontend
+  name: mandagsmiddag-frontend
   namespace: mandagsmiddag
 spec:
   replicas: 1
