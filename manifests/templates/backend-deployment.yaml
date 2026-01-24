@@ -27,28 +27,28 @@ spec:
             - name: HOST
               value: https://api.mandagsmiddag.bakseter.net
             - name: OAUTH2_USERINFO_ENDPOINT
-              value: https://auth.bakseter.net/oauth2/userinfo
+              value: http://mandagsmiddag-oauth2-proxy.mandagsmiddag.svc.cluster.local/oauth2/userinfo
             - name: GIN_MODE
               value: release
             - name: DATABASE_HOST
               valueFrom:
                 secretKeyRef:
-                  name: database-app
+                  name: mandagsmiddag-database-app
                   key: host
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: database-app
+                  name: mandagsmiddag-database-app
                   key: username
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: database-app
+                  name: mandagsmiddag-database-app
                   key: password
             - name: DATABASE_NAME
               valueFrom:
                 secretKeyRef:
-                  name: database-app
+                  name: mandagsmiddag-database-app
                   key: dbname
           securityContext:
             readOnlyRootFilesystem: true
