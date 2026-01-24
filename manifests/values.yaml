@@ -1,4 +1,14 @@
 oauth2-proxy:
+  replicaCount: 2
+
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: oauth2-proxy
+          topologyKey: bakseter.net/physical-node
+
   config:
     existingSecret: google-credentials
 

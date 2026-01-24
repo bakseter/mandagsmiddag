@@ -8,7 +8,7 @@ metadata:
   name: mandagsmiddag-backend
   namespace: mandagsmiddag
 spec:
-  replicas: 1
+  replicas: 2
   revisionHistoryLimit: 5
   selector:
     matchLabels:
@@ -56,6 +56,16 @@ spec:
             capabilities:
               drop:
                 - ALL
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - backend
+              topologyKey: bakseter.net/physical-node
       securityContext:
         fsGroup: 65534
         runAsNonRoot: true
