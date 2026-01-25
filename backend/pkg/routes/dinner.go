@@ -172,28 +172,11 @@ func GetAllDinners(c *gin.Context, database *gorm.DB) {
 	c.JSON(200, dinnerList)
 }
 
-func GetAllHostDinners(c *gin.Context, database *gorm.DB) {
-	userInfo, err := getUserInfo(c)
-	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Get user from database
-	var user models.User
-	if err := database.Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(404, gin.H{"error": "user not found"})
-			return
-		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
-			return
-		}
-	}
-
+func GetAllDinnersForUser(c *gin.Context, database *gorm.DB) {
 	var dinners []models.Dinner
+	var hostId = c.Param("id")
 	if err := database.
-		Where("host_user_id = ?", user.ID).
+		Where("host_user_id = ?", hostId).
 		Preload("Participants", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id")
 		}).
@@ -238,21 +221,41 @@ func GetAllHostDinners(c *gin.Context, database *gorm.DB) {
 }
 
 func GetDinnerWithId(c *gin.Context, database *gorm.DB) {
-		userInfo, err := getUserInfo(c)
-	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
+	dinnerId := c.Param("id")
+	var dinner models.Dinner
+	if err := database.Where("id = ?", dinnerId).
+		Preload("Participants", func(db *gorm.DB) *gorm.DB {
+				return db.Select("id")
+		}).
+		Preload("Film").
+		First(&dinner).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+				c.JSON(404, gin.H{"error": "dinner not found"})
+		} else {
+				c.JSON(500, gin.H{"error": "failed to fetch dinner"})
+		}
 		return
 	}
 
-	// Get user from database
-	var user models.User
-	if err := database.Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(404, gin.H{"error": "user not found"})
-			return
-		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
-			return
-		}
+	// Extract participant IDs
+	participantIDs := make([]uint, len(dinner.Participants))
+	for i, participant := range dinner.Participants {
+			participantIDs[i] = participant.ID
 	}
+
+	dinnerJSON := DinnerJSON{
+		ID:             dinner.ID,
+		HostUserID:     dinner.HostUserID,
+		Date:           dinner.Date.Format(time.RFC3339),
+		Food:           dinner.Food,
+		ParticipantIDs: participantIDs,
+	}
+
+	// Add film info if available
+	if dinner.Film != nil {
+		dinnerJSON.FilmIMDBUrl = dinner.Film.IMDBUrl
+		dinnerJSON.FilmTitle = dinner.Film.Title
+	}
+
+	c.JSON(200, dinnerJSON)
 }
