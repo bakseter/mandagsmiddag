@@ -127,28 +127,11 @@ func PostDinner(c *gin.Context, database *gorm.DB) {
 }
 
 func GetAllDinners(c *gin.Context, database *gorm.DB) {
-	userInfo, err := getUserInfo(c)
-	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Get user from database
-	var user models.User
-	if err := database.Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(404, gin.H{"error": "user not found"})
-			return
-		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
-			return
-		}
-	}
-
 	var dinners []models.Dinner
 	if err := database.
-		Where("host_user_id = ?", user.ID).
-		Preload("Participants").
+		Preload("Participants", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id")
+		}).
 		Preload("Film").
 		Order("date DESC").
 		Find(&dinners).Error; err != nil {
@@ -187,4 +170,89 @@ func GetAllDinners(c *gin.Context, database *gorm.DB) {
 	}
 
 	c.JSON(200, dinnerList)
+}
+
+func GetAllHostDinners(c *gin.Context, database *gorm.DB) {
+	userInfo, err := getUserInfo(c)
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user from database
+	var user models.User
+	if err := database.Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(404, gin.H{"error": "user not found"})
+			return
+		} else {
+			c.JSON(500, gin.H{"error": "failed to fetch user"})
+			return
+		}
+	}
+
+	var dinners []models.Dinner
+	if err := database.
+		Where("host_user_id = ?", user.ID).
+		Preload("Participants", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id")
+		}).
+		Preload("Film").
+		Order("date DESC").
+		Find(&dinners).Error; err != nil {
+		c.JSON(500, gin.H{"error": "failed to fetch dinners"})
+		return
+	}
+
+	if len(dinners) == 0 {
+		c.JSON(200, []DinnerJSON{})
+		return
+	}
+
+	var dinnerList []DinnerJSON
+	for _, dinner := range dinners {
+		// Extract participant IDs
+		participantIDs := make([]uint, len(dinner.Participants))
+		for i, participant := range dinner.Participants {
+			participantIDs[i] = participant.ID
+		}
+
+		dinnerJSON := DinnerJSON{
+			ID:             dinner.ID,
+			HostUserID:     dinner.HostUserID,
+			Date:           dinner.Date.Format(time.RFC3339),
+			Food:           dinner.Food,
+			ParticipantIDs: participantIDs,
+		}
+
+		// Add film info if available
+		if dinner.Film != nil {
+			dinnerJSON.FilmIMDBUrl = dinner.Film.IMDBUrl
+			dinnerJSON.FilmTitle = dinner.Film.Title
+		}
+
+		dinnerList = append(dinnerList, dinnerJSON)
+	}
+
+	c.JSON(200, dinnerList)
+}
+
+func GetDinnerWithId(c *gin.Context, database *gorm.DB) {
+		userInfo, err := getUserInfo(c)
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user from database
+	var user models.User
+	if err := database.Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(404, gin.H{"error": "user not found"})
+			return
+		} else {
+			c.JSON(500, gin.H{"error": "failed to fetch user"})
+			return
+		}
+	}
 }
