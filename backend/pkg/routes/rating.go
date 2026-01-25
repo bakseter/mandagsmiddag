@@ -62,7 +62,7 @@ func PostRating(c *gin.Context, database *gorm.DB) {
 	c.Header("HX-Trigger", "reload-ratings")
 }
 
-func GetAllRatings(c *gin.Context, database *gorm.DB) {
+func GetAllRatingsForUser(c *gin.Context, database *gorm.DB) {
 	userInfo, err := getUserInfo(c)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
@@ -107,4 +107,59 @@ func GetAllRatings(c *gin.Context, database *gorm.DB) {
 		ratingList = append(ratingList, ratingJSON)
 	}
 	c.JSON(200, ratingList)
+}
+
+func GetAllRatings(c *gin.Context, database *gorm.DB) {
+	var ratings []models.Rating
+	if err := database.
+		Order("created_at DESC").
+		Find(&ratings).Error; err != nil {
+		c.JSON(500, gin.H{"error": "failed to fetch ratings"})
+		return
+	}
+
+	if len(ratings) == 0 {
+		c.JSON(200, []RatingJSON{})
+		return
+	}
+
+	var ratingList []RatingJSON
+	for _, rating := range ratings {
+		ratingJSON := RatingJSON{
+			ID: rating.ID,
+			UserID: rating.UserID,
+			FilmScore: rating.FilmScore,
+			DinnerScore: rating.DinnerScore,
+			DinnerID: rating.DinnerID,
+		}
+		ratingList = append(ratingList, ratingJSON)
+	}
+	c.JSON(200, ratingList)
+}
+
+func GetRatingWithId(c *gin.Context, database *gorm.DB) {
+	var rating models.Rating
+	var ratingId = c.Param("id")
+	if err := database.
+		Where("id = ?", ratingId).
+		Order("created_at DESC").
+		First(&rating).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				c.JSON(404, gin.H{"error": "dinner not found"})
+			} else {
+				c.JSON(500, gin.H{"error": "failed to fetch dinner"})
+			}
+		return
+	}
+
+
+	ratingJSON := RatingJSON{
+		ID: rating.ID,
+		UserID: rating.UserID,
+		FilmScore: rating.FilmScore,
+		DinnerScore: rating.DinnerScore,
+		DinnerID: rating.DinnerID,
+	}
+
+	c.JSON(200, ratingJSON)
 }
