@@ -12,6 +12,36 @@ oauth2-proxy:
   config:
     existingSecret: google-credentials
 
+  networkpolicy:
+    create: true
+    ingress:
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: traefik
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/name: traefik
+        ports:
+          - protocol: TCP
+            port: 4180
+    egress:
+      - to:
+          - podSelector:
+              matchLabels:
+                app: frontend
+        ports:
+          - protocol: TCP
+            port: 3000
+
+      - to:
+          - podSelector:
+              matchLabels:
+                app: backend
+        ports:
+          - protocol: TCP
+            port: 8080
+
   extraArgs:
     provider: google
     oidc-issuer-url: https://accounts.google.com
