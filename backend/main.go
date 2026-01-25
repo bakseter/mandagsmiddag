@@ -108,11 +108,22 @@ func main() {
 			})
 		})
 
-		api.GET("/dinners", withDatabase(routes.GetAllDinners, database))
+		// Dinner API
+		api.GET("/dinner", withDatabase(routes.GetAllDinners, database))
+		api.GET("/dinner/host/:id", withDatabase(routes.GetAllDinnersForUser, database))
+		api.GET("dinner/:id", withDatabase(routes.GetDinnerWithId, database))
 		api.POST("/dinner", withDatabase(routes.PostDinner, database))
+
+		// Rating API
+		api.GET("/rating", withDatabase(routes.GetAllRatings, database))
+		api.GET("/rating/user/:id", withDatabase(routes.GetAllRatingsForUser, database))
+		api.GET("/rating/:id", withDatabase(routes.GetRatingWithId, database))
 		api.POST("/rating", withDatabase(routes.PostRating, database))
-		api.GET("/ratings", withDatabase(routes.GetAllRatings, database))
-		api.GET("/penalties", withDatabase(routes.GetAllPenalties, database))
+
+		// Penalty API
+		api.GET("/penalty", withDatabase(routes.GetAllPenalties, database))
+		api.GET("/penalty/user/:id", withDatabase(routes.GetAllPenaltiesForUser, database))
+		api.GET("penalty/:id", withDatabase(routes.GetPenaltyWithId, database))
 		api.POST("/penalty", withDatabase(routes.PostPenalty, database))
 		// api.DELETE("/transaction/:id", withDatabase(routes.DeleteTransaction, database))
 	}
