@@ -3,6 +3,8 @@ services:
     image: ghcr.io/bakseter/mandagsmiddag/frontend:latest
     build:
       context: ./frontend
+      args:
+        - VITE_HOSTNAME=localhost:8080
     ports:
       - '3000:3000'
     develop:

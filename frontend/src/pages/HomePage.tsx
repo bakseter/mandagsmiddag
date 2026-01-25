@@ -1,34 +1,20 @@
-import { useEffect, useState } from "react";
-
-interface Dinner {
-    [key: string]: unknown;
-}
+import { useGetDinnersQuery } from '../services/api';
 
 function HomePage() {
-    const [dinners, setDinners] = useState<Dinner[]>([]);
+	const { data: dinners = [], isLoading, error } = useGetDinnersQuery();
 
-    async function getDinners() {
-        const res = await fetch(`http://localhost:8080/api/dinners`);
-        const data = await res.json();
-        console.log(data);
-        return data;
-    }
+	if (isLoading) return <div>Loading...</div>;
+	if (error) return <div>Error loading dinners</div>;
 
-    useEffect(() => {
-        getDinners().then((result) => {
-            setDinners(result);
-        });
-    }, []);
+	return (
+		<div>
+			<h1>MANDAGSMIDDAG</h1>
 
-    return (
-        <div>
-            <h1>MANDAGSMIDDAG</h1>
-
-            {dinners.map((dinner, index) => (
-                <div key={index}>{JSON.stringify(dinner)}</div>
-            ))}
-        </div>
-    );
+			{dinners.map((dinner, index) => (
+				<div key={index}>{JSON.stringify(dinner)}</div>
+			))}
+		</div>
+	);
 }
 
 export default HomePage;
