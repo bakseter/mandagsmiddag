@@ -65,7 +65,7 @@ func PostPenalty(c *gin.Context, database *gorm.DB) {
 	c.Header("HX-Trigger", "reload-penalties")
 }
 
-func GetAllPenalties(c *gin.Context, database *gorm.DB) {
+func GetAllPenaltiesForUser(c *gin.Context, database *gorm.DB) {
 	userInfo, err := getUserInfo(c)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
@@ -112,4 +112,63 @@ func GetAllPenalties(c *gin.Context, database *gorm.DB) {
 		penaltyList = append(penaltyList, penaltyJSON)
 	}
 	c.JSON(200, penaltyList)
+}
+
+func GetAllPenalties(c *gin.Context, database *gorm.DB) {
+	var penalties []models.Penalty
+	if err := database.
+		Preload("AssignedBy").
+		Order("created_at DESC").
+		Find(&penalties).Error; err != nil {
+		c.JSON(500, gin.H{"error": "failed to fetch penalties"})
+		return
+	}
+
+	if len(penalties) == 0 {
+		c.JSON(200, []PenaltyJSON{})
+		return
+	}
+
+	var penaltyList []PenaltyJSON
+	for _, penalty := range penalties {
+		penaltyJSON := PenaltyJSON{
+			ID: penalty.ID,
+			UserID: penalty.UserID,
+			Points: penalty.Points,
+			Reason: penalty.Reason,
+			AssignedBy: penalty.AssignedBy.Email,
+			AssignedAt: penalty.AssignedAt.Format("2006-01-02 15:04:05"),
+		}
+		penaltyList = append(penaltyList, penaltyJSON)
+	}
+	c.JSON(200, penaltyList)
+}
+
+func GetPenaltyWithId(c *gin.Context, database *gorm.DB) {
+	var penalty models.Penalty
+	var penaltyId = c.Param("id")
+	if err := database.
+		Where("id = ?", penaltyId).
+		Preload("AssignedBy").
+		Order("created_at DESC").
+		First(&penalty).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				c.JSON(404, gin.H{"error": "dinner not found"})
+			} else {
+				c.JSON(500, gin.H{"error": "failed to fetch dinner"})
+			}
+		return
+	}
+
+
+	penaltyJSON := PenaltyJSON{
+		ID: penalty.ID,
+		UserID: penalty.UserID,
+		Points: penalty.Points,
+		Reason: penalty.Reason,
+		AssignedBy: penalty.AssignedBy.Email,
+		AssignedAt: penalty.AssignedAt.Format("2006-01-02 15:04:05"),
+	}
+	
+	c.JSON(200, penaltyJSON)
 }
