@@ -21,12 +21,12 @@ oauth2-proxy:
           - namespaceSelector:
               matchLabels:
                 kubernetes.io/metadata.name: traefik
-              podSelector:
-                matchLabels:
-                  app.kubernetes.io/name: traefik
+          - podSelector:
+              matchLabels:
+                app.kubernetes.io/name: traefik
         ports:
           - protocol: TCP
-            port: 4180
+            port: 80
 
     egress:
       # Allow egress to Internet (Google OIDC provider)
@@ -42,7 +42,7 @@ oauth2-proxy:
           - namespaceSelector:
               matchLabels:
                 kubernetes.io/metadata.name: kube-system
-            podSelector:
+          - podSelector:
               matchLabels:
                 k8s-app: kube-dns
         ports:
