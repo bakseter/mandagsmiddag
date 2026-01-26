@@ -21,7 +21,7 @@ oauth2-proxy:
           - namespaceSelector:
               matchLabels:
                 kubernetes.io/metadata.name: traefik
-          - podSelector:
+            podSelector:
               matchLabels:
                 app.kubernetes.io/name: traefik
         ports:
@@ -42,7 +42,7 @@ oauth2-proxy:
           - namespaceSelector:
               matchLabels:
                 kubernetes.io/metadata.name: kube-system
-          - podSelector:
+            podSelector:
               matchLabels:
                 k8s-app: kube-dns
         ports:
