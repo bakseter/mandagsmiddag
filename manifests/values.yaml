@@ -12,9 +12,11 @@ oauth2-proxy:
   config:
     existingSecret: google-credentials
 
-  networkpolicy:
+  networkPolicy:
     create: true
+
     ingress:
+      # Allow traffic from Traefik
       - from:
           - namespaceSelector:
               matchLabels:
@@ -25,7 +27,29 @@ oauth2-proxy:
         ports:
           - protocol: TCP
             port: 4180
+
     egress:
+      # Allow egress to Internet (Google OIDC provider)
+      - to:
+          - ipBlock:
+              cidr: '0.0.0.0/0'
+        ports:
+          - protocol: TCP
+            port: 443
+
+      # Allow egress to kube-dns (needed for DNS resolution)
+      - to:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: kube-system
+            podSelector:
+              matchLabels:
+                k8s-app: kube-dns
+        ports:
+          - protocol: UDP
+            port: 53
+
+      # Allow egress to frontend
       - to:
           - podSelector:
               matchLabels:
@@ -34,6 +58,7 @@ oauth2-proxy:
           - protocol: TCP
             port: 3000
 
+      # Allow egress to backend
       - to:
           - podSelector:
               matchLabels:
