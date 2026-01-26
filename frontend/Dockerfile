@@ -1,3 +1,4 @@
+# Build stage
 FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
@@ -11,16 +12,16 @@ RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build
 
-
-FROM nginx:alpine
+# Production stage
+FROM oven/bun:1-alpine
 
 WORKDIR /app
 
 RUN apk update && \
     apk upgrade --no-cache
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist ./dist
+USER bun
+EXPOSE 3000
 
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["bunx", "serve", "dist", "-p", "3000"]
