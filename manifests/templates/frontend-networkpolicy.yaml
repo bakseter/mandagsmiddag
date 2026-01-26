@@ -7,10 +7,13 @@ spec:
   policyTypes:
     - Ingress
     - Egress
+
   podSelector:
     matchLabels:
       app: frontend
+
   ingress:
+    # Allow ingress from oauth2-proxy
     - from:
         - podSelector:
             matchLabels:
@@ -18,3 +21,5 @@ spec:
       ports:
         - protocol: TCP
           port: 3000
+
+  egress: [] # no egress allowed

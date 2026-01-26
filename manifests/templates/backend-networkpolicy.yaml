@@ -7,10 +7,13 @@ spec:
   policyTypes:
     - Ingress
     - Egress
+
   podSelector:
     matchLabels:
       app: backend
+
   ingress:
+    # Allow ingress from oauth2-proxy
     - from:
         - podSelector:
             matchLabels:
@@ -18,7 +21,21 @@ spec:
       ports:
         - protocol: TCP
           port: 8080
+
   egress:
+    # Allow egress to kube-dns (needed for DNS resolution)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+
+    # Allow egress to database
     - to:
         - podSelector:
             matchLabels:

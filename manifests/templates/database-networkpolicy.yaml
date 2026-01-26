@@ -11,6 +11,7 @@ spec:
     matchLabels:
       app.kubernetes.io/instance: mandagsmiddag-database
   ingress:
+    # Allow traffic from backend
     - from:
         - podSelector:
             matchLabels:
@@ -19,6 +20,7 @@ spec:
         - protocol: TCP
           port: 5432
 
+    # Allow ingress from CloudNativePG operator
     - from:
         - namespaceSelector:
             matchLabels:
@@ -29,11 +31,16 @@ spec:
       ports:
         - port: 8000
         - port: 5432
+
   egress:
+    # Allow egress to Kubernetes API
     - to:
-        - podSelector:
+        - namespaceSelector:
             matchLabels:
-              app.kubernetes.io/instance: mandagsmiddag-database
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-apiserver
       ports:
         - protocol: TCP
-          port: 5432
+          port: 443
