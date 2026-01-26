@@ -32,3 +32,26 @@ spec:
       ports:
         - port: 8000
         - port: 5432
+
+  egress:
+    # Allow egress to kube-dns (needed for DNS resolution)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+    # Allow egress to Kubernetes API server
+    - to:
+        ipBlock:
+          cidr: '10.96.0.0/12'
+      ports:
+        - protocol: TCP
+          port: 443

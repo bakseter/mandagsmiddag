@@ -48,6 +48,8 @@ oauth2-proxy:
         ports:
           - protocol: UDP
             port: 53
+          - protocol: TCP
+            port: 53
 
       # Allow egress to frontend
       - to:
