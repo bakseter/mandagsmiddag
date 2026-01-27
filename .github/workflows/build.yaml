@@ -52,7 +52,7 @@ jobs:
           cache-from: 'type=registry,ref=${{ env.IMAGE_NAME }}:latest'
           cache-to: 'type=inline'
           context: '${{ matrix.image-name }}'
-          platforms: 'linux/amd64,linux/arm64'
+          platforms: 'linux/amd64'
 
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@0.33.1
