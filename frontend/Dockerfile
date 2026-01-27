@@ -3,8 +3,8 @@ FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
-ARG VITE_HOSTNAME=backend:8080
-ENV VITE_HOSTNAME=$VITE_HOSTNAME
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile

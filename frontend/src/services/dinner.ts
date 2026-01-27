@@ -10,26 +10,26 @@ export interface Dinner {
 	film_title?: string;
 }
 
-const hostname = import.meta.env.VITE_HOSTNAME || 'backend';
+const backendURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api'
 
-export const api = createApi({
-	reducerPath: 'api',
+export const dinnerAPI = createApi({
+	reducerPath: 'dinner',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `http://${hostname}/api/`,
+		baseUrl: backendURL,
 	}),
 	endpoints: (builder) => ({
 		getDinners: builder.query<Dinner[], void>({
-			query: () => 'dinner',
+			query: () => '/dinner',
 		}),
 		getDinnersByHost: builder.query<Dinner[], number>({
-			query: (hostId) => `dinner/host/${hostId}`,
+			query: (hostId) => `/dinner/host/${hostId}`,
 		}),
 		getDinnerById: builder.query<Dinner, number>({
-			query: (dinnerId) => `dinner/${dinnerId}`,
+			query: (dinnerId) => `/dinner/${dinnerId}`,
 		}),
 		postDinner: builder.mutation<void, Dinner>({
 			query: (dinner) => ({
-				url: 'dinner',
+				url: '/dinner',
 				method: 'POST',
 				body: dinner,
 			}),
@@ -42,4 +42,4 @@ export const {
 	useGetDinnersByHostQuery,
 	useGetDinnerByIdQuery,
 	usePostDinnerMutation,
-} = api;
+} = dinnerAPI;

@@ -1,4 +1,4 @@
-import { useGetDinnersQuery } from '../services/api';
+import { useGetDinnersQuery } from '../services/dinner';
 
 function HomePage() {
 	const { data: dinners = [], isLoading, error } = useGetDinnersQuery();

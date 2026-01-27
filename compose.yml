@@ -4,7 +4,7 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_HOSTNAME=localhost:8080
+        - VITE_BACKEND_URL=http://localhost:8080/api
     ports:
       - '3000:3000'
     develop:
@@ -43,12 +43,12 @@ services:
 
   database:
     image: postgres:18
-    env_file:
-      - postgres.env
     ports:
       - '5432:5432'
-    volumes:
-      - ./postgres-init.sh:/docker-entrypoint-initdb.d/init.sh
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
