@@ -12,16 +12,21 @@ RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build
 
-# Production stage
-FROM oven/bun:1-alpine
 
-WORKDIR /app
+# Production stage
+FROM nginxinc/nginx-unprivileged:alpine
+
+USER root
 
 RUN apk update && \
-    apk upgrade --no-cache
+    apk upgrade
 
-COPY --from=builder /app/dist ./dist
-USER bun
+RUN mkdir -p /tmp/nginx && \
+    chown -R nginx:nginx /tmp/nginx
+
+USER nginx
+
+COPY --from=builder /app/dist /usr/share/nginx/html/
+COPY nginx.conf /etc/nginx/nginx.conf
+
 EXPOSE 3000
-
-CMD ["bunx", "serve", "dist", "-p", "3000"]
