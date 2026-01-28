@@ -22,7 +22,8 @@ spec:
         - name: backend
           image: ghcr.io/bakseter/mandagsmiddag/backend:latest
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           env:
             - name: HOST
               value: https://api.mandagsmiddag.bakseter.net
