@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: mandagsmiddag-frontend
   namespace: mandagsmiddag
+  labels:
+    app: frontend
 spec:
   ports:
     - name: http
