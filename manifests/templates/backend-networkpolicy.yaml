@@ -1,47 +1,58 @@
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
 metadata:
   name: backend
   namespace: mandagsmiddag
 spec:
-  policyTypes:
-    - Ingress
-    - Egress
-
-  podSelector:
+  endpointSelector:
     matchLabels:
       app: backend
 
   ingress:
     # Allow ingress from oauth2-proxy
-    - from:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: oauth2-proxy
-      ports:
-        - protocol: TCP
-          port: 8080
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: oauth2-proxy
+      toPorts:
+        - rules:
+            http:
+              - path: '/api/.*'
+          ports:
+            - port: '8080'
+              protocol: TCP
+
+    # Allow ingress from Prometheus for metrics scraping
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - rules:
+            http:
+              - path: '/metrics'
+                method: 'GET'
+          ports:
+            - port: '8080'
+              protocol: TCP
 
   egress:
     # Allow egress to kube-dns (needed for DNS resolution)
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              k8s-app: kube-dns
-      ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: '53'
+              protocol: TCP
+            - port: '53'
+              protocol: UDP
 
     # Allow egress to database
-    - to:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/instance: mandagsmiddag-database
-      ports:
-        - protocol: TCP
-          port: 5432
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: mandagsmiddag-database
+      toPorts:
+        - ports:
+            - port: '5432'
+              protocol: TCP
