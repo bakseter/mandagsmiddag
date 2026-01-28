@@ -1,88 +1,78 @@
 package main
 
 import (
+	"context"
 	"log"
-	"net/url"
-	"os"
 	"time"
 
+	"github.com/bakseter/mandagsmiddag/pkg/config"
 	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/bakseter/mandagsmiddag/pkg/routes"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gorm.io/gorm"
 )
 
 func main() {
-	dev := func() bool {
-		dev_ := os.Getenv("DEV")
+	ctx := context.Background()
 
-		return dev_ == "true"
-	}()
+	conf, err := config.New(ctx)
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Logger())
+	router.Use(config.ConfigureGinMetrics(conf))
 	router.SetTrustedProxies(nil)
 
-	if !dev {
+	if !conf.Local {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	headers := []string{
-    "Origin",
-    "Content-Type",
-    "Accept",
-    "Authorization",
-    "X-Auth-Request-User",
-    "X-Auth-Request-Email",
-    "X-Auth-Requiest-Groups",
-    "X-Auth-Request-Access-Token",
-    "X-Auth-Request-Preferred-Username",
-    "X-Forwarded-Access-Token",
-    "X-Forwarded-User",
-    "X-Forwarded-Email",
-    "X-Forwarded-Preferred-Username",
-    "X-Forwarded-Groups",
-  }
+		"Origin",
+		"Content-Type",
+		"Accept",
+		"Authorization",
+		"X-Auth-Request-User",
+		"X-Auth-Request-Email",
+		"X-Auth-Requiest-Groups",
+		"X-Auth-Request-Access-Token",
+		"X-Auth-Request-Preferred-Username",
+		"X-Forwarded-Access-Token",
+		"X-Forwarded-User",
+		"X-Forwarded-Email",
+		"X-Forwarded-Preferred-Username",
+		"X-Forwarded-Groups",
+	}
 
-	  
-  if dev {
-    // Development CORS - permissive
-    router.Use(cors.New(cors.Config{
-      AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5173"},
-      AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
-      AllowHeaders:     headers,
-      ExposeHeaders:    headers,
-      AllowCredentials: true,
-      MaxAge:           12 * time.Hour,
-    }))
-  } else {
-    // Production CORS - restrictive
-    allowOrigins := func() []string {
-      host := os.Getenv("HOST")
-      if host == "" {
-        log.Fatal("HOST environment variable is not set")
-      }
-      oauth2UserinfoEndpoint := os.Getenv("OAUTH2_USERINFO_ENDPOINT")
-      oauth2URL, err := url.Parse(oauth2UserinfoEndpoint)
-      if oauth2UserinfoEndpoint == "" || err != nil {
-        log.Printf(
-          "failed to parse OAUTH2_USERINFO_ENDPOINT, not adding it to AllowOrigins: %v",
-          err,
-        )
-        return []string{host}
-      }
-      return []string{host, oauth2URL.Scheme + "://" + oauth2URL.Host}
-    }()
-    
-    router.Use(cors.New(cors.Config{
-      AllowOrigins:     allowOrigins,
-      AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
-      AllowHeaders:     headers,
-      ExposeHeaders:    headers,
-      AllowCredentials: true,
-      MaxAge:           12 * time.Hour,
-    }))
-  }
+	if !conf.Local {
+		// Local CORS - permissive
+		router.Use(cors.New(cors.Config{
+			AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5173"},
+			AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
+			AllowHeaders:     headers,
+			ExposeHeaders:    headers,
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+	} else {
+		// Production CORS - restrictive
+		allowOrigins := func() []string {
+			return []string{conf.Host}
+		}()
+
+		router.Use(cors.New(cors.Config{
+			AllowOrigins:     allowOrigins,
+			AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
+			AllowHeaders:     headers,
+			ExposeHeaders:    headers,
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+	}
 
 	database, err := models.InitializeDatabase()
 	if err != nil {
@@ -90,15 +80,17 @@ func main() {
 	}
 
 	err = database.AutoMigrate(
-		&models.User{}, 
-		&models.Dinner{}, 
-		&models.Film{}, 
-		&models.Penalty{}, 
+		&models.User{},
+		&models.Dinner{},
+		&models.Film{},
+		&models.Penalty{},
 		&models.Rating{},
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	api := router.Group("/api")
 	{
