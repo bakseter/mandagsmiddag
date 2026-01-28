@@ -11,4 +11,4 @@ spec:
       match: Host(`mandagsmiddag.no`)
       services:
         - name: mandagsmiddag-oauth2-proxy
-          port: 80
+          port: http
