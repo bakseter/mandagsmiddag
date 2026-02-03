@@ -14,12 +14,12 @@ RUN bun run build
 
 
 # Production stage
-FROM nginxinc/nginx-unprivileged:alpine
+FROM nginxinc/nginx-unprivileged:alpine-slim
 
 USER root
 
 RUN apk update && \
-    apk upgrade
+    apk upgrade --no-cache
 
 RUN mkdir -p /tmp/nginx && \
     chown -R nginx:nginx /tmp/nginx

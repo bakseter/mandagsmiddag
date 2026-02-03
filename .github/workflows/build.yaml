@@ -54,7 +54,7 @@ jobs:
         with:
           push: 'true'
           build-args: 'VITE_BACKEND_URL=https://mandagsmiddag.no/api'
-          tags: "${{ env.IMAGE_NAME }}:${{ github.sha }}${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') && format(',{0}:latest', env.IMAGE_NAME) || '' }}"
+          tags: "${{ env.IMAGE_NAME }}:${{ github.sha }}${{ ((github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/master') && format(',{0}:latest', env.IMAGE_NAME) || '' }}"
           cache-from: 'type=registry,ref=${{ env.IMAGE_NAME }}:latest'
           cache-to: 'type=inline'
           context: '${{ matrix.image-name }}'
