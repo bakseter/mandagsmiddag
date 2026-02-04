@@ -15,7 +15,7 @@ spec:
             app: backend
       toPorts:
         - rules:
-            http: {}
+            http: []
           ports:
             - protocol: TCP
               port: '5432'
@@ -27,7 +27,7 @@ spec:
             k8s:io.kubernetes.pod.namespace: cnpg-system
       toPorts:
         - rules:
-            http: {}
+            http: []
           ports:
             - port: '8000'
               protocol: TCP
