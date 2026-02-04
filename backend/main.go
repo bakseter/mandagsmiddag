@@ -23,7 +23,7 @@ func main() {
 	}
 
 	router := gin.New()
-	router.Use(gin.Logger())
+	router.Use(gin.LoggerWithWriter(gin.DefaultWriter, "/metrics"))
 	router.Use(config.ConfigureGinMetrics(conf))
 	router.SetTrustedProxies(nil)
 
