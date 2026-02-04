@@ -42,7 +42,9 @@ spec:
             k8s:io.kubernetes.pod.namespace: kube-system
             k8s-app: kube-dns
       toPorts:
-        - ports:
+        - rules:
+            http: {}
+          ports:
             - port: '53'
               protocol: TCP
             - port: '53'
@@ -53,6 +55,8 @@ spec:
         - matchLabels:
             app.kubernetes.io/instance: mandagsmiddag-database
       toPorts:
-        - ports:
+        - rules:
+            http: {}
+          ports:
             - port: '5432'
               protocol: TCP
