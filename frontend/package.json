@@ -1,34 +1,37 @@
 {
-	"name": "frontend",
-	"private": true,
-	"version": "0.0.0",
-	"type": "module",
-	"scripts": {
-		"dev": "bunx --bun vite",
-		"build": "bunx --bun vite build",
-		"lint": "eslint .",
-		"preview": "vite preview"
-	},
-	"dependencies": {
-		"@reduxjs/toolkit": "2.11.2",
-		"keycloak-js": "26.2.2",
-		"react": "19.2.3",
-		"react-dom": "19.2.3",
-		"react-redux": "9.2.0",
-		"react-router-dom": "7.13.0"
-	},
-	"devDependencies": {
-		"@eslint/js": "9.39.2",
-		"@types/node": "25.0.10",
-		"@types/react": "19.2.9",
-		"@types/react-dom": "19.2.3",
-		"@vitejs/plugin-react": "5.1.2",
-		"eslint": "9.39.2",
-		"eslint-plugin-react-hooks": "7.0.1",
-		"eslint-plugin-react-refresh": "0.4.26",
-		"globals": "17.1.0",
-		"typescript": "5.9.3",
-		"typescript-eslint": "8.53.1",
-		"vite": "7.3.1"
-	}
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bunx --bun vite",
+    "build": "bunx --bun vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "2.11.2",
+    "date-fns": "4.1.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-hook-form": "7.71.1",
+    "react-redux": "9.2.0",
+    "react-router-dom": "7.13.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@types/node": "25.0.10",
+    "@types/react": "19.2.9",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.1.2",
+    "eslint": "9.39.2",
+    "eslint-plugin-react-hooks": "7.0.1",
+    "eslint-plugin-react-refresh": "0.4.26",
+    "globals": "17.1.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.53.1",
+    "vite": "7.3.1"
+  }
 }

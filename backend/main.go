@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/bakseter/mandagsmiddag/pkg/config"
 	"github.com/bakseter/mandagsmiddag/pkg/models"
@@ -36,41 +35,27 @@ func main() {
 		"Content-Type",
 		"Accept",
 		"Authorization",
-		"X-Auth-Request-User",
-		"X-Auth-Request-Email",
-		"X-Auth-Requiest-Groups",
-		"X-Auth-Request-Access-Token",
-		"X-Auth-Request-Preferred-Username",
-		"X-Forwarded-Access-Token",
-		"X-Forwarded-User",
-		"X-Forwarded-Email",
-		"X-Forwarded-Preferred-Username",
-		"X-Forwarded-Groups",
+		"X-authentik-username",
+		"X-authentik-groups",
+		"X-authentik-entitlements",
+		"X-authentik-email",
+		"X-authentik-name",
+		"X-authentik-uid",
 	}
 
-	if !conf.Local {
+	if conf.Local {
 		// Local CORS - permissive
 		router.Use(cors.New(cors.Config{
-			AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5173"},
-			AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
-			AllowHeaders:     headers,
-			ExposeHeaders:    headers,
-			AllowCredentials: true,
-			MaxAge:           12 * time.Hour,
+			AllowOrigins: []string{"http://localhost:3000", "http://localhost:5173"},
+			AllowMethods: []string{"GET", "PATCH", "PUT", "POST", "DELETE"},
+			AllowHeaders: headers,
 		}))
 	} else {
 		// Production CORS - restrictive
-		allowOrigins := func() []string {
-			return []string{conf.Host}
-		}()
-
 		router.Use(cors.New(cors.Config{
-			AllowOrigins:     allowOrigins,
-			AllowMethods:     []string{"GET", "PUT", "POST", "DELETE"},
-			AllowHeaders:     headers,
-			ExposeHeaders:    headers,
-			AllowCredentials: true,
-			MaxAge:           12 * time.Hour,
+			AllowOrigins: []string{conf.Host},
+			AllowMethods: []string{"GET", "PATCH", "PUT", "POST", "DELETE"},
+			AllowHeaders: headers,
 		}))
 	}
 

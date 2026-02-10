@@ -10,17 +10,17 @@ import (
 )
 
 type DinnerJSON struct {
-	ID             uint     `json:"id,omitempty"`
-	HostUserID     uint     `json:"host_user_id,omitempty"`
-	ParticipantIDs []uint   `json:"participant_ids,omitempty"`
-	Date           string   `json:"date,omitempty"`
-	Food           string   `json:"food,omitempty"`
-	FilmIMDBUrl    string   `json:"film_imdb_url,omitempty"`  // Changed from FilmID
-	FilmTitle      string   `json:"film_title,omitempty"`      // Added
+	ID             uint   `json:"id,omitempty"`
+	HostUserID     uint   `json:"host_user_id,omitempty"`
+	ParticipantIDs []uint `json:"participant_ids,omitempty"`
+	Date           string `json:"date,omitempty"`
+	Food           string `json:"food,omitempty"`
+	FilmIMDBUrl    string `json:"film_imdb_url,omitempty"` // Changed from FilmID
+	FilmTitle      string `json:"film_title,omitempty"`    // Added
 }
 
 func PostDinner(c *gin.Context, database *gorm.DB) {
-	userInfo, err := getUserInfo(c)
+	authentikUser, err := getAuthentikUser(c)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
 		return
@@ -28,10 +28,10 @@ func PostDinner(c *gin.Context, database *gorm.DB) {
 
 	// Check if user exists in database
 	var user models.User
-	if err := database.Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
+	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			// Create user if not exists
-			user = models.User{Email: userInfo.Email}
+			user = models.User{Email: authentikUser.Email}
 			if err := database.Create(&user).Error; err != nil {
 				c.JSON(500, gin.H{"error": "failed to create user"})
 				return
@@ -63,7 +63,7 @@ func PostDinner(c *gin.Context, database *gorm.DB) {
 	if dinner.FilmIMDBUrl != "" {
 		// Try to find existing film by IMDB URL
 		err := database.Where("imdb_url = ?", dinner.FilmIMDBUrl).First(&film).Error
-		
+
 		if err == gorm.ErrRecordNotFound {
 			// Film doesn't exist, create it
 			if dinner.FilmTitle == "" {
@@ -80,7 +80,7 @@ func PostDinner(c *gin.Context, database *gorm.DB) {
 				c.JSON(500, gin.H{"error": "failed to create film"})
 				return
 			}
-			
+
 			filmID = &film.ID
 		} else if err != nil {
 			// Database error
@@ -108,12 +108,12 @@ func PostDinner(c *gin.Context, database *gorm.DB) {
 			c.JSON(500, gin.H{"error": "failed to fetch participants"})
 			return
 		}
-		
+
 		if len(participants) != len(dinner.ParticipantIDs) {
 			c.JSON(400, gin.H{"error": "one or more participant IDs not found"})
 			return
 		}
-		
+
 		dbDinner.Participants = participants
 	}
 
@@ -174,7 +174,7 @@ func GetAllDinners(c *gin.Context, database *gorm.DB) {
 
 func GetAllDinnersForUser(c *gin.Context, database *gorm.DB) {
 	var dinners []models.Dinner
-	var hostId = c.Param("id")
+	hostId := c.Param("id")
 	if err := database.
 		Where("host_user_id = ?", hostId).
 		Preload("Participants", func(db *gorm.DB) *gorm.DB {
@@ -225,14 +225,14 @@ func GetDinnerWithId(c *gin.Context, database *gorm.DB) {
 	var dinner models.Dinner
 	if err := database.Where("id = ?", dinnerId).
 		Preload("Participants", func(db *gorm.DB) *gorm.DB {
-				return db.Select("id")
+			return db.Select("id")
 		}).
 		Preload("Film").
 		First(&dinner).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-				c.JSON(404, gin.H{"error": "dinner not found"})
+			c.JSON(404, gin.H{"error": "dinner not found"})
 		} else {
-				c.JSON(500, gin.H{"error": "failed to fetch dinner"})
+			c.JSON(500, gin.H{"error": "failed to fetch dinner"})
 		}
 		return
 	}
@@ -240,7 +240,7 @@ func GetDinnerWithId(c *gin.Context, database *gorm.DB) {
 	// Extract participant IDs
 	participantIDs := make([]uint, len(dinner.Participants))
 	for i, participant := range dinner.Participants {
-			participantIDs[i] = participant.ID
+		participantIDs[i] = participant.ID
 	}
 
 	dinnerJSON := DinnerJSON{

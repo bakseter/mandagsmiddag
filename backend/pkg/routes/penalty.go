@@ -10,16 +10,16 @@ import (
 )
 
 type PenaltyJSON struct {
-	ID         uint     `json:"id,omitempty"`
-	UserID     uint     `json:"user_id,omitempty"`
-	Points 		 int 		  `json:"points,omitempty"`
-	Reason 		 string 	`json:"reason,omitempty"`
-	AssignedBy string   `json:"assigned_by,omitempty"`
-	AssignedAt string		`json:"assigned_at,omitempty"`
+	ID         uint   `json:"id,omitempty"`
+	UserID     uint   `json:"user_id,omitempty"`
+	Points     int    `json:"points,omitempty"`
+	Reason     string `json:"reason,omitempty"`
+	AssignedBy string `json:"assigned_by,omitempty"`
+	AssignedAt string `json:"assigned_at,omitempty"`
 }
 
 func PostPenalty(c *gin.Context, database *gorm.DB) {
-	userInfo, err := getUserInfo(c)
+	authentikUser, err := getAuthentikUser(c)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
 		return
@@ -27,10 +27,10 @@ func PostPenalty(c *gin.Context, database *gorm.DB) {
 
 	// Check if user exists in database
 	var user models.User
-	if err := database.Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
+	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			// Create user if not exists
-			user = models.User{Email: userInfo.Email}
+			user = models.User{Email: authentikUser.Email}
 			if err := database.Create(&user).Error; err != nil {
 				c.JSON(500, gin.H{"error": "failed to create user"})
 				return
@@ -48,13 +48,13 @@ func PostPenalty(c *gin.Context, database *gorm.DB) {
 		return
 	}
 
-		// Create penalty model
+	// Create penalty model
 	dbPenalty := models.Penalty{
-    UserID: penalty.UserID,
-    AssignedByUserID: user.ID,
-    Points: penalty.Points,
-    Reason: penalty.Reason,
-    AssignedAt: time.Now(),
+		UserID:           penalty.UserID,
+		AssignedByUserID: user.ID,
+		Points:           penalty.Points,
+		Reason:           penalty.Reason,
+		AssignedAt:       time.Now(),
 	}
 	if err := database.Create(&dbPenalty).Error; err != nil {
 		c.JSON(500, gin.H{"error": "failed to create penalty"})
@@ -66,15 +66,15 @@ func PostPenalty(c *gin.Context, database *gorm.DB) {
 }
 
 func GetAllPenaltiesForUser(c *gin.Context, database *gorm.DB) {
-	userInfo, err := getUserInfo(c)
+	authentikUser, err := getAuthentikUser(c)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
 		return
 	}
 
-		// Get user from database
+	// Get user from database
 	var user models.User
-	if err := database.Where("email = ?", userInfo.Email).First(&user).Error; err != nil {
+	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(404, gin.H{"error": "user not found"})
 			return
@@ -102,10 +102,10 @@ func GetAllPenaltiesForUser(c *gin.Context, database *gorm.DB) {
 	var penaltyList []PenaltyJSON
 	for _, penalty := range penalties {
 		penaltyJSON := PenaltyJSON{
-			ID: penalty.ID,
-			UserID: penalty.UserID,
-			Points: penalty.Points,
-			Reason: penalty.Reason,
+			ID:         penalty.ID,
+			UserID:     penalty.UserID,
+			Points:     penalty.Points,
+			Reason:     penalty.Reason,
 			AssignedBy: penalty.AssignedBy.Email,
 			AssignedAt: penalty.AssignedAt.Format("2006-01-02 15:04:05"),
 		}
@@ -132,10 +132,10 @@ func GetAllPenalties(c *gin.Context, database *gorm.DB) {
 	var penaltyList []PenaltyJSON
 	for _, penalty := range penalties {
 		penaltyJSON := PenaltyJSON{
-			ID: penalty.ID,
-			UserID: penalty.UserID,
-			Points: penalty.Points,
-			Reason: penalty.Reason,
+			ID:         penalty.ID,
+			UserID:     penalty.UserID,
+			Points:     penalty.Points,
+			Reason:     penalty.Reason,
 			AssignedBy: penalty.AssignedBy.Email,
 			AssignedAt: penalty.AssignedAt.Format("2006-01-02 15:04:05"),
 		}
@@ -146,29 +146,28 @@ func GetAllPenalties(c *gin.Context, database *gorm.DB) {
 
 func GetPenaltyWithId(c *gin.Context, database *gorm.DB) {
 	var penalty models.Penalty
-	var penaltyId = c.Param("id")
+	penaltyId := c.Param("id")
 	if err := database.
 		Where("id = ?", penaltyId).
 		Preload("AssignedBy").
 		Order("created_at DESC").
 		First(&penalty).Error; err != nil {
-			if err == gorm.ErrRecordNotFound {
-				c.JSON(404, gin.H{"error": "dinner not found"})
-			} else {
-				c.JSON(500, gin.H{"error": "failed to fetch dinner"})
-			}
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(404, gin.H{"error": "dinner not found"})
+		} else {
+			c.JSON(500, gin.H{"error": "failed to fetch dinner"})
+		}
 		return
 	}
 
-
 	penaltyJSON := PenaltyJSON{
-		ID: penalty.ID,
-		UserID: penalty.UserID,
-		Points: penalty.Points,
-		Reason: penalty.Reason,
+		ID:         penalty.ID,
+		UserID:     penalty.UserID,
+		Points:     penalty.Points,
+		Reason:     penalty.Reason,
 		AssignedBy: penalty.AssignedBy.Email,
 		AssignedAt: penalty.AssignedAt.Format("2006-01-02 15:04:05"),
 	}
-	
+
 	c.JSON(200, penaltyJSON)
 }

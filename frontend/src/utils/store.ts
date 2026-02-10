@@ -1,12 +1,17 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { dinnerAPI } from '../services/dinner';
+import { configureStore } from "@reduxjs/toolkit";
+import dinnerApi from "../services/dinner";
+import ratingApi from "../services/rating";
 
 export const store = configureStore({
-	reducer: {
-		[dinnerAPI.reducerPath]: dinnerAPI.reducer,
-	},
-	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware().concat(dinnerAPI.middleware),
+  reducer: {
+    [dinnerApi.reducerPath]: dinnerApi.reducer,
+    [ratingApi.reducerPath]: ratingApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(
+        dinnerApi.middleware,
+        ratingApi.middleware
+    ),
 });
 
 // Types (important for TS)

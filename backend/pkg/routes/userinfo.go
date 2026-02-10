@@ -1,59 +1,77 @@
 package routes
 
 import (
-	"encoding/json"
 	"errors"
-	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-type UserInfo struct {
-	User  string `json:"user"`
-	Email string `json:"email"`
+type AuthentikUser struct {
+	Username     string
+	Groups       []string
+	Entitlements []string
+	Email        string
+	Name         string
+	UID          string
 }
 
-func getUserInfo(c *gin.Context) (*UserInfo, error) {
-	if os.Getenv("DEV") == "true" {
-		return &UserInfo{
-			User:  "test",
-			Email: "test@example.com",
+func getAuthentikUser(c *gin.Context) (*AuthentikUser, error) {
+	if os.Getenv("LOCAL") == "true" {
+		return &AuthentikUser{
+			Username:     "devuser",
+			Groups:       []string{"group1", "group2"},
+			Entitlements: []string{"entitlement1", "entitlement2"},
+			Email:        "test@example.com",
+			Name:         "Test User",
+			UID:          "900347b8a29876b45ca6f75722635ecfedf0e931c6022e3a29a8aa13fb5516fb",
 		}, nil
 	}
 
-	oauth2UserinfoEndpoint := os.Getenv("OAUTH2_USERINFO_ENDPOINT")
-	if oauth2UserinfoEndpoint == "" {
-		return nil, errors.New("OAUTH2_USERINFO_ENDPOINT is not set")
+	username := c.GetHeader("X-authentik-username")
+	if username == "" {
+		return nil, errors.New("missing X-authentik-username header")
 	}
 
-	cookie, err := c.Cookie("_oauth2_proxy")
-	if err != nil {
-		return nil, err
+	groupsHeader := c.GetHeader("X-authentik-groups")
+
+	var groups []string
+	for _, value := range strings.Split(groupsHeader, "|") {
+		if value != "" {
+			groups = append(groups, value)
+		}
 	}
 
-	// Send cookie to auth endpoint to get userinfo
-	httpClient := &http.Client{}
-	req, err := http.NewRequest("GET", oauth2UserinfoEndpoint, nil)
-	if err != nil {
-		return nil, err
+	entitlementsHeader := c.GetHeader("X-authentik-entitlements")
+	var entitlements []string
+	for _, value := range strings.Split(entitlementsHeader, "|") {
+		if value != "" {
+			entitlements = append(entitlements, value)
+		}
 	}
 
-	req.Header.Set("Cookie", "_oauth2_proxy="+cookie)
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return nil, err
+	email := c.GetHeader("X-authentik-email")
+	if email == "" {
+		return nil, errors.New("missing X-authentik-email header")
 	}
 
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, err
+	name := c.GetHeader("X-authentik-name")
+	if name == "" {
+		return nil, errors.New("missing X-authentik-name header")
 	}
 
-	var userInfo UserInfo
-	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-		return nil, err
+	uid := c.GetHeader("X-authentik-uid")
+	if uid == "" {
+		return nil, errors.New("missing X-authentik-uid header")
 	}
 
-	return &userInfo, nil
+	return &AuthentikUser{
+		Username:     username,
+		Groups:       groups,
+		Entitlements: entitlements,
+		Email:        email,
+		Name:         name,
+		UID:          uid,
+	}, nil
 }
