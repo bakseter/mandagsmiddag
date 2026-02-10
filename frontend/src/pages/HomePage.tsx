@@ -13,9 +13,13 @@ const HomePage = () => {
         <div>
             <h1 className="text-3xl">MANDAGSMIDDAG</h1>
 
-            {dinners.map((dinner, index) => (
-                <DinnerCard key={index} dinner={dinner} />
-            ))}
+            <div className="my-4">
+                {dinners.map((dinner, index) => (
+                    <div key={index} className="mb-4">
+                        <DinnerCard dinner={dinner} />
+                    </div>
+                ))}
+            </div>
 
             <AddDinnerForm />
             <AddRatingForm />

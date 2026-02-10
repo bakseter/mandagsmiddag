@@ -90,6 +90,7 @@ func main() {
 		api.GET("/dinner/host/:id", withDatabase(routes.GetAllDinnersForUser, database))
 		api.GET("dinner/:id", withDatabase(routes.GetDinnerWithId, database))
 		api.POST("/dinner", withDatabase(routes.PostDinner, database))
+		api.DELETE("/dinner/:id", withDatabase(routes.DeleteDinnerWithId, database))
 
 		// Rating API
 		api.GET("/rating", withDatabase(routes.GetAllRatings, database))

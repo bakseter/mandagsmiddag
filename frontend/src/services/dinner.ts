@@ -37,6 +37,13 @@ const dinnerApi = createApi({
                 body: dinner,
             }),
         }),
+
+        deleteDinner: builder.mutation<void, number>({
+            query: (dinnerId) => ({
+                method: 'DELETE',
+                url: `/${dinnerId}`,
+            }),
+        }),
     }),
 })
 
@@ -45,6 +52,7 @@ export const {
     useGetDinnersByHostQuery,
     useGetDinnerByIdQuery,
     usePostDinnerMutation,
+    useDeleteDinnerMutation,
 } = dinnerApi
 
 export default dinnerApi

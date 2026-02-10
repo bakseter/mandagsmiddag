@@ -59,7 +59,6 @@ func PostRating(c *gin.Context, database *gorm.DB) {
 	}
 
 	c.Status(http.StatusCreated)
-	c.Header("HX-Trigger", "reload-ratings")
 }
 
 func GetAllRatingsForUser(c *gin.Context, database *gorm.DB) {

@@ -62,7 +62,6 @@ func PostPenalty(c *gin.Context, database *gorm.DB) {
 	}
 
 	c.Status(http.StatusCreated)
-	c.Header("HX-Trigger", "reload-penalties")
 }
 
 func GetAllPenaltiesForUser(c *gin.Context, database *gorm.DB) {
