@@ -34,22 +34,22 @@ spec:
             - name: DATABASE_HOST
               valueFrom:
                 secretKeyRef:
-                  name: mandagsmiddag-database-app
+                  name: database-app
                   key: host
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: mandagsmiddag-database-app
+                  name: database-app
                   key: username
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mandagsmiddag-database-app
+                  name: database-app
                   key: password
             - name: DATABASE_NAME
               valueFrom:
                 secretKeyRef:
-                  name: mandagsmiddag-database-app
+                  name: database-app
                   key: dbname
           securityContext:
             readOnlyRootFilesystem: true
