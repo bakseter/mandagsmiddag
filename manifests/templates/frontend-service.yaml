@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mandagsmiddag-frontend
+  name: frontend
   namespace: mandagsmiddag
   labels:
     app: frontend
