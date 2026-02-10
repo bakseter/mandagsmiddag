@@ -9,11 +9,11 @@ spec:
       app: backend
 
   ingress:
-    # Allow ingress from authentik
+    # Allow ingress from Traefik
     - fromEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: authentik
-            goauthentik.io/outpost-name: mandagsmiddag
+            k8s:io.kubernetes.pod.namespace: traefik
+            app.kubernetes.io/name: traefik
       toPorts:
         - rules:
             http:
