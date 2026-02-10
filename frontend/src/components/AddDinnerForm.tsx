@@ -1,7 +1,7 @@
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { formatISO } from 'date-fns'
 import { useGetUsersQuery } from '../services/user'
-import { usePostDinnerMutation, type Dinner } from '../services/dinner'
+import { type Dinner, usePostDinnerMutation } from '../services/dinner'
 
 type FormValues = {
     host: string
@@ -12,36 +12,34 @@ type FormValues = {
 }
 
 export const AddDinnerForm = () => {
-    const { data: users, isLoading: usersLoading } = useGetUsersQuery()
-    const [addDinner, { isLoading, isSuccess, error }] = usePostDinnerMutation()
+    const { data: users, isLoading: usersLoading } = useGetUsersQuery(),
+        [addDinner, { isLoading, isSuccess, error }] = usePostDinnerMutation(),
+        { control, handleSubmit, reset } = useForm<FormValues>({
+            defaultValues: {
+                date: '',
+                food: '',
+                film: '',
+                participants: [],
+            },
+        }),
+        onSubmit = async (data: FormValues) => {
+            try {
+                const dinner: Dinner = {
+                    host_user_id: Number(data.host),
+                    date: formatISO(new Date(data.date)),
+                    food: data.food,
+                    film_title: data.film,
+                    // TODO: add
+                    // Film_imdb_url: data.film_imdb_url,
+                    participant_ids: data.participants.map((id) => Number(id)),
+                }
 
-    const { control, handleSubmit, reset } = useForm<FormValues>({
-        defaultValues: {
-            date: '',
-            food: '',
-            film: '',
-            participants: [],
-        },
-    })
-
-    const onSubmit = async (data: FormValues) => {
-        try {
-            const dinner: Dinner = {
-                host_user_id: Number(data.host),
-                date: formatISO(new Date(data.date)),
-                food: data.food,
-                film_title: data.film,
-                // TODO: add
-                // film_imdb_url: data.film_imdb_url,
-                participant_ids: data.participants.map((id) => Number(id)),
+                await addDinner(dinner).unwrap()
+                reset()
+            } catch (err) {
+                console.error(err)
             }
-
-            await addDinner(dinner).unwrap()
-            reset()
-        } catch (err) {
-            console.error(err)
         }
-    }
 
     if (usersLoading) return <p>Loading users...</p>
 

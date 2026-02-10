@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { backendURL } from './common'
 
 export interface Dinner {
     id: number
@@ -9,9 +10,6 @@ export interface Dinner {
     film_imdb_url?: string
     film_title?: string
 }
-
-const backendURL =
-    import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api'
 
 const dinnerApi = createApi({
     reducerPath: 'dinnerApi',

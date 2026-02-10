@@ -1,22 +1,20 @@
 import { format } from 'date-fns'
-import { useDeleteDinnerMutation, type Dinner } from '../services/dinner'
+import { type Dinner, useDeleteDinnerMutation } from '../services/dinner'
 
 type DinnerCardProps = {
     dinner: Dinner
 }
 
 const DinnerCard = ({ dinner }: DinnerCardProps) => {
-    const date = new Date(dinner.date)
-
-    const [deleteDinner] = useDeleteDinnerMutation()
-
-    const onClick = async () => {
-        try {
-            await deleteDinner(dinner.id).unwrap()
-        } catch (err) {
-            console.error(err)
+    const date = new Date(dinner.date),
+        [deleteDinner] = useDeleteDinnerMutation(),
+        onClick = async () => {
+            try {
+                await deleteDinner(dinner.id).unwrap()
+            } catch (err) {
+                console.error(err)
+            }
         }
-    }
 
     return (
         <div className="bg-white rounded-xl shadow-md p-4 w-full max-w-md hover:shadow-lg transition-shadow duration-200">

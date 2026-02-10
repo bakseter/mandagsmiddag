@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { backendUrl } from './common'
 
 export interface Rating {
     id: number
@@ -8,13 +9,10 @@ export interface Rating {
     dinner_id: number
 }
 
-const backendURL =
-    import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api'
-
 const ratingApi = createApi({
     reducerPath: 'ratingApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: `${backendURL}/rating`,
+        baseUrl: `${backendUrl}/rating`,
     }),
     endpoints: (builder) => ({
         getRatings: builder.query<Rating[], void>({

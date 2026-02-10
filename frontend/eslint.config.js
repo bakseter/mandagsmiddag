@@ -4,20 +4,30 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
+import eslintConfigPrettier from 'eslint-config-prettier/flat'
 
 export default defineConfig([
     globalIgnores(['dist']),
     {
         files: ['**/*.{ts,tsx}'],
         extends: [
-            js.configs.recommended,
-            tseslint.configs.recommended,
+            js.configs.all,
+            tseslint.configs.strict,
+            tseslint.configs.stylistic,
             reactHooks.configs.flat.recommended,
             reactRefresh.configs.vite,
+            eslintConfigPrettier,
         ],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser,
+        },
+        rules: {
+            'sort-keys': 'off',
+            'one-var': 'off',
+            'no-ternary': 'off',
+            'no-console': 'warn',
+            'max-lines-per-function': 'warn',
         },
     },
 ])

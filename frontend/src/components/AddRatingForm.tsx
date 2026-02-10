@@ -1,4 +1,4 @@
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useGetDinnersQuery } from '../services/dinner'
 import { usePostRatingMutation } from '../services/rating'
 
@@ -9,18 +9,17 @@ type FormValues = {
 }
 
 const AddRatingForm = () => {
-    const { handleSubmit, control, reset } = useForm<FormValues>()
-    const { data: dinners = [] } = useGetDinnersQuery()
-    const [addRating, { isLoading, isSuccess, error }] = usePostRatingMutation()
-
-    const onSubmit = async (data: FormValues) => {
-        await addRating({
-            dinnerId: data.dinnerId,
-            dinnerScore: Number(data.dinnerScore),
-            filmScore: Number(data.filmScore),
-        })
-        reset()
-    }
+    const { handleSubmit, control, reset } = useForm<FormValues>(),
+        { data: dinners = [] } = useGetDinnersQuery(),
+        [addRating, { isLoading, isSuccess, error }] = usePostRatingMutation(),
+        onSubmit = async (data: FormValues) => {
+            await addRating({
+                dinnerId: data.dinnerId,
+                dinnerScore: Number(data.dinnerScore),
+                filmScore: Number(data.filmScore),
+            })
+            reset()
+        }
 
     return (
         <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">
