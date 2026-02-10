@@ -1,25 +1,25 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export interface User {
-  ID: number;
-  Email: string;
+    ID: number
+    Email: string
 }
 
 const backendURL =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:8080/api";
+    import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080/api'
 
 const userApi = createApi({
-  reducerPath: "userApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${backendURL}/user`,
-  }),
-  endpoints: (builder) => ({
-    getUsers: builder.query<User[], void>({
-      query: () => "/",
+    reducerPath: 'userApi',
+    baseQuery: fetchBaseQuery({
+        baseUrl: `${backendURL}/user`,
     }),
-  }),
-});
+    endpoints: (builder) => ({
+        getUsers: builder.query<User[], void>({
+            query: () => '/',
+        }),
+    }),
+})
 
-export const { useGetUsersQuery } = userApi;
+export const { useGetUsersQuery } = userApi
 
-export default userApi;
+export default userApi
