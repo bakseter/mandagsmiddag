@@ -9,10 +9,11 @@ spec:
       app: backend
 
   ingress:
-    # Allow ingress from oauth2-proxy
+    # Allow ingress from authentik
     - fromEndpoints:
         - matchLabels:
-            app.kubernetes.io/name: oauth2-proxy
+            k8s:io.kubernetes.pod.namespace: authentik
+            goauthentik.io/outpost-name: mandagsmiddag
       toPorts:
         - rules:
             http:

@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: backend
+  namespace: mandagsmiddag
+spec:
+  entryPoints:
+    - public
+  routes:
+    - kind: Rule
+      match: Host(`mandagsmiddag.no`) && PathPrefix(`/api`)
+      middlewares:
+        - name: authentik
+          namespace: authentik
+      services:
+        - name: backend
+          port: http

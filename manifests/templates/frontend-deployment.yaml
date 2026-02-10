@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mandagsmiddag-frontend
+  name: frontend
   namespace: mandagsmiddag
   annotations:
     keel.sh/match-tag: 'true'
