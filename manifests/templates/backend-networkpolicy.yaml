@@ -54,7 +54,7 @@ spec:
     # Allow egress to database
     - toEndpoints:
         - matchLabels:
-            app.kubernetes.io/instance: mandagsmiddag-database
+            app.kubernetes.io/instance: database
       toPorts:
         - rules:
             http: []
