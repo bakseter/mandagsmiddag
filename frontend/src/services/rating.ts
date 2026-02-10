@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface Rating {
-    id: number;
-    user_id: number;
-    film_score: number;
-    dinner_score: number;
-    dinner_id: number;
+  id: number;
+  user_id: number;
+  film_score: number;
+  dinner_score: number;
+  dinner_id: number;
 }
 
 const backendURL =
@@ -18,7 +18,7 @@ const ratingApi = createApi({
   }),
   endpoints: (builder) => ({
     getRatings: builder.query<Rating[], void>({
-        query: () => "/",
+      query: () => "/",
     }),
 
     getRatingsByUser: builder.query<Rating[], number>({
@@ -32,7 +32,7 @@ const ratingApi = createApi({
     postRating: builder.mutation<void, Rating>({
       query: (rating) => ({
         method: "POST",
-        body: rating
+        body: rating,
       }),
     }),
   }),
@@ -40,9 +40,9 @@ const ratingApi = createApi({
 
 export const {
   useGetRatingsQuery,
-    useGetRatingsByUserQuery,
-    useGetRatingByIdQuery,
-    usePostRatingMutation,
+  useGetRatingsByUserQuery,
+  useGetRatingByIdQuery,
+  usePostRatingMutation,
 } = ratingApi;
 
 export default ratingApi;

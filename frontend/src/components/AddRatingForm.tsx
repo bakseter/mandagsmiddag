@@ -1,12 +1,6 @@
-import { useForm, Controller } from 'react-hook-form';
-import { useGetDinnersQuery } from '../services/dinner';
-import { usePostRatingMutation } from '../services/rating';
-
-type Dinner = {
-  id: string;
-  date: string;
-  participants: string[];
-};
+import { useForm, Controller } from "react-hook-form";
+import { useGetDinnersQuery } from "../services/dinner";
+import { usePostRatingMutation } from "../services/rating";
 
 type FormValues = {
   dinnerId: string;
@@ -42,7 +36,8 @@ const AddRatingForm = () => {
               <option value="">Select Dinner</option>
               {dinners.map((d) => (
                 <option key={d.id} value={d.id}>
-                  {new Date(d.date).toLocaleString()} — {d?.participants?.join(', ') ?? 'No participants'}
+                  {new Date(d.date).toLocaleString()} —{" "}
+                  {d?.participants?.join(", ") ?? "No participants"}
                 </option>
               ))}
             </select>

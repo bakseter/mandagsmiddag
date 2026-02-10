@@ -20,7 +20,7 @@ const dinnerApi = createApi({
   }),
   endpoints: (builder) => ({
     getDinners: builder.query<Dinner[], void>({
-        query: () => "/",
+      query: () => "/",
     }),
 
     getDinnersByHost: builder.query<Dinner[], number>({

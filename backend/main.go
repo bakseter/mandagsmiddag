@@ -103,6 +103,9 @@ func main() {
 		api.GET("penalty/:id", withDatabase(routes.GetPenaltyWithId, database))
 		api.POST("/penalty", withDatabase(routes.PostPenalty, database))
 		// api.DELETE("/transaction/:id", withDatabase(routes.DeleteTransaction, database))
+
+		// User API
+		api.GET("/user", withDatabase(routes.GetAllUsers, database))
 	}
 
 	err = router.Run(":8080")

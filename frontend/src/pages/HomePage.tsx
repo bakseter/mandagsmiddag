@@ -1,6 +1,7 @@
 import { useGetDinnersQuery } from "../services/dinner";
 import AddDinnerForm from "../components/AddDinnerForm";
 import AddRatingForm from "../components/AddRatingForm";
+import DinnerCard from "../components/DinnerCard";
 
 const HomePage = () => {
   const { data: dinners = [], isLoading, error } = useGetDinnersQuery();
@@ -10,10 +11,10 @@ const HomePage = () => {
 
   return (
     <div>
-      <h1>MANDAGSMIDDAG</h1>
+      <h1 className="text-3xl">MANDAGSMIDDAG</h1>
 
       {dinners.map((dinner, index) => (
-        <div key={index}>{JSON.stringify(dinner)}</div>
+        <DinnerCard key={index} dinner={dinner} />
       ))}
 
       <AddDinnerForm />
