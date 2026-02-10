@@ -1,9 +1,9 @@
 import { Controller, useForm } from 'react-hook-form'
+import { type Dinner, usePostDinnerMutation } from '../services/dinner'
 import { formatISO } from 'date-fns'
 import { useGetUsersQuery } from '../services/user'
-import { type Dinner, usePostDinnerMutation } from '../services/dinner'
 
-type FormValues = {
+interface FormValues {
     host: string
     date: string
     food: string
@@ -25,6 +25,7 @@ export const AddDinnerForm = () => {
         onSubmit = async (data: FormValues) => {
             try {
                 const dinner: Dinner = {
+                    /* eslint-disable camelcase */
                     host_user_id: Number(data.host),
                     date: formatISO(new Date(data.date)),
                     food: data.food,
@@ -32,6 +33,7 @@ export const AddDinnerForm = () => {
                     // TODO: add
                     // Film_imdb_url: data.film_imdb_url,
                     participant_ids: data.participants.map((id) => Number(id)),
+                    /* eslint-enable camelcase */
                 }
 
                 await addDinner(dinner).unwrap()
@@ -136,9 +138,9 @@ export const AddDinnerForm = () => {
                                         checked={field.value.includes(
                                             String(user.id)
                                         )}
-                                        onChange={(e) => {
+                                        onChange={(event) => {
                                             const id = String(user.id)
-                                            if (e.target.checked) {
+                                            if (event.target.checked) {
                                                 field.onChange([
                                                     ...field.value,
                                                     id,
@@ -146,7 +148,8 @@ export const AddDinnerForm = () => {
                                             } else {
                                                 field.onChange(
                                                     field.value.filter(
-                                                        (v: string) => v !== id
+                                                        (value: string) =>
+                                                            value !== id
                                                     )
                                                 )
                                             }

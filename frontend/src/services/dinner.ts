@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { backendURL } from './common'
+import { backendUrl } from './common'
 
 export interface Dinner {
     id: number
@@ -14,11 +14,11 @@ export interface Dinner {
 const dinnerApi = createApi({
     reducerPath: 'dinnerApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: `${backendURL}/dinner`,
+        baseUrl: `${backendUrl}/dinner`,
     }),
     endpoints: (builder) => ({
         getDinners: builder.query<Dinner[], void>({
-            query: () => '/',
+            query: () => '',
         }),
 
         getDinnersByHost: builder.query<Dinner[], number>({

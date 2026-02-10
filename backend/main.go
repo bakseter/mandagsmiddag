@@ -107,9 +107,10 @@ func main() {
 
 		// User API
 		api.GET("/user", withDatabase(routes.GetAllUsers, database))
+		api.PUT("/user", withDatabase(routes.PutUser, database))
 	}
 
-	err = router.Run(":8080")
+	err = router.Run(":" + conf.Port)
 	if err != nil {
 		log.Fatal(err)
 	}

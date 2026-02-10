@@ -26,8 +26,11 @@ export default defineConfig([
             'sort-keys': 'off',
             'one-var': 'off',
             'no-ternary': 'off',
+            '@typescript-eslint/no-invalid-void-type': 'off', // used by RTK Query
+            'max-lines-per-function': 'off',
+            'no-warning-comments': 'off',
             'no-console': 'warn',
-            'max-lines-per-function': 'warn',
+            'class-methods-use-this': 'warn', // TODO: don't use classes and enable this again
         },
     },
 ])

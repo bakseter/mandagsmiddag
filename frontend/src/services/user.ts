@@ -13,11 +13,11 @@ const userApi = createApi({
     }),
     endpoints: (builder) => ({
         getUsers: builder.query<User[], void>({
-            query: () => '/',
+            query: () => '',
         }),
 
         putUser: builder.mutation<void, void>({
-            query: () => '/',
+            query: () => '',
             method: 'PUT',
         }),
     }),

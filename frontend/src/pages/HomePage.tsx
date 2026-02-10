@@ -1,7 +1,7 @@
-import { useGetDinnersQuery } from '../services/dinner'
 import AddDinnerForm from '../components/AddDinnerForm'
 import AddRatingForm from '../components/AddRatingForm'
 import DinnerCard from '../components/DinnerCard'
+import { useGetDinnersQuery } from '../services/dinner'
 
 const HomePage = () => {
     const { data: dinners = [], isLoading, error } = useGetDinnersQuery()

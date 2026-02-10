@@ -1,10 +1,10 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { useEffect } from 'react'
-import { usePutUserMutation } from './services/user'
 import './App.css'
-import Layout from './components/Layout'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ErrorBoundary from './context/ErrorBoundary'
 import HomePage from './pages/HomePage'
+import Layout from './components/Layout'
+import { useEffect } from 'react'
+import { usePutUserMutation } from './services/user'
 
 const App = () => {
     const [putUser] = usePutUserMutation()

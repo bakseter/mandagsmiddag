@@ -2,7 +2,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useGetDinnersQuery } from '../services/dinner'
 import { usePostRatingMutation } from '../services/rating'
 
-type FormValues = {
+interface FormValues {
     dinnerId: string
     dinnerScore: number
     filmScore: number
@@ -36,10 +36,10 @@ const AddRatingForm = () => {
                     render={({ field }) => (
                         <select {...field} className="border p-2 rounded">
                             <option value="">Select Dinner</option>
-                            {dinners.map((d) => (
-                                <option key={d.id} value={d.id}>
-                                    {new Date(d.date).toLocaleString()} —{' '}
-                                    {d?.participants?.join(', ') ??
+                            {dinners.map((dinner) => (
+                                <option key={dinner.id} value={dinner.id}>
+                                    {new Date(dinner.date).toLocaleString()} —{' '}
+                                    {dinner?.participants?.join(', ') ??
                                         'No participants'}
                                 </option>
                             ))}

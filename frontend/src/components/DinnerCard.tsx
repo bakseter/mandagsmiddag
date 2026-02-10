@@ -1,7 +1,7 @@
-import { format } from 'date-fns'
 import { type Dinner, useDeleteDinnerMutation } from '../services/dinner'
+import { format } from 'date-fns'
 
-type DinnerCardProps = {
+interface DinnerCardProps {
     dinner: Dinner
 }
 
