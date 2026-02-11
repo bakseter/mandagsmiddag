@@ -101,7 +101,7 @@ func main() {
 		// Penalty API
 		api.GET("/penalty", withDatabase(routes.GetAllPenalties, database))
 		api.GET("/penalty/user/:id", withDatabase(routes.GetAllPenaltiesForUser, database))
-		api.GET("penalty/:id", withDatabase(routes.GetPenaltyWithId, database))
+		api.GET("/penalty/:id", withDatabase(routes.GetPenaltyWithId, database))
 		api.POST("/penalty", withDatabase(routes.PostPenalty, database))
 		// api.DELETE("/transaction/:id", withDatabase(routes.DeleteTransaction, database))
 

@@ -11,11 +11,11 @@ import (
 
 type PenaltyJSON struct {
 	ID         uint   `json:"id,omitempty"`
-	UserID     uint   `json:"user_id,omitempty"`
+	UserID     uint   `json:"userId,omitempty"`
 	Points     int    `json:"points,omitempty"`
 	Reason     string `json:"reason,omitempty"`
-	AssignedBy string `json:"assigned_by,omitempty"`
-	AssignedAt string `json:"assigned_at,omitempty"`
+	AssignedBy string `json:"assignedBy,omitempty"`
+	AssignedAt string `json:"assignedAt,omitempty"`
 }
 
 func PostPenalty(c *gin.Context, database *gorm.DB) {

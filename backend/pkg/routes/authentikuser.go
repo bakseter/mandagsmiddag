@@ -21,7 +21,7 @@ func getAuthentikUser(c *gin.Context) (*AuthentikUser, error) {
 	if os.Getenv("LOCAL") == "true" {
 		return &AuthentikUser{
 			Username:     "devuser",
-			Groups:       []string{"group1", "group2"},
+			Groups:       []string{"group1", "mandagsmiddag-admin", "group2"},
 			Entitlements: []string{"entitlement1", "entitlement2"},
 			Email:        "test@example.com",
 			Name:         "Test User",

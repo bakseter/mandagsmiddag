@@ -1,35 +1,32 @@
-import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import ErrorBoundary from './context/ErrorBoundary'
-import HomePage from './pages/HomePage'
-import Layout from './components/Layout'
-import { useEffect } from 'react'
-import { usePutUserMutation } from './services/user'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import DinnersPage from './pages/DinnersPage';
+import ErrorBoundary from './components/ErrorBoundary';
+import HomePage from './pages/HomePage';
+import Layout from './layouts/Layout';
+import NewDinnerPage from './pages/NewDinnerPage';
+import { useGetCurrentUserQuery } from './services/user';
 
 const App = () => {
-    const [putUser] = usePutUserMutation()
-
-    // On app load, ensure the user is registered in the backend
-    useEffect(() => {
-        putUser()
-    }, [putUser])
+    const { data: currentUser } = useGetCurrentUserQuery();
 
     return (
         <BrowserRouter>
             <ErrorBoundary>
                 <Routes>
-                    <Route
-                        path="/"
-                        element={
-                            <Layout>
-                                <HomePage />
-                            </Layout>
-                        }
-                    />
+                    <Route element={<Layout isAdmin={currentUser?.isAdmin} />}>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/middag" element={<DinnersPage />} />
+                        {currentUser?.isAdmin && (
+                            <Route
+                                path="/middag/ny"
+                                element={<NewDinnerPage />}
+                            />
+                        )}
+                    </Route>
                 </Routes>
             </ErrorBoundary>
         </BrowserRouter>
-    )
-}
+    );
+};
 
-export default App
+export default App;

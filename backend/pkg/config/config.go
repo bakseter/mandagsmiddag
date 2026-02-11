@@ -14,8 +14,6 @@ type Config struct {
 }
 
 func New(ctx context.Context) (*Config, error) {
-	const GITHUB_OIDC_URL = "https://token.actions.githubusercontent.com/.well-known/jwks"
-
 	applicationMetrics, err := ConfigureOpenTelemetry(ctx)
 	if err != nil {
 		return nil, err

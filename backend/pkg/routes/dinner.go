@@ -11,12 +11,12 @@ import (
 
 type DinnerJSON struct {
 	ID             uint   `json:"id,omitempty"`
-	HostUserID     uint   `json:"host_user_id,omitempty"`
-	ParticipantIDs []uint `json:"participant_ids,omitempty"`
+	HostUserID     uint   `json:"hostUserId,omitempty"`
+	ParticipantIDs []uint `json:"participantIds,omitempty"`
 	Date           string `json:"date,omitempty"`
 	Food           string `json:"food,omitempty"`
-	FilmIMDBUrl    string `json:"film_imdb_url,omitempty"` // Changed from FilmID
-	FilmTitle      string `json:"film_title,omitempty"`    // Added
+	FilmIMDBUrl    string `json:"filmImdbUrl,omitempty"` // Changed from FilmID
+	FilmTitle      string `json:"filmTitle,omitempty"`   // Added
 }
 
 func PostDinner(c *gin.Context, database *gorm.DB) {

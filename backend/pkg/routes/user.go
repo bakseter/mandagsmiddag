@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"slices"
 
 	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -9,9 +10,10 @@ import (
 )
 
 type UserJSON struct {
-	ID    uint   `json:"id,omitempty"`
-	Email string `json:"email"`
-	Name  string `json:"name,omitempty"`
+	ID      uint   `json:"id"`
+	Email   string `json:"email"`
+	Name    string `json:"name,omitempty"`
+	IsAdmin bool   `json:"isAdmin,omitempty"`
 }
 
 func PutUser(c *gin.Context, database *gorm.DB) {
@@ -21,13 +23,22 @@ func PutUser(c *gin.Context, database *gorm.DB) {
 		return
 	}
 
+	userIsAdmin := slices.Contains(
+		authentikUser.Groups,
+		"mandagsmiddag-admin",
+	)
+
 	// Upsert user in database
 	var user models.User
 	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			// Create user if not exists
-			user = models.User{Email: authentikUser.Email, Name: authentikUser.Name}
-			if err := database.Create(&user).Error; err != nil {
+			newUser := models.User{
+				Email:   authentikUser.Email,
+				Name:    authentikUser.Name,
+				IsAdmin: userIsAdmin,
+			}
+
+			if err := database.Create(&newUser).Error; err != nil {
 				c.JSON(500, gin.H{"error": "failed to create user"})
 				return
 			}
@@ -36,18 +47,22 @@ func PutUser(c *gin.Context, database *gorm.DB) {
 			return
 		}
 	} else {
-		// Update existing user
-		user.Name = authentikUser.Name
-		if err := database.Save(&user).Error; err != nil {
-			c.JSON(500, gin.H{"error": "failed to update user"})
+		updatedUser := models.User{
+			Name:    authentikUser.Name,
+			IsAdmin: userIsAdmin,
+		}
+
+		if err := database.Model(&user).Updates(updatedUser).Error; err != nil {
+			c.JSON(500, gin.H{"error": "failed to update user: " + err.Error()})
 			return
 		}
 	}
 
 	c.JSON(http.StatusOK, UserJSON{
-		ID:    user.ID,
-		Email: user.Email,
-		Name:  user.Name,
+		ID:      user.ID,
+		Email:   user.Email,
+		Name:    user.Name,
+		IsAdmin: user.IsAdmin,
 	})
 }
 

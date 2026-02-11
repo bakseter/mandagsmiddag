@@ -10,10 +10,10 @@ import (
 
 type RatingJSON struct {
 	ID          uint `json:"id,omitempty"`
-	UserID      uint `json:"user_id,omitempty"`
-	FilmScore   int  `json:"film_score,omitempty"`
-	DinnerScore int  `json:"dinner_score,omitempty"`
-	DinnerID    uint `json:"dinner_id,omitempty"`
+	UserID      uint `json:"userId,omitempty"`
+	FilmScore   int  `json:"filmScore,omitempty"`
+	DinnerScore int  `json:"dinnerScore,omitempty"`
+	DinnerID    uint `json:"dinnerId,omitempty"`
 }
 
 func PostRating(c *gin.Context, database *gorm.DB) {
@@ -26,17 +26,8 @@ func PostRating(c *gin.Context, database *gorm.DB) {
 	// Check if user exists in database
 	var user models.User
 	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			// Create user if not exists
-			user = models.User{Email: authentikUser.Email}
-			if err := database.Create(&user).Error; err != nil {
-				c.JSON(500, gin.H{"error": "failed to create user"})
-				return
-			}
-		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
-			return
-		}
+		c.JSON(401, gin.H{"error": "user does not exist: " + err.Error()})
+		return
 	}
 
 	// Parse rating JSON
@@ -54,7 +45,7 @@ func PostRating(c *gin.Context, database *gorm.DB) {
 		DinnerScore: rating.DinnerScore,
 	}
 	if err := database.Create(&dbRating).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to create rating"})
+		c.JSON(500, gin.H{"error": "failed to create rating: " + err.Error()})
 		return
 	}
 

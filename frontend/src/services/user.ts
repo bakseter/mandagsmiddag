@@ -1,9 +1,11 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { backendUrl } from './common'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { backendUrl } from './common';
 
 export interface User {
-    ID: number
-    Email: string
+    ID: number;
+    Email: string;
+    Name: string;
+    IsAdmin: boolean;
 }
 
 const userApi = createApi({
@@ -16,13 +18,15 @@ const userApi = createApi({
             query: () => '',
         }),
 
-        putUser: builder.mutation<void, void>({
-            query: () => '',
-            method: 'PUT',
+        getCurrentUser: builder.query<User, void>({
+            query: () => ({
+                url: '',
+                method: 'PUT',
+            }),
         }),
     }),
-})
+});
 
-export const { useGetUsersQuery, usePutUserMutation } = userApi
+export const { useGetUsersQuery, useGetCurrentUserQuery } = userApi;
 
-export default userApi
+export default userApi;

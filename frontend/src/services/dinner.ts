@@ -1,14 +1,14 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { backendUrl } from './common'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { backendUrl } from './common';
 
 export interface Dinner {
-    id: number
-    host_user_id: number
-    participant_ids: number[]
-    date: string
-    food: string
-    film_imdb_url?: string
-    film_title?: string
+    id: number;
+    hostUserId: number;
+    participantIds?: number[];
+    date: string;
+    food?: string;
+    filmImdbUrl?: string;
+    filmTitle?: string;
 }
 
 const dinnerApi = createApi({
@@ -43,7 +43,7 @@ const dinnerApi = createApi({
             }),
         }),
     }),
-})
+});
 
 export const {
     useGetDinnersQuery,
@@ -51,6 +51,6 @@ export const {
     useGetDinnerByIdQuery,
     usePostDinnerMutation,
     useDeleteDinnerMutation,
-} = dinnerApi
+} = dinnerApi;
 
-export default dinnerApi
+export default dinnerApi;

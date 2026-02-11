@@ -1,53 +1,54 @@
-import { Controller, useForm } from 'react-hook-form'
-import { type Dinner, usePostDinnerMutation } from '../services/dinner'
-import { formatISO } from 'date-fns'
-import { useGetUsersQuery } from '../services/user'
+import { Controller, useForm } from 'react-hook-form';
+import { type Dinner, usePostDinnerMutation } from '../services/dinner';
+import { formatISO } from 'date-fns';
+import { useGetUsersQuery } from '../services/user';
 
 interface FormValues {
-    host: string
-    date: string
-    food: string
-    film: string
-    participants: string[]
+    host: string;
+    date: string;
+    food: string;
+    film: string;
+    participants: string[];
 }
 
-export const AddDinnerForm = () => {
-    const { data: users, isLoading: usersLoading } = useGetUsersQuery(),
-        [addDinner, { isLoading, isSuccess, error }] = usePostDinnerMutation(),
-        { control, handleSubmit, reset } = useForm<FormValues>({
-            defaultValues: {
-                date: '',
-                food: '',
-                film: '',
-                participants: [],
-            },
-        }),
-        onSubmit = async (data: FormValues) => {
-            try {
-                const dinner: Dinner = {
-                    /* eslint-disable camelcase */
-                    host_user_id: Number(data.host),
-                    date: formatISO(new Date(data.date)),
-                    food: data.food,
-                    film_title: data.film,
-                    // TODO: add
-                    // Film_imdb_url: data.film_imdb_url,
-                    participant_ids: data.participants.map((id) => Number(id)),
-                    /* eslint-enable camelcase */
-                }
+const AddDinnerForm = () => {
+    const { data: users, isLoading: usersLoading } = useGetUsersQuery();
+    const [addDinner, { isLoading, isSuccess, error }] =
+        usePostDinnerMutation();
 
-                await addDinner(dinner).unwrap()
-                reset()
-            } catch (err) {
-                console.error(err)
-            }
+    const { control, handleSubmit, reset } = useForm<FormValues>({
+        defaultValues: {
+            date: '',
+            food: '',
+            film: '',
+            participants: [],
+        },
+    });
+
+    const onSubmit = async (data: FormValues) => {
+        try {
+            const dinner: Dinner = {
+                hostUserId: Number(data.host),
+                date: formatISO(new Date(data.date)),
+                food: data.food,
+                filmTitle: data.film,
+                // TODO: add
+                // Film_imdb_url: data.film_imdb_url,
+                participantIds: data.participants.map((id) => Number(id)),
+            };
+
+            await addDinner(dinner).unwrap();
+            reset();
+        } catch (err) {
+            console.error(err);
         }
+    };
 
-    if (usersLoading) return <p>Loading users...</p>
+    if (usersLoading) return <p>Laster brukere...</p>;
 
     return (
         <div className="p-4 border rounded-xl shadow-md w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-2">Add Dinner</h2>
+            <h2 className="text-lg font-semibold mb-2">Ny middag</h2>
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col gap-3"
@@ -63,10 +64,10 @@ export const AddDinnerForm = () => {
                             className="border p-2 rounded"
                             required
                         >
-                            <option value="">Select Host</option>
+                            <option value="">Velg arrangør</option>
                             {users?.map((user) => (
                                 <option key={user.id} value={user.id}>
-                                    {user.email}
+                                    {user.name}
                                 </option>
                             ))}
                         </select>
@@ -97,7 +98,7 @@ export const AddDinnerForm = () => {
                         <input
                             type="text"
                             {...field}
-                            placeholder="Food"
+                            placeholder="Mat"
                             className="border p-2 rounded"
                             required
                         />
@@ -126,40 +127,43 @@ export const AddDinnerForm = () => {
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
-                        <div className="flex flex-col gap-1 border p-2 rounded h-40 overflow-y-auto">
-                            {users?.map((user) => (
-                                <label
-                                    key={user.id}
-                                    className="flex items-center gap-2"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        value={user.id}
-                                        checked={field.value.includes(
-                                            String(user.id)
-                                        )}
-                                        onChange={(event) => {
-                                            const id = String(user.id)
-                                            if (event.target.checked) {
-                                                field.onChange([
-                                                    ...field.value,
-                                                    id,
-                                                ])
-                                            } else {
-                                                field.onChange(
-                                                    field.value.filter(
-                                                        (value: string) =>
-                                                            value !== id
-                                                    )
-                                                )
-                                            }
-                                        }}
-                                        className="form-checkbox"
-                                    />
-                                    {user.email}
-                                </label>
-                            ))}
-                        </div>
+                        <>
+                            <label className="font-bold">Hvem møtte opp?</label>
+                            <div className="flex flex-col gap-1 border p-2 rounded h-40 overflow-y-auto">
+                                {users?.map((user) => (
+                                    <label
+                                        key={user.id}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            value={user.id}
+                                            checked={field.value.includes(
+                                                String(user.id)
+                                            )}
+                                            onChange={(event) => {
+                                                const id = String(user.id);
+                                                if (event.target.checked) {
+                                                    field.onChange([
+                                                        ...field.value,
+                                                        id,
+                                                    ]);
+                                                } else {
+                                                    field.onChange(
+                                                        field.value.filter(
+                                                            (value: string) =>
+                                                                value !== id
+                                                        )
+                                                    );
+                                                }
+                                            }}
+                                            className="form-checkbox"
+                                        />
+                                        {user.name}
+                                    </label>
+                                ))}
+                            </div>
+                        </>
                     )}
                 />
 
@@ -168,14 +172,20 @@ export const AddDinnerForm = () => {
                     className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     disabled={isLoading}
                 >
-                    Add Dinner
+                    {isLoading ? 'Lagrer...' : 'Legg til middag'}
                 </button>
 
-                {isSuccess && <p className="text-green-600">Dinner added!</p>}
-                {error && <p className="text-red-600">Error adding dinner</p>}
+                {isSuccess && (
+                    <p className="text-green-600">Middag lagt til!</p>
+                )}
+                {error && (
+                    <p className="text-red-600">
+                        Klarte ikke legge til middag... :(
+                    </p>
+                )}
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default AddDinnerForm
+export default AddDinnerForm;

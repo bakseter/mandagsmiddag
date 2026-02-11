@@ -1,60 +1,90 @@
-import { type Dinner, useDeleteDinnerMutation } from '../services/dinner'
-import { format } from 'date-fns'
+import { type Dinner, useDeleteDinnerMutation } from '../services/dinner';
+import { type User, useGetUsersQuery } from '../services/user';
+import AdminOnly from '../components/AdminOnly';
+import { format } from 'date-fns';
+import { nb } from 'date-fns/locale';
+import { useMemo } from 'react';
 
 interface DinnerCardProps {
-    dinner: Dinner
+    dinner: Dinner;
 }
 
+const getNameById = (users: User[], id: number): string | null =>
+    users.find((user) => user.id === id);
+
 const DinnerCard = ({ dinner }: DinnerCardProps) => {
-    const date = new Date(dinner.date),
-        [deleteDinner] = useDeleteDinnerMutation(),
-        onClick = async () => {
-            try {
-                await deleteDinner(dinner.id).unwrap()
-            } catch (err) {
-                console.error(err)
-            }
+    const { data: users, isLoading } = useGetUsersQuery();
+    const [deleteDinner] = useDeleteDinnerMutation();
+
+    const date = new Date(dinner.date);
+
+    const participants: User[] = useMemo(() => {
+        if (!users) return [];
+
+        return dinner.participantIds
+            ?.map((id) => getNameById(users, id))
+            ?.filter((name) => name !== null);
+    }, [dinner.participantIds, users]);
+
+    const host: User | null = useMemo(() => {
+        if (!users || !dinner.hostUserId) return null;
+
+        return getNameById(users, dinner.hostUserId);
+    }, [dinner.hostUserId, users]);
+
+    const onClick = async () => {
+        try {
+            await deleteDinner(dinner.id).unwrap();
+        } catch (err) {
+            console.error(err);
         }
+    };
+
+    if (isLoading) return <p>Laster...</p>;
 
     return (
-        <div className="bg-white rounded-xl shadow-md p-4 w-full max-w-md hover:shadow-lg transition-shadow duration-200">
+        <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">
             <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold">
-                    {dinner.host_user_id
-                        ? `Hosted by user_id ${dinner.host_user_id}`
-                        : 'Dinner'}
+                <h3 className="text-xl font-semibold">
+                    {host ? `Arrangert av ${host.name}` : 'Ingen arrangør'}
                 </h3>
                 <span className="text-sm text-gray-500">
-                    {format(date, 'PPP p')}
+                    {format(date, 'dd MMMM yyyy', { locale: nb })}
                 </span>
             </div>
             <div className="mb-2">
-                <strong>Participants:</strong>{' '}
-                {dinner?.participant_ids?.join(', ') ?? 'None'}
+                <strong>Hvem møtte opp?</strong>{' '}
+                {participants.length > 0 // eslint-disable-line no-magic-numbers
+                    ? participants
+                          .map((participant) => participant.name)
+                          .join(', ')
+                    : 'Ingen deltakere'}
             </div>
 
             {dinner.food && (
                 <div className="text-gray-700">
-                    <strong>Food:</strong> {dinner.food}
+                    <strong>Matrett:</strong> {dinner.food}
                 </div>
             )}
 
-            {dinner.film_title && (
+            {dinner.filmTitle && (
                 <div className="text-gray-700">
-                    <strong>Film:</strong> {dinner.film_title}
+                    <strong>Film:</strong> {dinner.filmTitle}
                 </div>
             )}
 
-            <div className="mt-4">
-                <button
-                    onClick={onClick}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-200"
-                >
-                    Delete
-                </button>
-            </div>
+            <AdminOnly>
+                <div className="mt-4">
+                    <button
+                        onClick={onClick}
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-200"
+                    >
+                        Slett middag
+                    </button>
+                </div>
+            </AdminOnly>
         </div>
-    )
-}
+    );
+};
 
-export default DinnerCard
+export default DinnerCard;

@@ -1,7 +1,7 @@
-import { configureStore } from '@reduxjs/toolkit'
-import dinnerApi from '../services/dinner'
-import ratingApi from '../services/rating'
-import userApi from '../services/user'
+import { configureStore } from '@reduxjs/toolkit';
+import dinnerApi from '../services/dinner';
+import ratingApi from '../services/rating';
+import userApi from '../services/user';
 
 export const store = configureStore({
     reducer: {
@@ -15,7 +15,7 @@ export const store = configureStore({
             ratingApi.middleware,
             userApi.middleware
         ),
-})
+});
 
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

@@ -1,12 +1,12 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { backendUrl } from './common'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { backendUrl } from './common';
 
 export interface Rating {
-    id: number
-    user_id: number
-    film_score: number
-    dinner_score: number
-    dinner_id: number
+    id: number;
+    userId: number;
+    filmScore: number;
+    dinnerScore: number;
+    dinnerId: number;
 }
 
 const ratingApi = createApi({
@@ -34,13 +34,13 @@ const ratingApi = createApi({
             }),
         }),
     }),
-})
+});
 
 export const {
     useGetRatingsQuery,
     useGetRatingsByUserQuery,
     useGetRatingByIdQuery,
     usePostRatingMutation,
-} = ratingApi
+} = ratingApi;
 
-export default ratingApi
+export default ratingApi;

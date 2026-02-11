@@ -1,11 +1,11 @@
-import { Controller, useForm } from 'react-hook-form'
-import { useGetDinnersQuery } from '../services/dinner'
-import { usePostRatingMutation } from '../services/rating'
+import { Controller, useForm } from 'react-hook-form';
+import { useGetDinnersQuery } from '../services/dinner';
+import { usePostRatingMutation } from '../services/rating';
 
 interface FormValues {
-    dinnerId: string
-    dinnerScore: number
-    filmScore: number
+    dinnerId: string;
+    dinnerScore: number;
+    filmScore: number;
 }
 
 const AddRatingForm = () => {
@@ -17,9 +17,9 @@ const AddRatingForm = () => {
                 dinnerId: data.dinnerId,
                 dinnerScore: Number(data.dinnerScore),
                 filmScore: Number(data.filmScore),
-            })
-            reset()
-        }
+            });
+            reset();
+        };
 
     return (
         <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">
@@ -89,7 +89,7 @@ const AddRatingForm = () => {
                 {error && <p className="text-red-600">Error adding rating</p>}
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default AddRatingForm
+export default AddRatingForm;
