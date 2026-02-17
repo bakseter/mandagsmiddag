@@ -13,8 +13,7 @@ interface FormValues {
 
 const AddDinnerForm = () => {
     const { data: users, isLoading: usersLoading } = useGetUsersQuery();
-    const [addDinner, { isLoading, isSuccess, error }] =
-        usePutDinnerMutation();
+    const [addDinner, { isLoading, isSuccess, error }] = usePutDinnerMutation();
 
     const { control, handleSubmit, reset } = useForm<FormValues>({
         defaultValues: {

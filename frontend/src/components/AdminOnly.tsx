@@ -10,7 +10,7 @@ const AdminOnly = ({ children, message }: AdminOnlyProps) => {
     const { data: currentUser } = useGetCurrentUserQuery();
 
     if (!currentUser.isAdmin && !message) return null;
-    if (!currentUser.isAdmin && message) return <p>{message}</p>
+    if (!currentUser.isAdmin && message) return <p>{message}</p>;
 
     return <>{children}</>;
 };

@@ -21,9 +21,11 @@ const DinnerCard = ({ dinner }: DinnerCardProps) => {
     const participants: User[] = useMemo(() => {
         if (!users) return [];
 
-        return dinner.participantIds
-            ?.map((id) => getNameById(users, id))
-            ?.filter((name) => name !== null) ?? [];
+        return (
+            dinner.participantIds
+                ?.map((id) => getNameById(users, id))
+                ?.filter((name) => name !== null) ?? []
+        );
     }, [dinner.participantIds, users]);
 
     const host: User | null = useMemo(() => {
@@ -52,24 +54,26 @@ const DinnerCard = ({ dinner }: DinnerCardProps) => {
                     {format(date, 'dd MMMM yyyy', { locale: nb })}
                 </span>
             </div>
-            <div className="mb-2">
-                <strong>Hvem møtte opp?</strong>{' '}
-                {participants.length > 0 // eslint-disable-line no-magic-numbers
-                    ? participants
-                          .map((participant) => participant.name)
-                          .join(', ')
-                    : 'Ingen deltakere'}
-            </div>
-
             {dinner.food && (
-                <div className="text-gray-700">
+                <div>
                     <strong>Matrett:</strong> {dinner.food}
                 </div>
             )}
 
             {dinner.filmTitle && (
-                <div className="text-gray-700">
+                <div>
                     <strong>Film:</strong> {dinner.filmTitle}
+                </div>
+            )}
+
+            {participants.length > 0 && ( // eslint-disable-line no-magic-numbers
+                <div>
+                    <strong>Hvem møtte opp?</strong>{' '}
+                    <p>
+                    {participants
+                        .map((participant) => participant.name)
+                        .join(', ')}
+                    </p>
                 </div>
             )}
 
