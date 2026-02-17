@@ -23,7 +23,7 @@ const DinnerCard = ({ dinner }: DinnerCardProps) => {
 
         return dinner.participantIds
             ?.map((id) => getNameById(users, id))
-            ?.filter((name) => name !== null);
+            ?.filter((name) => name !== null) ?? [];
     }, [dinner.participantIds, users]);
 
     const host: User | null = useMemo(() => {

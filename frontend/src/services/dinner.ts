@@ -29,9 +29,9 @@ const dinnerApi = createApi({
             query: (dinnerId) => `/${dinnerId}`,
         }),
 
-        postDinner: builder.mutation<void, Dinner>({
+        putDinner: builder.mutation<void, Dinner>({
             query: (dinner) => ({
-                method: 'POST',
+                method: 'PUT',
                 body: dinner,
             }),
         }),
@@ -49,7 +49,7 @@ export const {
     useGetDinnersQuery,
     useGetDinnersByHostQuery,
     useGetDinnerByIdQuery,
-    usePostDinnerMutation,
+    usePutDinnerMutation,
     useDeleteDinnerMutation,
 } = dinnerApi;
 

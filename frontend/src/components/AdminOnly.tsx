@@ -3,14 +3,14 @@ import { useGetCurrentUserQuery } from '../services/user';
 
 interface AdminOnlyProps {
     children: ReactNode;
+    message: string | null;
 }
 
-const AdminOnly = ({ children }: AdminOnlyProps) => {
+const AdminOnly = ({ children, message }: AdminOnlyProps) => {
     const { data: currentUser } = useGetCurrentUserQuery();
 
-    if (!currentUser.isAdmin) {
-        return <p>Du hakke tilgang till denna sida.</p>;
-    }
+    if (!currentUser.isAdmin && !message) return null;
+    if (!currentUser.isAdmin && message) return <p>{message}</p>
 
     return <>{children}</>;
 };

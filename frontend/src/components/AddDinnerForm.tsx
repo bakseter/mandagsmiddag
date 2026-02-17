@@ -1,5 +1,5 @@
 import { Controller, useForm } from 'react-hook-form';
-import { type Dinner, usePostDinnerMutation } from '../services/dinner';
+import { type Dinner, usePutDinnerMutation } from '../services/dinner';
 import { formatISO } from 'date-fns';
 import { useGetUsersQuery } from '../services/user';
 
@@ -14,13 +14,14 @@ interface FormValues {
 const AddDinnerForm = () => {
     const { data: users, isLoading: usersLoading } = useGetUsersQuery();
     const [addDinner, { isLoading, isSuccess, error }] =
-        usePostDinnerMutation();
+        usePutDinnerMutation();
 
     const { control, handleSubmit, reset } = useForm<FormValues>({
         defaultValues: {
             date: '',
             food: '',
-            film: '',
+            filmTitle: '',
+            filmImdbUrl: '',
             participants: [],
         },
     });
@@ -31,9 +32,8 @@ const AddDinnerForm = () => {
                 hostUserId: Number(data.host),
                 date: formatISO(new Date(data.date)),
                 food: data.food,
-                filmTitle: data.film,
-                // TODO: add
-                // Film_imdb_url: data.film_imdb_url,
+                filmTitle: data.filmTitle,
+                filmImdbUrl: data.filmImdbUrl,
                 participantIds: data.participants.map((id) => Number(id)),
             };
 
@@ -93,30 +93,40 @@ const AddDinnerForm = () => {
                 <Controller
                     name="food"
                     control={control}
-                    rules={{ required: true }}
                     render={({ field }) => (
                         <input
                             type="text"
                             {...field}
                             placeholder="Mat"
                             className="border p-2 rounded"
-                            required
                         />
                     )}
                 />
 
-                {/* Film */}
+                {/* Film title */}
                 <Controller
-                    name="film"
+                    name="filmTitle"
                     control={control}
-                    rules={{ required: true }}
                     render={({ field }) => (
                         <input
                             type="text"
                             {...field}
-                            placeholder="Film"
+                            placeholder="Filmtittel"
                             className="border p-2 rounded"
-                            required
+                        />
+                    )}
+                />
+
+                {/* Film imdb url */}
+                <Controller
+                    name="filmImdbUrl"
+                    control={control}
+                    render={({ field }) => (
+                        <input
+                            type="text"
+                            {...field}
+                            placeholder="Lenke til IMDB"
+                            className="border p-2 rounded"
                         />
                     )}
                 />
@@ -125,7 +135,6 @@ const AddDinnerForm = () => {
                 <Controller
                     name="participants"
                     control={control}
-                    rules={{ required: true }}
                     render={({ field }) => (
                         <>
                             <label className="font-bold">Hvem møtte opp?</label>
