@@ -13,7 +13,6 @@ type AuthentikUser struct {
 	Groups       []string
 	Entitlements []string
 	Email        string
-	Name         string
 	UID          string
 }
 
@@ -24,7 +23,6 @@ func getAuthentikUser(c *gin.Context) (*AuthentikUser, error) {
 			Groups:       []string{"group1", "mandagsmiddag-admin", "group2"},
 			Entitlements: []string{"entitlement1", "entitlement2"},
 			Email:        "test@example.com",
-			Name:         "Test User",
 			UID:          "900347b8a29876b45ca6f75722635ecfedf0e931c6022e3a29a8aa13fb5516fb",
 		}, nil
 	}
@@ -56,11 +54,6 @@ func getAuthentikUser(c *gin.Context) (*AuthentikUser, error) {
 		return nil, errors.New("missing X-authentik-email header")
 	}
 
-	name := c.GetHeader("X-authentik-name")
-	if name == "" {
-		return nil, errors.New("missing X-authentik-name header")
-	}
-
 	uid := c.GetHeader("X-authentik-uid")
 	if uid == "" {
 		return nil, errors.New("missing X-authentik-uid header")
@@ -71,7 +64,6 @@ func getAuthentikUser(c *gin.Context) (*AuthentikUser, error) {
 		Groups:       groups,
 		Entitlements: entitlements,
 		Email:        email,
-		Name:         name,
 		UID:          uid,
 	}, nil
 }

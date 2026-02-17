@@ -34,7 +34,7 @@ func PutUser(c *gin.Context, database *gorm.DB) {
 		if err == gorm.ErrRecordNotFound {
 			newUser := models.User{
 				Email:   authentikUser.Email,
-				Name:    authentikUser.Name,
+				Name:    authentikUser.Username,
 				IsAdmin: userIsAdmin,
 			}
 
@@ -48,7 +48,7 @@ func PutUser(c *gin.Context, database *gorm.DB) {
 		}
 	} else {
 		updatedUser := models.User{
-			Name:    authentikUser.Name,
+			Name:    authentikUser.Username,
 			IsAdmin: userIsAdmin,
 		}
 

@@ -19,7 +19,7 @@ type DinnerJSON struct {
 	FilmTitle      string `json:"filmTitle,omitempty"`   // Added
 }
 
-func PostDinner(c *gin.Context, database *gorm.DB) {
+func PutDinner(c *gin.Context, database *gorm.DB) {
 	authentikUser, err := getAuthentikUser(c)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
@@ -117,12 +117,12 @@ func PostDinner(c *gin.Context, database *gorm.DB) {
 		dbDinner.Participants = participants
 	}
 
-	if err := database.Create(&dbDinner).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to create dinner"})
+	if err := database.Save(&dbDinner).Error; err != nil {
+		c.JSON(500, gin.H{"error": "failed to create/update dinner"})
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	c.Status(http.StatusOK)
 }
 
 func GetAllDinners(c *gin.Context, database *gorm.DB) {

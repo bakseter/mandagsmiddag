@@ -39,7 +39,6 @@ func main() {
 		"X-authentik-groups",
 		"X-authentik-entitlements",
 		"X-authentik-email",
-		"X-authentik-name",
 		"X-authentik-uid",
 	}
 
@@ -89,7 +88,7 @@ func main() {
 		api.GET("/dinner", withDatabase(routes.GetAllDinners, database))
 		api.GET("/dinner/host/:id", withDatabase(routes.GetAllDinnersForUser, database))
 		api.GET("dinner/:id", withDatabase(routes.GetDinnerWithId, database))
-		api.POST("/dinner", withDatabase(routes.PostDinner, database))
+		api.PUT("/dinner", withDatabase(routes.PutDinner, database))
 		api.DELETE("/dinner/:id", withDatabase(routes.DeleteDinnerWithId, database))
 
 		// Rating API
