@@ -44,6 +44,7 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 	var dinner DinnerJSON
 	if err := c.ShouldBindJSON(&dinner); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -51,6 +52,7 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 	parsedDate, err := time.Parse(time.RFC3339, dinner.Date)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "invalid date format, use ISO 8601 (RFC3339)"})
+
 		return
 	}
 
@@ -78,6 +80,7 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 			// Film doesn't exist, create it
 			if dinner.FilmTitle == "" {
 				c.JSON(400, gin.H{"error": "film_title is required when creating a new film"})
+
 				return
 			}
 
@@ -88,6 +91,7 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 
 			if err := database.Create(&film).Error; err != nil {
 				c.JSON(500, gin.H{"error": "failed to create film"})
+
 				return
 			}
 
@@ -95,6 +99,7 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 		} else if err != nil {
 			// Database error
 			c.JSON(500, gin.H{"error": "failed to fetch film"})
+
 			return
 		} else {
 			// Film exists
@@ -116,23 +121,55 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 		var participants []models.User
 		if err := database.Where("id IN ?", dinner.ParticipantIDs).Find(&participants).Error; err != nil {
 			c.JSON(500, gin.H{"error": "failed to fetch participants"})
+
 			return
 		}
 
 		if len(participants) != len(dinner.ParticipantIDs) {
 			c.JSON(400, gin.H{"error": "one or more participant IDs not found"})
+
 			return
 		}
 
 		dbDinner.Participants = participants
 	}
 
-	if err := database.Save(&dbDinner).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to create/update dinner"})
+	if dinner.ID != 0 {
+		// Update existing dinner
+		var existingDinner models.Dinner
+		if err := database.Where("id = ?", dinner.ID).First(&existingDinner).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				c.JSON(404, gin.H{"error": "dinner not found for update"})
+
+				return
+			}
+
+			c.JSON(500, gin.H{"error": "failed to fetch existing dinner for update"})
+
+			return
+		}
+
+		dbDinner.ID = existingDinner.ID
+
+		if err := database.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&dbDinner).Error; err != nil {
+			c.JSON(500, gin.H{"error": "failed to update dinner"})
+
+			return
+		}
+
+		c.JSON(200, gin.H{"message": "dinner updated successfully"})
+
 		return
 	}
 
-	c.Status(http.StatusOK)
+	// Create new dinner
+	if err := database.Create(&dbDinner).Error; err != nil {
+		c.JSON(500, gin.H{"error": "failed to create dinner"})
+
+		return
+	}
+
+	c.JSON(201, gin.H{"message": "dinner created successfully"})
 }
 
 func GetAllDinners(c *gin.Context, database *gorm.DB) {
