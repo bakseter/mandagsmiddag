@@ -30,14 +30,12 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 	var user models.User
 	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			// Create user if not exists
-			user = models.User{Email: authentikUser.Email}
-			if err := database.Create(&user).Error; err != nil {
-				c.JSON(500, gin.H{"error": "failed to create user"})
-				return
-			}
+			c.JSON(401, gin.H{"error": "user not found in database"})
+
+			return
 		} else {
 			c.JSON(500, gin.H{"error": "failed to fetch user"})
+
 			return
 		}
 	}
@@ -53,6 +51,18 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 	parsedDate, err := time.Parse(time.RFC3339, dinner.Date)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "invalid date format, use ISO 8601 (RFC3339)"})
+		return
+	}
+
+	var hostUser models.User
+	if err := database.Where("id = ?", dinner.HostUserID).First(&hostUser).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(400, gin.H{"error": "host user not found"})
+
+			return
+		}
+		c.JSON(500, gin.H{"error": "failed to fetch host user"})
+
 		return
 	}
 
@@ -95,7 +105,7 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 
 	// Create dinner model
 	dbDinner := models.Dinner{
-		HostUserID: user.ID,
+		HostUserID: hostUser.ID,
 		Date:       parsedDate,
 		Food:       dinner.Food,
 		FilmID:     filmID,
