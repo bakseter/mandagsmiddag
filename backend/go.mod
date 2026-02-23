@@ -7,7 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/sirupsen/logrus v1.9.4
-	go.opentelemetry.io/contrib/bridges/otellogrus v0.14.0
+	go.opentelemetry.io/contrib/bridges/otellogrus v0.15.0
 	go.opentelemetry.io/otel v1.40.0
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.16.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.62.0
