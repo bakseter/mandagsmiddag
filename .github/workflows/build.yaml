@@ -61,7 +61,7 @@ jobs:
           platforms: 'linux/amd64'
 
       - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@0.34.0
+        uses: aquasecurity/trivy-action@0.34.1
         with:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
           format: 'sarif'
