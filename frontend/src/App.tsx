@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import DinnersPage from './pages/DinnersPage';
+import EditDinnerPage from './pages/EditDinnerPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
 import Layout from './layouts/Layout';
@@ -16,6 +17,10 @@ const App = () => {
                     <Route element={<Layout isAdmin={currentUser?.isAdmin} />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/middag" element={<DinnersPage />} />
+                        <Route
+                            path="/middag/:dinnerId/rediger"
+                            element={<EditDinnerPage />}
+                        />
                         {currentUser?.isAdmin && (
                             <Route
                                 path="/middag/ny"

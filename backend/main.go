@@ -74,6 +74,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if conf.Local {
+		err = insertTestUsers(database)
+		if err != nil {
+			log.Printf("Failed to insert test users: %v", err)
+		}
+	}
+
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	api := router.Group("/api")
@@ -119,4 +126,20 @@ func withDatabase(fn func(*gin.Context, *gorm.DB), database *gorm.DB) func(*gin.
 	return func(c *gin.Context) {
 		fn(c, database)
 	}
+}
+
+func insertTestUsers(database *gorm.DB) error {
+	testUsers := []models.User{
+		{Email: "mctest@example.com", Name: "Test McTest", IsAdmin: false},
+		{Email: "mradmin@example.com", Name: "Mr Admin", IsAdmin: true},
+		{Email: "joe@example.com", Name: "Average Joe", IsAdmin: false},
+	}
+
+	for _, user := range testUsers {
+		if err := database.Create(&user).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

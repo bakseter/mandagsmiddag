@@ -1,20 +1,25 @@
 import { type Dinner, useDeleteDinnerMutation } from '../services/dinner';
-import { type User, useGetUsersQuery } from '../services/user';
+import {
+    type User,
+    useGetCurrentUserQuery,
+    useGetUsersQuery,
+} from '../services/user';
 import AdminOnly from '../components/AdminOnly';
 import { format } from 'date-fns';
 import { nb } from 'date-fns/locale';
 import { useMemo } from 'react';
 
-interface DinnerCardProps {
+interface Props {
     dinner: Dinner;
 }
 
 const getNameById = (users: User[], id: number): string | null =>
     users.find((user) => user.id === id);
 
-const DinnerCard = ({ dinner }: DinnerCardProps) => {
+const DinnerCard = ({ dinner }: Props) => {
     const { data: users, isLoading } = useGetUsersQuery();
     const [deleteDinner] = useDeleteDinnerMutation();
+    const { data: currentUser } = useGetCurrentUserQuery();
 
     const date = new Date(dinner.date);
 
@@ -62,7 +67,19 @@ const DinnerCard = ({ dinner }: DinnerCardProps) => {
 
             {dinner.filmTitle && (
                 <div>
-                    <strong>Film:</strong> {dinner.filmTitle}
+                    <strong>Film:</strong>
+                    {dinner.filmImdbUrl ? (
+                        <a
+                            href={dinner.filmImdbUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:underline ml-1"
+                        >
+                            {dinner.filmTitle}
+                        </a>
+                    ) : (
+                        <span> {dinner.filmTitle}</span>
+                    )}
                 </div>
             )}
 
@@ -70,23 +87,36 @@ const DinnerCard = ({ dinner }: DinnerCardProps) => {
                 <div>
                     <strong>Hvem møtte opp?</strong>{' '}
                     <p>
-                    {participants
-                        .map((participant) => participant.name)
-                        .join(', ')}
+                        {participants
+                            .map((participant) => participant.name)
+                            .join(', ')}
                     </p>
                 </div>
             )}
 
-            <AdminOnly>
-                <div className="mt-4">
-                    <button
-                        onClick={onClick}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-200"
-                    >
-                        Slett middag
-                    </button>
-                </div>
-            </AdminOnly>
+            <div className="mt-2 flex justify-start gap-2">
+                {currentUser.id === dinner.hostUserId ||
+                    (currentUser.isAdmin && (
+                        <div className="mt-2">
+                            <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">
+                                <a href={`/middag/${dinner.id}/rediger`}>
+                                    Rediger middag
+                                </a>
+                            </button>
+                        </div>
+                    ))}
+
+                <AdminOnly>
+                    <div className="mt-2">
+                        <button
+                            onClick={onClick}
+                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-200"
+                        >
+                            Slett middag
+                        </button>
+                    </div>
+                </AdminOnly>
+            </div>
         </div>
     );
 };

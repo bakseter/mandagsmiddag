@@ -13,9 +13,11 @@ const userApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: `${backendUrl}/user`,
     }),
+    tagTypes: ['User'],
     endpoints: (builder) => ({
         getUsers: builder.query<User[], void>({
             query: () => '',
+            providesTags: ['User'],
         }),
 
         getCurrentUser: builder.query<User, void>({
@@ -23,6 +25,7 @@ const userApi = createApi({
                 url: '',
                 method: 'PUT',
             }),
+            invalidatesTags: ['User'],
         }),
     }),
 });

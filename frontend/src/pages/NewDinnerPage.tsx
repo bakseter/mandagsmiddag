@@ -1,9 +1,9 @@
-import AddDinnerForm from '../components/AddDinnerForm';
 import AdminOnly from '../components/AdminOnly';
+import DinnerForm from '../components/DinnerForm';
 
 const NewDinnerPage = () => (
     <AdminOnly>
-        <AddDinnerForm />
+        <DinnerForm />
     </AdminOnly>
 );
 

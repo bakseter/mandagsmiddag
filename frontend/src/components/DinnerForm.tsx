@@ -1,9 +1,10 @@
 import { Controller, useForm } from 'react-hook-form';
 import { type Dinner, usePutDinnerMutation } from '../services/dinner';
-import { formatISO } from 'date-fns';
+import { format, formatISO } from 'date-fns';
 import { useGetUsersQuery } from '../services/user';
 
 interface FormValues {
+    id: string;
     host: string;
     date: string;
     food: string;
@@ -11,24 +12,35 @@ interface FormValues {
     participants: string[];
 }
 
-const AddDinnerForm = () => {
+interface Props {
+    dinner?: Dinner | null;
+}
+
+const DinnerForm = ({ dinner = null }: Props) => {
     const { data: users, isLoading: usersLoading } = useGetUsersQuery();
     const [addDinner, { isLoading, isSuccess, error }] = usePutDinnerMutation();
 
+    const isEditMode = Boolean(dinner);
+
     const { control, handleSubmit, reset } = useForm<FormValues>({
         defaultValues: {
-            date: '',
-            food: '',
-            filmTitle: '',
-            filmImdbUrl: '',
-            participants: [],
+            id: dinner?.id ? String(dinner.id) : '',
+            hostUserId: dinner ? String(dinner.hostUserId) : '',
+            date: dinner?.date
+                ? format(new Date(dinner.date), 'yyyy-MM-dd')
+                : '',
+            food: dinner?.food ?? '',
+            filmTitle: dinner?.filmTitle ?? '',
+            filmImdbUrl: dinner?.filmImdbUrl ?? '',
+            participants: dinner?.participantIds?.map((id) => String(id)) ?? [],
         },
     });
 
     const onSubmit = async (data: FormValues) => {
         try {
-            const dinner: Dinner = {
-                hostUserId: Number(data.host),
+            const formDinner: Dinner = {
+                id: Number(data.id),
+                hostUserId: Number(data.hostUserId),
                 date: formatISO(new Date(data.date)),
                 food: data.food,
                 filmTitle: data.filmTitle,
@@ -36,7 +48,7 @@ const AddDinnerForm = () => {
                 participantIds: data.participants.map((id) => Number(id)),
             };
 
-            await addDinner(dinner).unwrap();
+            await addDinner(formDinner).unwrap();
             reset();
         } catch (err) {
             console.error(err);
@@ -52,9 +64,20 @@ const AddDinnerForm = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col gap-3"
             >
+                {/* Hidden ID field for edit mode */}
+                {isEditMode && (
+                    <Controller
+                        name="id"
+                        control={control}
+                        render={({ field }) => (
+                            <input type="hidden" {...field} />
+                        )}
+                    />
+                )}
+
                 {/* Host */}
                 <Controller
-                    name="host"
+                    name="hostUserId"
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
@@ -151,6 +174,7 @@ const AddDinnerForm = () => {
                                             )}
                                             onChange={(event) => {
                                                 const id = String(user.id);
+
                                                 if (event.target.checked) {
                                                     field.onChange([
                                                         ...field.value,
@@ -180,15 +204,20 @@ const AddDinnerForm = () => {
                     className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     disabled={isLoading}
                 >
-                    {isLoading ? 'Lagrer...' : 'Legg til middag'}
+                    {isLoading && 'Lagrer...'}
+                    {!isLoading && (isEditMode ? 'Oppdater' : 'Legg til')}
                 </button>
 
                 {isSuccess && (
-                    <p className="text-green-600">Middag lagt til!</p>
+                    <p className="text-green-600">
+                        Middag {isEditMode ? 'oppdatert' : 'lagt til'}!
+                    </p>
                 )}
+
                 {error && (
                     <p className="text-red-600">
-                        Klarte ikke legge til middag... :(
+                        Klarte ikke {isEditMode ? 'oppdatere' : 'legge til'}{' '}
+                        middag :(
                     </p>
                 )}
             </form>
@@ -196,4 +225,4 @@ const AddDinnerForm = () => {
     );
 };
 
-export default AddDinnerForm;
+export default DinnerForm;
