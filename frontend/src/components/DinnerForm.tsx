@@ -1,6 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import { type Dinner, usePutDinnerMutation } from '../services/dinner';
-import { formatISO } from 'date-fns';
+import { format, formatISO } from 'date-fns';
 import { useGetUsersQuery } from '../services/user';
 
 interface FormValues {
@@ -26,7 +26,9 @@ const DinnerForm = ({ dinner = null }: Props) => {
         defaultValues: {
             id: dinner?.id ? String(dinner.id) : '',
             hostUserId: dinner ? String(dinner.hostUserId) : '',
-            date: dinner?.date ?? '',
+            date: dinner?.date
+                ? format(new Date(dinner.date), 'yyyy-MM-dd')
+                : '',
             food: dinner?.food ?? '',
             filmTitle: dinner?.filmTitle ?? '',
             filmImdbUrl: dinner?.filmImdbUrl ?? '',
@@ -172,6 +174,7 @@ const DinnerForm = ({ dinner = null }: Props) => {
                                             )}
                                             onChange={(event) => {
                                                 const id = String(user.id);
+
                                                 if (event.target.checked) {
                                                     field.onChange([
                                                         ...field.value,
@@ -201,11 +204,8 @@ const DinnerForm = ({ dinner = null }: Props) => {
                     className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     disabled={isLoading}
                 >
-                    {isLoading
-                        ? 'Lagrer...'
-                        : isEditMode
-                          ? 'Oppdater middag'
-                          : 'Legg til middag'}
+                    {isLoading && 'Lagrer...'}
+                    {!isLoading && (isEditMode ? 'Oppdater' : 'Legg til')}
                 </button>
 
                 {isSuccess && (

@@ -16,17 +16,21 @@ const dinnerApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: `${backendUrl}/dinner`,
     }),
+    tagTypes: ['Dinner'],
     endpoints: (builder) => ({
         getDinners: builder.query<Dinner[], void>({
             query: () => '',
+            providesTags: ['Dinner'],
         }),
 
         getDinnersByHost: builder.query<Dinner[], number>({
             query: (hostId) => `/host/${hostId}`,
+            providesTags: ['Dinner'],
         }),
 
         getDinnerById: builder.query<Dinner, number>({
             query: (dinnerId) => `/${dinnerId}`,
+            providesTags: ['Dinner'],
         }),
 
         putDinner: builder.mutation<void, Dinner>({
@@ -34,6 +38,7 @@ const dinnerApi = createApi({
                 method: 'PUT',
                 body: dinner,
             }),
+            invalidatesTags: ['Dinner'],
         }),
 
         deleteDinner: builder.mutation<void, number>({
@@ -41,6 +46,7 @@ const dinnerApi = createApi({
                 method: 'DELETE',
                 url: `/${dinnerId}`,
             }),
+            invalidatesTags: ['Dinner'],
         }),
     }),
 });

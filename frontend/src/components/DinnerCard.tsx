@@ -95,15 +95,16 @@ const DinnerCard = ({ dinner }: Props) => {
             )}
 
             <div className="mt-2 flex justify-start gap-2">
-                {currentUser.id === dinner.hostUserId && (
-                    <div className="mt-2">
-                        <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">
-                            <a href={`/middag/${dinner.id}/rediger`}>
-                                Rediger middag
-                            </a>
-                        </button>
-                    </div>
-                )}
+                {currentUser.id === dinner.hostUserId ||
+                    (currentUser.isAdmin && (
+                        <div className="mt-2">
+                            <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">
+                                <a href={`/middag/${dinner.id}/rediger`}>
+                                    Rediger middag
+                                </a>
+                            </button>
+                        </div>
+                    ))}
 
                 <AdminOnly>
                     <div className="mt-2">
