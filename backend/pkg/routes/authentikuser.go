@@ -19,10 +19,10 @@ type AuthentikUser struct {
 func getAuthentikUser(c *gin.Context) (*AuthentikUser, error) {
 	if os.Getenv("LOCAL") == "true" {
 		return &AuthentikUser{
-			Username:     "devuser",
+			Username:     "Developer",
 			Groups:       []string{"group1", "mandagsmiddag-admin", "group2"},
 			Entitlements: []string{"entitlement1", "entitlement2"},
-			Email:        "test@example.com",
+			Email:        "dev@example.com",
 			UID:          "900347b8a29876b45ca6f75722635ecfedf0e931c6022e3a29a8aa13fb5516fb",
 		}, nil
 	}
