@@ -9,14 +9,14 @@ import { format } from 'date-fns';
 import { nb } from 'date-fns/locale';
 import { useMemo } from 'react';
 
-interface DinnerCardProps {
+interface Props {
     dinner: Dinner;
 }
 
 const getNameById = (users: User[], id: number): string | null =>
     users.find((user) => user.id === id);
 
-const DinnerCard = ({ dinner }: DinnerCardProps) => {
+const DinnerCard = ({ dinner }: Props) => {
     const { data: users, isLoading } = useGetUsersQuery();
     const [deleteDinner] = useDeleteDinnerMutation();
     const { data: currentUser } = useGetCurrentUserQuery();

@@ -29,6 +29,7 @@ export default defineConfig([
             '@typescript-eslint/no-invalid-void-type': 'off', // used by RTK Query
             'max-lines-per-function': 'off',
             'no-warning-comments': 'off',
+            complexity: 'off',
             'no-console': 'warn',
             'class-methods-use-this': 'warn', // TODO: don't use classes and enable this again
         },
