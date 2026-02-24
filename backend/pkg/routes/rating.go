@@ -16,7 +16,7 @@ type RatingJSON struct {
 	DinnerID    uint `json:"dinnerId,omitempty"`
 }
 
-func PostRating(c *gin.Context, database *gorm.DB) {
+func PutRating(c *gin.Context, database *gorm.DB) {
 	authentikUser, err := getAuthentikUser(c)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
@@ -44,7 +44,7 @@ func PostRating(c *gin.Context, database *gorm.DB) {
 		FilmScore:   rating.FilmScore,
 		DinnerScore: rating.DinnerScore,
 	}
-	if err := database.Create(&dbRating).Error; err != nil {
+	if err := database.Save(&dbRating).Error; err != nil {
 		c.JSON(500, gin.H{"error": "failed to create rating: " + err.Error()})
 		return
 	}
