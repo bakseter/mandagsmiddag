@@ -2,10 +2,10 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { backendUrl } from './common';
 
 export interface User {
-    ID: number;
-    Email: string;
-    Name: string;
-    IsAdmin: boolean;
+    id: number;
+    email: string;
+    name: string;
+    isAdmin: boolean;
 }
 
 const userApi = createApi({
