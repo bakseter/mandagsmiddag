@@ -5,5 +5,8 @@ metadata:
   namespace: mandagsmiddag
 spec:
   instances: 1
+  inheritedMetadata:
+    labels:
+      recurring-job.longhorn.io/hetzner-backup: enabled
   storage:
     size: 1Gi
