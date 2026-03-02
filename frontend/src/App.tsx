@@ -1,10 +1,11 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
+import Layout from './layouts/Layout';
 import DinnersPage from './pages/DinnersPage';
 import EditDinnerPage from './pages/EditDinnerPage';
-import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
-import Layout from './layouts/Layout';
 import NewDinnerPage from './pages/NewDinnerPage';
+import RatingsPage from './pages/RatingsPage';
 import { useGetCurrentUserQuery } from './services/user';
 
 const App = () => {
@@ -14,9 +15,10 @@ const App = () => {
         <BrowserRouter>
             <ErrorBoundary>
                 <Routes>
-                    <Route element={<Layout isAdmin={currentUser?.isAdmin} />}>
+                    <Route element={<Layout />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/middag" element={<DinnersPage />} />
+                        <Route path="/rating" element={<RatingsPage />} />
                         <Route
                             path="/middag/:dinnerId/rediger"
                             element={<EditDinnerPage />}
