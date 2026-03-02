@@ -27,9 +27,10 @@ const ratingApi = createApi({
             query: (ratingId) => `/${ratingId}`,
         }),
 
-        postRating: builder.mutation<void, Rating>({
+        putRating: builder.mutation<void, Rating>({
             query: (rating) => ({
-                method: 'POST',
+                method: 'PUT',
+                url: '',
                 body: rating,
             }),
         }),
@@ -40,7 +41,7 @@ export const {
     useGetRatingsQuery,
     useGetRatingsByUserQuery,
     useGetRatingByIdQuery,
-    usePostRatingMutation,
+    usePutRatingMutation,
 } = ratingApi;
 
 export default ratingApi;
