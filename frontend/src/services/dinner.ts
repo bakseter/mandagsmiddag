@@ -36,6 +36,7 @@ const dinnerApi = createApi({
         putDinner: builder.mutation<void, Dinner>({
             query: (dinner) => ({
                 method: 'PUT',
+                url: ``,
                 body: dinner,
             }),
             invalidatesTags: ['Dinner'],

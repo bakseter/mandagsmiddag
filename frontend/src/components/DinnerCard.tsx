@@ -1,19 +1,19 @@
+import { format } from 'date-fns';
+import { nb } from 'date-fns/locale';
+import { useMemo } from 'react';
+import AdminOnly from '../components/AdminOnly';
 import { type Dinner, useDeleteDinnerMutation } from '../services/dinner';
 import {
     type User,
     useGetCurrentUserQuery,
     useGetUsersQuery,
 } from '../services/user';
-import AdminOnly from '../components/AdminOnly';
-import { format } from 'date-fns';
-import { nb } from 'date-fns/locale';
-import { useMemo } from 'react';
 
 interface Props {
     dinner: Dinner;
 }
 
-const getNameById = (users: User[], id: number): string | null =>
+const getNameById = (users: User[], id: number): User | undefined =>
     users.find((user) => user.id === id);
 
 const DinnerCard = ({ dinner }: Props) => {
@@ -23,7 +23,7 @@ const DinnerCard = ({ dinner }: Props) => {
 
     const date = new Date(dinner.date);
 
-    const participants: User[] = useMemo(() => {
+    const participants: (User | undefined)[] = useMemo(() => {
         if (!users) return [];
 
         return (
@@ -33,7 +33,7 @@ const DinnerCard = ({ dinner }: Props) => {
         );
     }, [dinner.participantIds, users]);
 
-    const host: User | null = useMemo(() => {
+    const host: User | null | undefined = useMemo(() => {
         if (!users || !dinner.hostUserId) return null;
 
         return getNameById(users, dinner.hostUserId);
@@ -88,6 +88,7 @@ const DinnerCard = ({ dinner }: Props) => {
                     <strong>Hvem møtte opp?</strong>{' '}
                     <p>
                         {participants
+                            .filter((participant) => participant !== undefined)
                             .map((participant) => participant.name)
                             .join(', ')}
                     </p>
@@ -95,18 +96,19 @@ const DinnerCard = ({ dinner }: Props) => {
             )}
 
             <div className="mt-2 flex justify-start gap-2">
-                {(currentUser.id === dinner.hostUserId ||
-                    currentUser.isAdmin) && (
-                    <div className="mt-2">
-                        <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">
-                            <a href={`/middag/${dinner.id}/rediger`}>
-                                Rediger middag
-                            </a>
-                        </button>
-                    </div>
-                )}
+                {currentUser &&
+                    (currentUser.id === dinner.hostUserId ||
+                        currentUser.isAdmin) && (
+                        <div className="mt-2">
+                            <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">
+                                <a href={`/middag/${dinner.id}/rediger`}>
+                                    Rediger middag
+                                </a>
+                            </button>
+                        </div>
+                    )}
 
-                <AdminOnly>
+                <AdminOnly message={null}>
                     <div className="mt-2">
                         <button
                             onClick={onClick}
@@ -115,6 +117,7 @@ const DinnerCard = ({ dinner }: Props) => {
                             Slett middag
                         </button>
                     </div>
+                    AdminOnly{' '}
                 </AdminOnly>
             </div>
         </div>
