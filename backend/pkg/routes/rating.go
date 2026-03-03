@@ -16,7 +16,7 @@ type RatingJSON struct {
 	DinnerID    uint `json:"dinnerId,omitempty"`
 }
 
-func PostRating(c *gin.Context, database *gorm.DB) {
+func PutRating(c *gin.Context, database *gorm.DB) {
 	authentikUser, err := getAuthentikUser(c)
 	if err != nil {
 		c.JSON(401, gin.H{"error": err.Error()})
@@ -44,12 +44,48 @@ func PostRating(c *gin.Context, database *gorm.DB) {
 		FilmScore:   rating.FilmScore,
 		DinnerScore: rating.DinnerScore,
 	}
-	if err := database.Create(&dbRating).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to create rating: " + err.Error()})
-		return
+
+	// Set ID if exists, to ensure update to correct Rating
+	if rating.ID > 0 {
+		dbRating.ID = rating.ID
 	}
 
-	c.Status(http.StatusCreated)
+	// Set DinnerScore if it exists, to ensure update
+	if rating.DinnerScore > 0 {
+		dbRating.DinnerScore = rating.DinnerScore
+	}
+
+	// Set FilmScore if it exists, to ensure update
+	if rating.FilmScore > 0 {
+		dbRating.FilmScore = rating.FilmScore
+	}
+
+	// Upsert by (user_id, dinner_id): update if exists, create if not
+	var existingRating models.Rating
+	err = database.Where("user_id = ? AND dinner_id = ?", dbRating.UserID, dbRating.DinnerID).First(&existingRating).Error
+	switch err {
+case nil:
+		// Update existing rating
+		existingRating.FilmScore = dbRating.FilmScore
+		existingRating.DinnerScore = dbRating.DinnerScore
+		if err := database.Save(&existingRating).Error; err != nil {
+			c.JSON(500, gin.H{"error": "failed to update rating: " + err.Error()})
+			return
+		}
+		c.Status(http.StatusOK)
+		return
+	case gorm.ErrRecordNotFound:
+		// Create new rating
+		if err := database.Create(&dbRating).Error; err != nil {
+			c.JSON(500, gin.H{"error": "failed to create rating: " + err.Error()})
+			return
+		}
+		c.Status(http.StatusCreated)
+		return
+	default:
+		c.JSON(500, gin.H{"error": "failed to check existing rating: " + err.Error()})
+		return
+	}
 }
 
 func GetAllRatingsForUser(c *gin.Context, database *gorm.DB) {
@@ -151,4 +187,14 @@ func GetRatingWithId(c *gin.Context, database *gorm.DB) {
 	}
 
 	c.JSON(200, ratingJSON)
+}
+
+func DeleteRatingWithId(c *gin.Context, database *gorm.DB) {
+	ratingId := c.Param("id")
+	if err := database.Delete(&models.Rating{}, ratingId).Error; err != nil {
+		c.JSON(500, gin.H{"error": "failed to delete rating"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
