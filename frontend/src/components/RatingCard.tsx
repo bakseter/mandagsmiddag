@@ -1,22 +1,21 @@
 import { format } from 'date-fns';
 import { nb } from 'date-fns/locale';
-import { useGetDinnerByIdQuery } from '../services/dinner';
-import {
-    useGetUsersQuery,
-    type User,
-    useGetCurrentUserQuery,
-} from '../services/user';
-import { type Rating, useDeleteRatingMutation } from '../services/rating';
 import { useMemo } from 'react';
 import AdminOnly from '../components/AdminOnly';
+import { useGetDinnerByIdQuery } from '../services/dinner';
+import { type Rating, useDeleteRatingMutation } from '../services/rating';
+import {
+    type User,
+    useGetCurrentUserQuery,
+    useGetUsersQuery,
+} from '../services/user';
 
 interface Props {
     rating: Rating;
 }
 
-const getNameById = (users: User[], id: number): string | null => {
-    const user = users.find((user) => user.id === id);
-    return user ? user.name : null;
+const getNameById = (users: User[], id: number): User | null => {
+    return users.find((ur) => ur.id === id) ?? null;
 };
 
 const RatingCard = ({ rating }: Props) => {
@@ -101,7 +100,7 @@ const RatingCard = ({ rating }: Props) => {
                     </div>
                 )}
 
-                <AdminOnly>
+                <AdminOnly message={null}>
                     <div className="mt-2">
                         <button
                             onClick={onClick}
