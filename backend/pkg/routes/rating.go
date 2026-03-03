@@ -188,3 +188,13 @@ func GetRatingWithId(c *gin.Context, database *gorm.DB) {
 
 	c.JSON(200, ratingJSON)
 }
+
+func DeleteRatingWithId(c *gin.Context, database *gorm.DB) {
+	ratingId := c.Param("id")
+	if err := database.Delete(&models.Rating{}, ratingId).Error; err != nil {
+		c.JSON(500, gin.H{"error": "failed to delete rating"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
