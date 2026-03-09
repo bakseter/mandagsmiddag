@@ -1,7 +1,7 @@
 import { Controller, useForm } from 'react-hook-form';
 import { useGetDinnersQuery } from '../services/dinner';
 import { type Rating, usePutRatingMutation } from '../services/rating';
-import { useGetCurrentUserQuery } from '../services/user';
+import { useGetCurrentUserQuery, useGetUsersQuery } from '../services/user';
 
 interface FormValues {
     ratingId: number;
@@ -18,6 +18,7 @@ interface Props {
 const AddRatingForm = ({ rating = null }: Props) => {
     const { data: currentUser } = useGetCurrentUserQuery();
     const [addRating, { isLoading, isSuccess, error }] = usePutRatingMutation();
+    const { data: users } = useGetUsersQuery();
 
     const { data: dinners = [] } = useGetDinnersQuery();
 
@@ -68,8 +69,11 @@ const AddRatingForm = ({ rating = null }: Props) => {
                             <option value="">Velg Middag</option>
                             {dinners.map((dinner) => (
                                 <option key={dinner.id} value={dinner.id}>
-                                    {new Date(dinner.date).toLocaleString()} —{' '}
-                                    {dinner?.food}
+                                    {users?.find(
+                                        (element) =>
+                                            element.id == dinner.hostUserId
+                                    )?.name}{' '}
+                                    — {dinner?.food}
                                 </option>
                             ))}
                         </select>
