@@ -1,14 +1,9 @@
 import { format } from 'date-fns';
 import { nb } from 'date-fns/locale';
 import { useMemo } from 'react';
-import AdminOnly from '../components/AdminOnly';
 import { useGetDinnerByIdQuery } from '../services/dinner';
-import { type Rating, useDeleteRatingMutation } from '../services/rating';
-import {
-    type User,
-    useGetCurrentUserQuery,
-    useGetUsersQuery,
-} from '../services/user';
+import { type Rating } from '../services/rating';
+import { type User, useGetUsersQuery } from '../services/user';
 
 interface Props {
     rating: Rating;
@@ -23,23 +18,12 @@ const RatingCard = ({ rating }: Props) => {
     const { data: dinner, isLoading: dinnerLoading } = useGetDinnerByIdQuery(
         rating.dinnerId
     );
-    const { data: currentUser } = useGetCurrentUserQuery();
-    const [deleteRating] = useDeleteRatingMutation();
-
     const user: User | null = useMemo(() => {
         if (!users || !rating.userId) return null;
         return getNameById(users, rating.userId);
     }, [rating.userId, users]);
 
     const date = dinner?.date ? new Date(dinner.date) : null;
-
-    const onClick = async () => {
-        try {
-            await deleteRating(rating.id).unwrap();
-        } catch (err) {
-            console.error(err);
-        }
-    };
 
     if (usersLoading || dinnerLoading) return <p>Laster...</p>;
 
@@ -86,30 +70,6 @@ const RatingCard = ({ rating }: Props) => {
 
             <div>
                 <strong>Filmscore:</strong> {rating.filmScore}/10
-            </div>
-
-            <div className="mt-2 flex justify-start gap-2">
-                {(currentUser?.id === rating.userId ||
-                    currentUser?.isAdmin) && (
-                    <div className="mt-2">
-                        <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">
-                            <a href={`/vurdering/${rating.id}/rediger`}>
-                                Rediger vurdering
-                            </a>
-                        </button>
-                    </div>
-                )}
-
-                <AdminOnly message={null}>
-                    <div className="mt-2">
-                        <button
-                            onClick={onClick}
-                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-200"
-                        >
-                            Slett rating
-                        </button>
-                    </div>
-                </AdminOnly>
             </div>
         </div>
     );
