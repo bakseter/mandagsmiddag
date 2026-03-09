@@ -53,7 +53,7 @@ const AddRatingForm = ({ rating = null }: Props) => {
     return (
         <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">
             <h2 className="text-lg font-semibold mb-2">
-                {isEditMode ? 'Edit Rating' : 'Add Rating'}
+                {isEditMode ? 'Rediger Rating' : 'Legg til Rating'}
             </h2>
             <form
                 onSubmit={handleSubmit(onSubmit)}
@@ -65,7 +65,7 @@ const AddRatingForm = ({ rating = null }: Props) => {
                     rules={{ required: true }}
                     render={({ field }) => (
                         <select {...field} className="border p-2 rounded">
-                            <option value="">Select Dinner</option>
+                            <option value="">Velg Middag</option>
                             {dinners.map((dinner) => (
                                 <option key={dinner.id} value={dinner.id}>
                                     {new Date(dinner.date).toLocaleString()} —{' '}
@@ -83,7 +83,7 @@ const AddRatingForm = ({ rating = null }: Props) => {
                         <input
                             type="number"
                             {...field}
-                            placeholder="Dinner Score (0-10)"
+                            placeholder="Middag Score (0-10)"
                             className="border p-2 rounded"
                             min={0}
                             max={10}
@@ -98,7 +98,7 @@ const AddRatingForm = ({ rating = null }: Props) => {
                         <input
                             type="number"
                             {...field}
-                            placeholder="Film Score (0-10)"
+                            placeholder="Middag Score (0-10)"
                             className="border p-2 rounded"
                             min={0}
                             max={10}
@@ -110,18 +110,19 @@ const AddRatingForm = ({ rating = null }: Props) => {
                     className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
                     disabled={isLoading}
                 >
-                    {isLoading && 'Saving...'}
+                    {isLoading && 'Lagrer...'}
                     {!isLoading &&
-                        (isEditMode ? 'Update Rating' : 'Add Rating')}
+                        (isEditMode ? 'Oppdater Rating' : 'Legg til Rating')}
                 </button>
                 {isSuccess && (
                     <p className="text-green-600">
-                        Rating {isEditMode ? 'updated' : 'added'}!
+                        Rating {isEditMode ? 'oppdatert' : 'lagt til'}!
                     </p>
                 )}
                 {error && (
                     <p className="text-red-600">
-                        Error {isEditMode ? 'updating' : 'adding'} rating
+                        En feil oppstod oppstod imens ratingen ble{' '}
+                        {isEditMode ? 'oppdatert' : 'lagt til'}!
                     </p>
                 )}
             </form>
