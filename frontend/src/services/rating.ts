@@ -22,7 +22,7 @@ const ratingApi = createApi({
         }),
 
         getRatingsByUser: builder.query<Rating[], number>({
-            query: (userId) => `/host/${userId}`,
+            query: (userId) => `/user/${userId}`,
             providesTags: ['Rating'],
         }),
 
