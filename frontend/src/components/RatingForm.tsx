@@ -78,7 +78,7 @@ const AddRatingForm = ({ rating = null }: Props) => {
                 <Controller
                     name="dinnerScore"
                     control={control}
-                    rules={{ required: true, min: 0, max: 10 }}
+                    rules={{ required: true, min: 1, max: 10 }}
                     render={({ field }) => (
                         <input
                             type="number"
@@ -93,7 +93,7 @@ const AddRatingForm = ({ rating = null }: Props) => {
                 <Controller
                     name="filmScore"
                     control={control}
-                    rules={{ required: true, min: 0, max: 10 }}
+                    rules={{ required: true, min: 1, max: 10 }}
                     render={({ field }) => (
                         <input
                             type="number"
