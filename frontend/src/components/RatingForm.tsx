@@ -48,7 +48,7 @@ const RatingForm = ({ dinnerId }: Props) => {
 
     return (
         <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">
-            <h2 className="text-lg font-semibold mb-2">Legg til Rating</h2>
+            <h2 className="text-xl font-semibold mb-2">Legg til rating</h2>
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col gap-2"
@@ -67,14 +67,17 @@ const RatingForm = ({ dinnerId }: Props) => {
                     control={control}
                     rules={{ required: true, min: 1, max: 10 }}
                     render={({ field }) => (
-                        <input
-                            type="number"
-                            {...field}
-                            placeholder="Middag Score (0-10)"
-                            className="border p-2 rounded"
-                            min={0}
-                            max={10}
-                        />
+                        <>
+                            <label className="text-md">Middag</label>
+                            <input
+                                type="number"
+                                {...field}
+                                placeholder="Middag-score (0-10)"
+                                className="border p-2 rounded"
+                                min={0}
+                                max={10}
+                            />
+                        </>
                     )}
                 />
 
@@ -83,14 +86,17 @@ const RatingForm = ({ dinnerId }: Props) => {
                     control={control}
                     rules={{ required: true, min: 1, max: 10 }}
                     render={({ field }) => (
-                        <input
-                            type="number"
-                            {...field}
-                            placeholder="Middag Score (0-10)"
-                            className="border p-2 rounded"
-                            min={0}
-                            max={10}
-                        />
+                        <>
+                            <label className="text-md">Film</label>
+                            <input
+                                type="number"
+                                {...field}
+                                placeholder="Film-score (0-10)"
+                                className="border p-2 rounded"
+                                min={0}
+                                max={10}
+                            />
+                        </>
                     )}
                 />
                 <button
@@ -99,7 +105,7 @@ const RatingForm = ({ dinnerId }: Props) => {
                     disabled={isLoading}
                 >
                     {isLoading && 'Lagrer...'}
-                    {!isLoading && 'Legg til Rating'}
+                    {!isLoading && 'Legg til rating'}
                 </button>
                 {isSuccess && (
                     <p className="text-green-600">Rating lagt til!</p>
