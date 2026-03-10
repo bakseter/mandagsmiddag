@@ -46,7 +46,13 @@ const DinnerCard = ({ dinner }: Props) => {
         return getNameById(users, dinner.hostUserId);
     }, [dinner.hostUserId, users]);
 
-    const onClick = async () => {
+    const handleDelete = async () => {
+        const confirmed = window.confirm(
+            'Er du sikker på at du vil slette denne middagen?'
+        );
+
+        if (!confirmed) return;
+
         try {
             await deleteDinner(dinner.id).unwrap();
         } catch (err) {
@@ -165,7 +171,7 @@ const DinnerCard = ({ dinner }: Props) => {
 
                 <AdminOnly>
                     <button
-                        onClick={onClick}
+                        onClick={handleDelete}
                         className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
                     >
                         Slett middag
