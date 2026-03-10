@@ -57,21 +57,21 @@ const DinnerCard = ({ dinner }: Props) => {
     if (isLoading) return <p>Laster...</p>;
 
     return (
-        <div className="mt-4 w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="mt-4 w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
             <div className="mb-4 flex items-start justify-between gap-4">
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                <h3 className="text-lg font-semibold text-zinc-900">
                     {host ? `Arrangert av ${host.name}` : 'Ingen arrangør'}
                 </h3>
 
-                <span className="shrink-0 text-sm text-zinc-500 dark:text-zinc-400">
+                <span className="shrink-0 text-sm text-zinc-500">
                     {format(date, 'dd MMMM yyyy', { locale: nb })}
                 </span>
             </div>
 
-            <div className="space-y-3 text-sm text-zinc-700 dark:text-zinc-300">
+            <div className="space-y-3 text-sm text-zinc-700">
                 {dinner.food && (
                     <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                        <span className="font-medium text-zinc-900">
                             Matrett:
                         </span>{' '}
                         {dinner.food}
@@ -80,15 +80,13 @@ const DinnerCard = ({ dinner }: Props) => {
 
                 {dinner.filmTitle && (
                     <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                            Film:
-                        </span>{' '}
+                        <span className="font-medium text-zinc-900">Film:</span>{' '}
                         {dinner.filmImdbUrl ? (
                             <a
                                 href={dinner.filmImdbUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sky-600 underline-offset-4 hover:underline dark:text-sky-400"
+                                className="text-sky-600 underline-offset-4 hover:underline"
                             >
                                 {dinner.filmTitle}
                             </a>
@@ -100,10 +98,10 @@ const DinnerCard = ({ dinner }: Props) => {
 
                 {participants.length > 0 && (
                     <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                        <span className="font-medium text-zinc-900">
                             Hvem møtte opp?
                         </span>
-                        <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+                        <p className="mt-1 text-zinc-600">
                             {participants
                                 .filter(
                                     (participant) => participant !== undefined
@@ -116,20 +114,20 @@ const DinnerCard = ({ dinner }: Props) => {
             </div>
 
             {!ratingsAreLoading && ratingForDinner && (
-                <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950/50">
-                    <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3">
+                    <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
                         Din rating
                     </div>
 
-                    <div className="flex flex-wrap gap-4 text-sm text-zinc-700 dark:text-zinc-300">
+                    <div className="flex flex-wrap gap-4 text-sm text-zinc-700">
                         <span>
-                            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                            <span className="font-medium text-zinc-900">
                                 Middag:
                             </span>{' '}
                             {ratingForDinner.dinnerScore}/10
                         </span>
                         <span>
-                            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                            <span className="font-medium text-zinc-900">
                                 Film:
                             </span>{' '}
                             {ratingForDinner.filmScore}/10
