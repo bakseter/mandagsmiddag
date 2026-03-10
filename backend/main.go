@@ -100,9 +100,9 @@ func main() {
 
 		// Rating API
 		api.GET("/rating", withDatabase(routes.GetAllRatings, database))
-		api.GET("/rating/user/:id", withDatabase(routes.GetAllRatingsForUser, database))
+		api.GET("/rating/user", withDatabase(routes.GetAllRatingsForUser, database))
 		api.GET("/rating/:id", withDatabase(routes.GetRatingWithId, database))
-		api.POST("/rating", withDatabase(routes.PostRating, database))
+		api.PUT("/rating", withDatabase(routes.PutRating, database))
 
 		// Penalty API
 		api.GET("/penalty", withDatabase(routes.GetAllPenalties, database))

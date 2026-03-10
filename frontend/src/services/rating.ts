@@ -14,24 +14,38 @@ const ratingApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: `${backendUrl}/rating`,
     }),
+    tagTypes: ['Rating'],
     endpoints: (builder) => ({
         getRatings: builder.query<Rating[], void>({
             query: () => '',
+            providesTags: ['Rating'],
         }),
 
-        getRatingsByUser: builder.query<Rating[], number>({
-            query: (userId) => `/host/${userId}`,
+        getRatingsByUser: builder.query<Rating[], void>({
+            query: () => `/user`,
+            providesTags: ['Rating'],
         }),
 
         getRatingById: builder.query<Rating, number>({
             query: (ratingId) => `/${ratingId}`,
+            providesTags: ['Rating'],
         }),
 
-        postRating: builder.mutation<void, Rating>({
+        putRating: builder.mutation<void, Rating>({
             query: (rating) => ({
-                method: 'POST',
+                method: 'PUT',
+                url: '',
                 body: rating,
             }),
+            invalidatesTags: ['Rating'],
+        }),
+
+        deleteRating: builder.mutation<void, number>({
+            query: (ratingId) => ({
+                method: 'DELETE',
+                url: `/${ratingId}`,
+            }),
+            invalidatesTags: ['Rating'],
         }),
     }),
 });
@@ -40,7 +54,8 @@ export const {
     useGetRatingsQuery,
     useGetRatingsByUserQuery,
     useGetRatingByIdQuery,
-    usePostRatingMutation,
+    usePutRatingMutation,
+    useDeleteRatingMutation,
 } = ratingApi;
 
 export default ratingApi;

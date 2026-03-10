@@ -25,7 +25,6 @@ const userApi = createApi({
                 url: '',
                 method: 'PUT',
             }),
-            invalidatesTags: ['User'],
         }),
     }),
 });
