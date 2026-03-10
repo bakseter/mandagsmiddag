@@ -15,12 +15,12 @@ interface Props {
     rating?: Rating | null;
 }
 
-const AddRatingForm = ({ rating = null }: Props) => {
-    const { data: currentUser } = useGetCurrentUserQuery();
-    const [addRating, { isLoading, isSuccess, error }] = usePutRatingMutation();
+const AddRatingForm = ({ rating }: Props) => {
     const { data: users } = useGetUsersQuery();
-
+    const { data: currentUser } = useGetCurrentUserQuery();
     const { data: dinners = [] } = useGetDinnersQuery();
+
+    const [addRating, { isLoading, isSuccess, error }] = usePutRatingMutation();
 
     const isEditMode = Boolean(rating);
 
@@ -67,15 +67,27 @@ const AddRatingForm = ({ rating = null }: Props) => {
                     render={({ field }) => (
                         <select {...field} className="border p-2 rounded">
                             <option value="">Velg Middag</option>
-                            {dinners.map((dinner) => (
-                                <option key={dinner.id} value={dinner.id}>
-                                    {users?.find(
-                                        (element) =>
-                                            element.id == dinner.hostUserId
-                                    )?.name}{' '}
-                                    — {dinner?.food}
-                                </option>
-                            ))}
+                            {dinners
+                                .filter(
+                                    (dinner) =>
+                                        currentUser?.id !== undefined &&
+                                        dinner?.participantIds &&
+                                        !dinner.participantIds.includes(
+                                            currentUser.id
+                                        )
+                                )
+                                .map((dinner) => (
+                                    <option key={dinner.id} value={dinner.id}>
+                                        {
+                                            users?.find(
+                                                (element) =>
+                                                    element.id ==
+                                                    dinner.hostUserId
+                                            )?.name
+                                        }{' '}
+                                        — {dinner?.food}
+                                    </option>
+                                ))}
                         </select>
                     )}
                 />
