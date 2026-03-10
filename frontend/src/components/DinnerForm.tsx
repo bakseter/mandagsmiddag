@@ -5,10 +5,11 @@ import { useGetUsersQuery } from '../services/user';
 
 interface FormValues {
     id: string;
-    host: string;
+    hostUserId: string;
     date: string;
     food: string;
-    film: string;
+    filmTitle: string;
+    filmImdbUrl: string;
     participants: string[];
 }
 

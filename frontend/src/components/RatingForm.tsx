@@ -1,7 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
-import { useGetDinnersQuery } from '../services/dinner';
 import { type Rating, usePutRatingMutation } from '../services/rating';
-import { useGetCurrentUserQuery, useGetUsersQuery } from '../services/user';
+import { useGetCurrentUserQuery } from '../services/user';
 
 interface FormValues {
     ratingId: number;
@@ -12,25 +11,21 @@ interface FormValues {
 }
 
 interface Props {
-    rating?: Rating | null;
+    dinnerId: number;
 }
 
-const AddRatingForm = ({ rating }: Props) => {
-    const { data: users } = useGetUsersQuery();
+const RatingForm = ({ dinnerId }: Props) => {
     const { data: currentUser } = useGetCurrentUserQuery();
-    const { data: dinners = [] } = useGetDinnersQuery();
 
     const [addRating, { isLoading, isSuccess, error }] = usePutRatingMutation();
 
-    const isEditMode = Boolean(rating);
-
     const { handleSubmit, control, reset } = useForm<FormValues>({
         defaultValues: {
-            ratingId: rating?.id ?? 0,
+            ratingId: 0,
             userId: currentUser?.id ?? 0,
-            dinnerId: rating?.dinnerId ?? 0,
-            dinnerScore: rating?.dinnerScore ?? 0,
-            filmScore: rating?.filmScore ?? 0,
+            dinnerId: dinnerId,
+            dinnerScore: 0,
+            filmScore: 0,
         },
     });
 
@@ -53,9 +48,7 @@ const AddRatingForm = ({ rating }: Props) => {
 
     return (
         <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">
-            <h2 className="text-lg font-semibold mb-2">
-                {isEditMode ? 'Rediger Rating' : 'Legg til Rating'}
-            </h2>
+            <h2 className="text-lg font-semibold mb-2">Legg til Rating</h2>
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col gap-2"
@@ -65,32 +58,10 @@ const AddRatingForm = ({ rating }: Props) => {
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
-                        <select {...field} className="border p-2 rounded">
-                            <option value="">Velg Middag</option>
-                            {dinners
-                                .filter(
-                                    (dinner) =>
-                                        currentUser?.id !== undefined &&
-                                        dinner?.participantIds &&
-                                        !dinner.participantIds.includes(
-                                            currentUser.id
-                                        )
-                                )
-                                .map((dinner) => (
-                                    <option key={dinner.id} value={dinner.id}>
-                                        {
-                                            users?.find(
-                                                (element) =>
-                                                    element.id ==
-                                                    dinner.hostUserId
-                                            )?.name
-                                        }{' '}
-                                        — {dinner?.food}
-                                    </option>
-                                ))}
-                        </select>
+                        <input type="hidden" {...field} value={dinnerId} />
                     )}
                 />
+
                 <Controller
                     name="dinnerScore"
                     control={control}
@@ -106,6 +77,7 @@ const AddRatingForm = ({ rating }: Props) => {
                         />
                     )}
                 />
+
                 <Controller
                     name="filmScore"
                     control={control}
@@ -127,18 +99,14 @@ const AddRatingForm = ({ rating }: Props) => {
                     disabled={isLoading}
                 >
                     {isLoading && 'Lagrer...'}
-                    {!isLoading &&
-                        (isEditMode ? 'Oppdater Rating' : 'Legg til Rating')}
+                    {!isLoading && 'Legg til Rating'}
                 </button>
                 {isSuccess && (
-                    <p className="text-green-600">
-                        Rating {isEditMode ? 'oppdatert' : 'lagt til'}!
-                    </p>
+                    <p className="text-green-600">Rating lagt til!</p>
                 )}
                 {error && (
                     <p className="text-red-600">
-                        En feil oppstod oppstod imens ratingen ble{' '}
-                        {isEditMode ? 'oppdatert' : 'lagt til'}!
+                        En feil oppstod oppstod imens ratingen ble lagt til :(
                     </p>
                 )}
             </form>
@@ -146,4 +114,4 @@ const AddRatingForm = ({ rating }: Props) => {
     );
 };
 
-export default AddRatingForm;
+export default RatingForm;

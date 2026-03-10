@@ -8,6 +8,7 @@ import {
     useGetCurrentUserQuery,
     useGetUsersQuery,
 } from '../services/user';
+import { useGetRatingsByUserQuery } from '../services/rating';
 
 interface Props {
     dinner: Dinner;
@@ -20,6 +21,8 @@ const DinnerCard = ({ dinner }: Props) => {
     const { data: users, isLoading } = useGetUsersQuery();
     const [deleteDinner] = useDeleteDinnerMutation();
     const { data: currentUser } = useGetCurrentUserQuery();
+    const { data: ratings, isLoading: ratingsAreLoading } =
+        useGetRatingsByUserQuery();
 
     const date = new Date(dinner.date);
 
@@ -32,6 +35,9 @@ const DinnerCard = ({ dinner }: Props) => {
                 ?.filter((name) => name !== null) ?? []
         );
     }, [dinner.participantIds, users]);
+
+    const ratingForDinner =
+        ratings?.find((rating) => rating.dinnerId === dinner.id) ?? null;
 
     const host: User | null | undefined = useMemo(() => {
         if (!users || !dinner.hostUserId) return null;
@@ -50,74 +56,115 @@ const DinnerCard = ({ dinner }: Props) => {
     if (isLoading) return <p>Laster...</p>;
 
     return (
-        <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">
-            <div className="flex justify-between items-center mb-2">
-                <h3 className="text-xl font-semibold">
+        <div className="mt-4 w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="mb-4 flex items-start justify-between gap-4">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                     {host ? `Arrangert av ${host.name}` : 'Ingen arrangør'}
                 </h3>
-                <span className="text-sm text-gray-500">
+
+                <span className="shrink-0 text-sm text-zinc-500 dark:text-zinc-400">
                     {format(date, 'dd MMMM yyyy', { locale: nb })}
                 </span>
             </div>
-            {dinner.food && (
-                <div>
-                    <strong>Matrett:</strong> {dinner.food}
+
+            <div className="space-y-3 text-sm text-zinc-700 dark:text-zinc-300">
+                {dinner.food && (
+                    <div>
+                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                            Matrett:
+                        </span>{' '}
+                        {dinner.food}
+                    </div>
+                )}
+
+                {dinner.filmTitle && (
+                    <div>
+                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                            Film:
+                        </span>{' '}
+                        {dinner.filmImdbUrl ? (
+                            <a
+                                href={dinner.filmImdbUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sky-600 underline-offset-4 hover:underline dark:text-sky-400"
+                            >
+                                {dinner.filmTitle}
+                            </a>
+                        ) : (
+                            <span>{dinner.filmTitle}</span>
+                        )}
+                    </div>
+                )}
+
+                {participants.length > 0 && (
+                    <div>
+                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                            Hvem møtte opp?
+                        </span>
+                        <p className="mt-1 text-zinc-600 dark:text-zinc-400">
+                            {participants
+                                .filter(
+                                    (participant) => participant !== undefined
+                                )
+                                .map((participant) => participant.name)
+                                .join(', ')}
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {!ratingsAreLoading && ratingForDinner && (
+                <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950/50">
+                    <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                        Din rating
+                    </div>
+
+                    <div className="flex flex-wrap gap-4 text-sm text-zinc-700 dark:text-zinc-300">
+                        <span>
+                            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                Middag:
+                            </span>{' '}
+                            {ratingForDinner.dinnerScore}/10
+                        </span>
+                        <span>
+                            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                Film:
+                            </span>{' '}
+                            {ratingForDinner.filmScore}/10
+                        </span>
+                    </div>
                 </div>
             )}
 
-            {dinner.filmTitle && (
-                <div>
-                    <strong>Film:</strong>
-                    {dinner.filmImdbUrl ? (
-                        <a
-                            href={dinner.filmImdbUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:underline ml-1"
-                        >
-                            {dinner.filmTitle}
-                        </a>
-                    ) : (
-                        <span> {dinner.filmTitle}</span>
-                    )}
-                </div>
-            )}
+            <div className="mt-5 flex flex-wrap gap-2">
+                {!ratingsAreLoading && !ratingForDinner && (
+                    <a
+                        href={`/rating/${dinner.id}/rediger`}
+                        className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                    >
+                        Legg til rating
+                    </a>
+                )}
 
-            {participants.length > 0 && ( // eslint-disable-line no-magic-numbers
-                <div>
-                    <strong>Hvem møtte opp?</strong>{' '}
-                    <p>
-                        {participants
-                            .filter((participant) => participant !== undefined)
-                            .map((participant) => participant.name)
-                            .join(', ')}
-                    </p>
-                </div>
-            )}
-
-            <div className="mt-2 flex justify-start gap-2">
                 {currentUser &&
                     (currentUser.id === dinner.hostUserId ||
                         currentUser.isAdmin) && (
-                        <div className="mt-2">
-                            <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">
-                                <a href={`/middag/${dinner.id}/rediger`}>
-                                    Rediger middag
-                                </a>
-                            </button>
-                        </div>
+                        <a
+                            href={`/middag/${dinner.id}/rediger`}
+                            className="inline-flex items-center rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-700"
+                        >
+                            Rediger middag
+                        </a>
                     )}
 
-                <AdminOnly message={null}>
-                    <div className="mt-2">
-                        <button
-                            onClick={onClick}
-                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-200"
-                        >
-                            Slett middag
-                        </button>
-                    </div>
-                    AdminOnly{' '}
+                <AdminOnly>
+                    <button
+                        onClick={onClick}
+                        className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                    >
+                        Slett middag
+                    </button>
                 </AdminOnly>
             </div>
         </div>

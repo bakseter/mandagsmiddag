@@ -5,7 +5,7 @@ import DinnersPage from './pages/DinnersPage';
 import EditDinnerPage from './pages/EditDinnerPage';
 import HomePage from './pages/HomePage';
 import NewDinnerPage from './pages/NewDinnerPage';
-import RatingsPage from './pages/RatingsPage';
+import RatingPage from './pages/RatingPage';
 import { useGetCurrentUserQuery } from './services/user';
 
 const App = () => {
@@ -18,10 +18,13 @@ const App = () => {
                     <Route element={<Layout />}>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/middag" element={<DinnersPage />} />
-                        <Route path="/rating" element={<RatingsPage />} />
                         <Route
                             path="/middag/:dinnerId/rediger"
                             element={<EditDinnerPage />}
+                        />
+                        <Route
+                            path="/rating/:dinnerId/rediger"
+                            element={<RatingPage />}
                         />
                         {currentUser?.isAdmin && (
                             <Route
