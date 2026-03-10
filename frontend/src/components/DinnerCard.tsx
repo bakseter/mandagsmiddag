@@ -20,7 +20,8 @@ const getNameById = (users: User[], id: number): User | undefined =>
 const DinnerCard = ({ dinner }: Props) => {
     const { data: users, isLoading } = useGetUsersQuery();
     const [deleteDinner] = useDeleteDinnerMutation();
-    const { data: currentUser } = useGetCurrentUserQuery();
+    const { data: currentUser, isLoading: currentUserIsLoading } =
+        useGetCurrentUserQuery();
     const { data: ratings, isLoading: ratingsAreLoading } =
         useGetRatingsByUserQuery();
 
@@ -138,14 +139,17 @@ const DinnerCard = ({ dinner }: Props) => {
             )}
 
             <div className="mt-5 flex flex-wrap gap-2">
-                {!ratingsAreLoading && !ratingForDinner && (
-                    <a
-                        href={`/rating/${dinner.id}/rediger`}
-                        className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-                    >
-                        Legg til rating
-                    </a>
-                )}
+                {!ratingsAreLoading &&
+                    !currentUserIsLoading &&
+                    !ratingForDinner &&
+                    currentUser.id !== dinner.hostUserId && (
+                        <a
+                            href={`/rating/${dinner.id}/rediger`}
+                            className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                        >
+                            Legg til rating
+                        </a>
+                    )}
 
                 {currentUser &&
                     (currentUser.id === dinner.hostUserId ||

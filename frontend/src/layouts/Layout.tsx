@@ -10,8 +10,6 @@ const Layout = () => {
             {/* Top nav */}
             <header className="border-b p-4 flex gap-4">
                 <Link to="/">Hjem</Link>
-                <Link to="/middag">Alle middager</Link>
-                <Link to="/rating">Alle ratings</Link>
                 {currentUser?.isAdmin && <Link to="/middag/ny">Ny middag</Link>}
             </header>
 
