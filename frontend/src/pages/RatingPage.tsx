@@ -6,11 +6,7 @@ const RatingPage = () => {
 
     if (!dinnerId) return <p>Ingen middag valgt</p>;
 
-    return (
-        <div>
-            <RatingForm dinnerId={Number(dinnerId)} />
-        </div>
-    );
+    return <RatingForm dinnerId={Number(dinnerId)} />;
 };
 
 export default RatingPage;
