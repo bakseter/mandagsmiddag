@@ -142,6 +142,9 @@ const DinnerCard = ({ dinner }: Props) => {
                 {!ratingsAreLoading &&
                     !currentUserIsLoading &&
                     !ratingForDinner &&
+                    dinner.food &&
+                    dinner.filmTitle &&
+                    dinner.participantIds?.includes(currentUser?.id ?? 0) &&
                     currentUser.id !== dinner.hostUserId && (
                         <a
                             href={`/rating/${dinner.id}/rediger`}
