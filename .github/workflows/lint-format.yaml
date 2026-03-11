@@ -1,0 +1,32 @@
+name: Lint & format
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: '~/.bun/install/cache'
+          key: "${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: cd frontend && bun install
+
+      - name: Run lint
+        run: cd frontend && bun lint
+
+      - name: Run format check
+        run: cd frontend && bun format --check
