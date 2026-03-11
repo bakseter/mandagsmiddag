@@ -219,7 +219,7 @@ const RatingsPage = () => {
                                                                                             dinner.id
                                                                                         )}/rating/${String(
                                                                                             rating.id
-                                                                                        )}/rediger`}
+                                                                                        )}/rediger?userId=${String(participant.id)}`}
                                                                                         className="inline-flex items-center gap-2 rounded-lg bg-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-300 hover:text-zinc-900"
                                                                                     >
                                                                                         <SquarePen

@@ -1,16 +1,7 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import RatingForm from '@/components/rating-form';
-
-const numberToString = (num: string | null): number | null => {
-    if (!num) {
-        return null;
-    }
-
-    const parsed = Number(num);
-
-    return isNaN(parsed) ? null : parsed;
-};
+import { numberToString } from '@/utils/misc';
 
 const AddRatingPage = () => {
     const { dinnerId } = useParams();
