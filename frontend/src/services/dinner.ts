@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
 import { backendUrl } from './common';
 
 export interface Dinner {
@@ -24,12 +25,12 @@ const dinnerApi = createApi({
         }),
 
         getDinnersByHost: builder.query<Dinner[], number>({
-            query: (hostId) => `/host/${hostId}`,
+            query: (hostId) => `/host/${String(hostId)}`,
             providesTags: ['Dinner'],
         }),
 
         getDinnerById: builder.query<Dinner, number>({
-            query: (dinnerId) => `/${dinnerId}`,
+            query: (dinnerId) => `/${String(dinnerId)}`,
             providesTags: ['Dinner'],
         }),
 
@@ -45,7 +46,7 @@ const dinnerApi = createApi({
         deleteDinner: builder.mutation<void, number>({
             query: (dinnerId) => ({
                 method: 'DELETE',
-                url: `/${dinnerId}`,
+                url: `/${String(dinnerId)}`,
             }),
             invalidatesTags: ['Dinner'],
         }),

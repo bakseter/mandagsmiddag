@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
 import { backendUrl } from './common';
 
 export interface Rating {
@@ -27,7 +28,7 @@ const ratingApi = createApi({
         }),
 
         getRatingById: builder.query<Rating, number>({
-            query: (ratingId) => `/${ratingId}`,
+            query: (ratingId) => `/${String(ratingId)}`,
             providesTags: ['Rating'],
         }),
 
@@ -43,7 +44,7 @@ const ratingApi = createApi({
         deleteRating: builder.mutation<void, number>({
             query: (ratingId) => ({
                 method: 'DELETE',
-                url: `/${ratingId}`,
+                url: `/${String(ratingId)}`,
             }),
             invalidatesTags: ['Rating'],
         }),

@@ -37,9 +37,24 @@ func PutRating(c *gin.Context, database *gorm.DB) {
 		return
 	}
 
+	if rating.UserID != 0 && rating.UserID != user.ID && !user.IsAdmin {
+		c.JSON(403, gin.H{"error": "cannot create or update rating for another user"})
+
+		return
+	}
+
+	// If admin, override userID with rating.UserID if provided, otherwise use authenticated user's ID
+	userID := func() uint {
+		if user.IsAdmin && rating.UserID != 0 {
+			return rating.UserID
+		}
+
+		return user.ID
+	}()
+
 	// Create rating model
 	dbRating := models.Rating{
-		UserID:      user.ID,
+		UserID:      userID,
 		DinnerID:    rating.DinnerID,
 		FilmScore:   rating.FilmScore,
 		DinnerScore: rating.DinnerScore,
@@ -64,7 +79,7 @@ func PutRating(c *gin.Context, database *gorm.DB) {
 	var existingRating models.Rating
 	err = database.Where("user_id = ? AND dinner_id = ?", dbRating.UserID, dbRating.DinnerID).First(&existingRating).Error
 	switch err {
-case nil:
+	case nil:
 		// Update existing rating
 		existingRating.FilmScore = dbRating.FilmScore
 		existingRating.DinnerScore = dbRating.DinnerScore
