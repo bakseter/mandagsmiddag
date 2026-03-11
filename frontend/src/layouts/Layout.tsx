@@ -6,15 +6,30 @@ const Layout = () => {
     const { data: currentUser } = useGetCurrentUserQuery();
 
     return (
-        <div className="min-h-screen flex flex-col">
-            {/* Top nav */}
-            <header className="border-b p-4 flex gap-4">
-                <Link to="/">Hjem</Link>
-                {currentUser?.isAdmin && <Link to="/middag/ny">Ny middag</Link>}
+        <div className="min-h-screen bg-zinc-50 text-zinc-900">
+            <header className="border-b border-zinc-200 bg-white/90 backdrop-blur">
+                <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+                    <Link
+                        to="/"
+                        className="text-lg font-semibold tracking-tight text-zinc-900 transition-colors hover:text-zinc-600"
+                    >
+                        Mandagsmiddag
+                    </Link>
+
+                    <nav className="flex items-center gap-5 text-sm font-medium text-zinc-600">
+                        {currentUser?.isAdmin && (
+                            <Link
+                                to="/middag/ny"
+                                className="rounded-lg bg-zinc-900 px-3 py-2 text-white transition-colors hover:bg-zinc-700"
+                            >
+                                Ny middag
+                            </Link>
+                        )}
+                    </nav>
+                </div>
             </header>
 
-            {/* Main content */}
-            <main className="flex-1 p-6">
+            <main className="mx-auto w-full max-w-5xl px-6 py-10">
                 <ErrorBoundary>
                     <Outlet />
                 </ErrorBoundary>
