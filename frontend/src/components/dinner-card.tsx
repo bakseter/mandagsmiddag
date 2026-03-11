@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { differenceInWeeks, format, isPast } from 'date-fns';
 import { nb } from 'date-fns/locale';
 import { Pencil, SquarePen, Star, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
@@ -12,7 +12,7 @@ import {
     type User,
 } from '@/services/user';
 
-interface Properties {
+interface Props {
     dinner: Dinner;
 }
 
@@ -20,7 +20,7 @@ const getNameById = (users: User[], id: number): User | null =>
     users.find((user) => user.id === id) ?? null;
 
 // eslint-disable-next-line max-statements
-const DinnerCard = ({ dinner }: Properties) => {
+const DinnerCard = ({ dinner }: Props) => {
     const { data: users, isLoading } = useGetUsersQuery();
     const { data: currentUser, isLoading: currentUserIsLoading } =
         useGetCurrentUserQuery();
@@ -28,8 +28,6 @@ const DinnerCard = ({ dinner }: Properties) => {
         useGetRatingsByUserQuery();
 
     const [deleteDinner] = useDeleteDinnerMutation();
-
-    const date = new Date(dinner.date);
 
     const participants = useMemo(() => {
         if (!users) {
@@ -39,9 +37,6 @@ const DinnerCard = ({ dinner }: Properties) => {
         return dinner.participantIds?.map((id) => getNameById(users, id)) ?? [];
     }, [dinner.participantIds, users]);
 
-    const ratingForDinner =
-        ratings?.find((rating) => rating.dinnerId === dinner.id) ?? null;
-
     const host: User | null = useMemo(() => {
         if (!users || !dinner.hostUserId) {
             return null;
@@ -50,18 +45,9 @@ const DinnerCard = ({ dinner }: Properties) => {
         return getNameById(users, dinner.hostUserId);
     }, [dinner.hostUserId, users]);
 
-    const canAddRating =
-        !ratingsAreLoading &&
-        !currentUserIsLoading &&
-        !ratingForDinner &&
-        Boolean(dinner.food) &&
-        Boolean(dinner.filmTitle) &&
-        dinner.participantIds?.includes(currentUser?.id ?? 0) &&
-        currentUser?.id !== dinner.hostUserId;
-
-    const canEditDinner =
-        currentUser &&
-        (currentUser.id === dinner.hostUserId || currentUser.isAdmin);
+    if (isLoading) {
+        return <></>;
+    }
 
     const handleDelete = async () => {
         // eslint-disable-next-line no-alert
@@ -80,9 +66,23 @@ const DinnerCard = ({ dinner }: Properties) => {
         }
     };
 
-    if (isLoading) {
-        return <p>Laster...</p>;
-    }
+    const date = new Date(dinner.date);
+
+    const ratingForDinner =
+        ratings?.find((rating) => rating.dinnerId === dinner.id) ?? null;
+
+    const canAddRating =
+        !ratingsAreLoading &&
+        !currentUserIsLoading &&
+        !ratingForDinner &&
+        Boolean(dinner.food) &&
+        Boolean(dinner.filmTitle) &&
+        dinner.participantIds?.includes(currentUser?.id ?? 0) &&
+        currentUser?.id !== dinner.hostUserId;
+
+    const canEditDinner =
+        currentUser &&
+        (currentUser.id === dinner.hostUserId || currentUser.isAdmin);
 
     return (
         <article className="w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
@@ -195,18 +195,21 @@ const DinnerCard = ({ dinner }: Properties) => {
                         </span>
 
                         <div className="flex items-center gap-1">
-                            <a
-                                href={`/middag/${String(
-                                    dinner.id
-                                )}/rating/${String(
-                                    ratingForDinner.id
-                                )}/rediger`}
-                                title="Rediger rating"
-                                aria-label="Rediger rating"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-200 text-zinc-600 transition hover:bg-zinc-200 hover:text-zinc-900"
-                            >
-                                <SquarePen size={16} />
-                            </a>
+                            {differenceInWeeks(new Date(), date) <= 1 &&
+                                isPast(date) && (
+                                    <a
+                                        href={`/middag/${String(
+                                            dinner.id
+                                        )}/rating/${String(
+                                            ratingForDinner.id
+                                        )}/rediger`}
+                                        title="Rediger rating"
+                                        aria-label="Rediger rating"
+                                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-200 text-zinc-600 transition hover:bg-zinc-200 hover:text-zinc-900"
+                                    >
+                                        <SquarePen size={16} />
+                                    </a>
+                                )}
                         </div>
                     </div>
 
