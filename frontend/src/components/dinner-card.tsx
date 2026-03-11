@@ -175,11 +175,11 @@ const DinnerCard = ({ dinner }: Props) => {
 
             {/* Rating card */}
             {!ratingsAreLoading && ratingForDinner && (
-                <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-100 px-4 py-3 text-sm">
+                <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-100 px-4 py-2 text-sm">
                     <div className="mb-2 uppercase text-zinc-500">
                         Din rating
                     </div>
-                    <div className="mb-2 flex items-center justify-between">
+                    <div className=" flex items-center justify-between">
                         <span className="text-sm">
                             <span className="font-bold text-zinc-900">
                                 Middag:
@@ -212,8 +212,6 @@ const DinnerCard = ({ dinner }: Props) => {
                                 )}
                         </div>
                     </div>
-
-                    <div className="flex flex-wrap gap-4 text-sm text-zinc-700"></div>
                 </div>
             )}
 
