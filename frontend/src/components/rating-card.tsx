@@ -6,14 +6,14 @@ import { useGetDinnerByIdQuery } from '../services/dinner';
 import { type Rating } from '../services/rating';
 import { useGetUsersQuery, type User } from '../services/user';
 
-interface Properties {
+interface Props {
     rating: Rating;
 }
 
 const getNameById = (users: User[], id: number): User | null =>
     users.find((ur) => ur.id === id) ?? null;
 
-const RatingCard = ({ rating }: Properties) => {
+const RatingCard = ({ rating }: Props) => {
     const { data: users, isLoading: usersLoading } = useGetUsersQuery();
     const { data: dinner, isLoading: dinnerLoading } = useGetDinnerByIdQuery(
         rating.dinnerId

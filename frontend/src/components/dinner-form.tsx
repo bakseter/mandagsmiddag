@@ -14,7 +14,7 @@ interface FormValues {
     participants: string[];
 }
 
-interface Properties {
+interface Props {
     dinner?: Dinner | null;
 }
 
@@ -23,7 +23,7 @@ const inputClassName =
 
 const labelClassName = 'mb-1.5 block text-sm font-medium text-zinc-800';
 
-const DinnerForm = ({ dinner = null }: Properties) => {
+const DinnerForm = ({ dinner = null }: Props) => {
     const { data: users, isLoading: usersLoading } = useGetUsersQuery();
     const [addDinner, { isLoading, isSuccess, error }] = usePutDinnerMutation();
 
