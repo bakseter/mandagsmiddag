@@ -79,7 +79,7 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
         <div className="mt-4 w-full max-w-xl rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
             <div className="mb-6">
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900">
-                    {isEditMode ? 'Rediger' : 'Endre'} rating
+                    {isEditMode ? 'Rediger' : 'Legg til'} rating
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
                     Gi en score fra 0 til 10 for både middag og film.
@@ -88,7 +88,7 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
 
             {currentUser?.isAdmin && userBeingImpersonated && (
                 <p className="mb-4 rounded-lg bg-yellow-50 px-4 py-2 text-sm text-yellow-800">
-                    Du legger nå inn en rating på vegne av{' '}
+                    Du {isEditMode ? 'endrer nå' : 'legger nå til'} en rating på vegne av{' '}
                     <span className="font-medium">
                         {userBeingImpersonated.name}
                     </span>
