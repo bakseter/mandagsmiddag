@@ -22,7 +22,7 @@ const DinnersPage = () => {
 
     const sortedDinners = dinners.toSorted(
         (first, second) =>
-            new Date(first.date).getTime() - new Date(second.date).getTime()
+            new Date(second.date).getTime() - new Date(first.date).getTime()
     );
 
     return (
