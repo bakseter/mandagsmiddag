@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
-import { useGetCurrentUserQuery } from '../services/user';
+
+import { useGetCurrentUserQuery } from '@/services/user';
 
 interface Props {
     children: ReactNode;
@@ -9,8 +10,12 @@ interface Props {
 const AdminOnly = ({ children, message }: Props) => {
     const { data: currentUser } = useGetCurrentUserQuery();
 
-    if (!currentUser?.isAdmin && !message) return null;
-    if (!currentUser?.isAdmin && message) return <p>{message}</p>;
+    if (!currentUser?.isAdmin && !message) {
+        return null;
+    }
+    if (!currentUser?.isAdmin && message) {
+        return <p>{message}</p>;
+    }
 
     return <>{children}</>;
 };

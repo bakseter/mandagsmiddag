@@ -1,5 +1,5 @@
-import AdminOnly from '../components/AdminOnly';
-import DinnerForm from '../components/DinnerForm';
+import AdminOnly from '@/components/admin-only';
+import DinnerForm from '@/components/dinner-form';
 
 const NewDinnerPage = () => (
     <AdminOnly>

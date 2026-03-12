@@ -1,5 +1,5 @@
-import DinnerCard from '../components/DinnerCard';
-import { useGetDinnersQuery } from '../services/dinner';
+import DinnerCard from '@/components/dinner-card';
+import { useGetDinnersQuery } from '@/services/dinner';
 
 const DinnersPage = () => {
     const { data: dinners = [], isLoading, error } = useGetDinnersQuery();
@@ -20,8 +20,9 @@ const DinnersPage = () => {
         );
     }
 
-    const sortedDinners = [...dinners].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    const sortedDinners = dinners.toSorted(
+        (first, second) =>
+            new Date(first.date).getTime() - new Date(second.date).getTime()
     );
 
     return (

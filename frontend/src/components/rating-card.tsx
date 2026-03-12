@@ -1,17 +1,17 @@
 import { format } from 'date-fns';
 import { nb } from 'date-fns/locale';
 import { useMemo } from 'react';
-import { useGetDinnerByIdQuery } from '../services/dinner';
-import { type Rating } from '../services/rating';
-import { type User, useGetUsersQuery } from '../services/user';
+
+import { useGetDinnerByIdQuery } from '@/services/dinner';
+import { type Rating } from '@/services/rating';
+import { useGetUsersQuery, type User } from '@/services/user';
 
 interface Props {
     rating: Rating;
 }
 
-const getNameById = (users: User[], id: number): User | null => {
-    return users.find((ur) => ur.id === id) ?? null;
-};
+const getNameById = (users: User[], id: number): User | null =>
+    users.find((ur) => ur.id === id) ?? null;
 
 const RatingCard = ({ rating }: Props) => {
     const { data: users, isLoading: usersLoading } = useGetUsersQuery();
@@ -19,13 +19,17 @@ const RatingCard = ({ rating }: Props) => {
         rating.dinnerId
     );
     const user: User | null = useMemo(() => {
-        if (!users || !rating.userId) return null;
+        if (!users || !rating.userId) {
+            return null;
+        }
         return getNameById(users, rating.userId);
     }, [rating.userId, users]);
 
     const date = dinner?.date ? new Date(dinner.date) : null;
 
-    if (usersLoading || dinnerLoading) return <p>Laster...</p>;
+    if (usersLoading || dinnerLoading) {
+        return <p>Laster...</p>;
+    }
 
     return (
         <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">

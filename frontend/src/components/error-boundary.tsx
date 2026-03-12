@@ -9,8 +9,8 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-    constructor(props: ErrorBoundaryProps) {
-        super(props);
+    constructor(properties: ErrorBoundaryProps) {
+        super(properties);
         this.state = { hasError: false };
     }
 

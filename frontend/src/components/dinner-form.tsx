@@ -1,7 +1,8 @@
-import { Controller, useForm } from 'react-hook-form';
-import { type Dinner, usePutDinnerMutation } from '../services/dinner';
 import { format, formatISO } from 'date-fns';
-import { useGetUsersQuery } from '../services/user';
+import { Controller, useForm } from 'react-hook-form';
+
+import { type Dinner, usePutDinnerMutation } from '@/services/dinner';
+import { useGetUsersQuery } from '@/services/user';
 
 interface FormValues {
     id: string;
@@ -28,7 +29,7 @@ const DinnerForm = ({ dinner = null }: Props) => {
 
     const isEditMode = Boolean(dinner);
 
-    const { control, handleSubmit, reset } = useForm<FormValues>({
+    const { handleSubmit, control, reset } = useForm<FormValues>({
         defaultValues: {
             id: dinner?.id ? String(dinner.id) : '',
             hostUserId: dinner ? String(dinner.hostUserId) : '',
@@ -38,7 +39,7 @@ const DinnerForm = ({ dinner = null }: Props) => {
             food: dinner?.food ?? '',
             filmTitle: dinner?.filmTitle ?? '',
             filmImdbUrl: dinner?.filmImdbUrl ?? '',
-            participants: dinner?.participantIds?.map((id) => String(id)) ?? [],
+            participants: dinner?.participantIds?.map(String) ?? [],
         },
     });
 
@@ -51,13 +52,13 @@ const DinnerForm = ({ dinner = null }: Props) => {
                 food: data.food,
                 filmTitle: data.filmTitle,
                 filmImdbUrl: data.filmImdbUrl,
-                participantIds: data.participants.map((id) => Number(id)),
+                participantIds: data.participants.map(Number),
             };
 
             await addDinner(formDinner).unwrap();
             reset();
-        } catch (err) {
-            console.error(err);
+        } catch (error_) {
+            console.error(error_);
         }
     };
 
@@ -81,6 +82,7 @@ const DinnerForm = ({ dinner = null }: Props) => {
                 </p>
             </div>
 
+            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {isEditMode && (
                     <Controller
@@ -243,6 +245,7 @@ const DinnerForm = ({ dinner = null }: Props) => {
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">
+                    {/* eslint-disable no-nested-ternary */}
                     <button
                         type="submit"
                         className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
@@ -254,6 +257,7 @@ const DinnerForm = ({ dinner = null }: Props) => {
                               ? 'Oppdater middag'
                               : 'Legg til middag'}
                     </button>
+                    {/* eslint-enable no-nested-ternary */}
 
                     {isSuccess && (
                         <p className="text-sm text-green-700">
