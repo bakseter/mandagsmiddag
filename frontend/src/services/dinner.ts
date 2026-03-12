@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { backendUrl } from './common';
+import { backendUrl } from '@/services/common';
 
 export interface Dinner {
     id: number;

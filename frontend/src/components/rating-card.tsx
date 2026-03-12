@@ -2,9 +2,9 @@ import { format } from 'date-fns';
 import { nb } from 'date-fns/locale';
 import { useMemo } from 'react';
 
-import { useGetDinnerByIdQuery } from '../services/dinner';
-import { type Rating } from '../services/rating';
-import { useGetUsersQuery, type User } from '../services/user';
+import { useGetDinnerByIdQuery } from '@/services/dinner';
+import { type Rating } from '@/services/rating';
+import { useGetUsersQuery, type User } from '@/services/user';
 
 interface Props {
     rating: Rating;
