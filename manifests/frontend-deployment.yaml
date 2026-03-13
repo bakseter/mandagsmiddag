@@ -46,6 +46,13 @@ spec:
                     values:
                       - frontend
               topologyKey: bakseter.net/physical-node
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
       securityContext:
         fsGroup: 65534
         runAsNonRoot: true
