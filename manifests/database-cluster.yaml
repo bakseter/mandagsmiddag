@@ -1,7 +1,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: database
+  name: mandagsmiddag-database
   namespace: mandagsmiddag
 spec:
   instances: 1
@@ -10,7 +10,7 @@ spec:
       recurring-job.longhorn.io/source: enabled
       recurring-job-group.longhorn.io/hetzner-backup: enabled
   storage:
-    size: 1Gi
+    size: 2Gi
   resources:
     requests:
       cpu: 50m
@@ -18,3 +18,10 @@ spec:
     limits:
       cpu: 500m
       memory: 1Gi
+  bootstrap:
+    recovery:
+      volumeSnapshots:
+        storage:
+          name: mandagsmiddag-database-backup
+          kind: PersistentVolumeClaim
+          apiGroup: ''
