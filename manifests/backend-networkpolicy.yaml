@@ -61,3 +61,13 @@ spec:
           ports:
             - port: '5432'
               protocol: TCP
+
+    # Allow sending logs via OTLP to Grafana Alloy
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: alloy
+      toPorts:
+        - ports:
+            - port: '4317'
+              protocol: TCP
