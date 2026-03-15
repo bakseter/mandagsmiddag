@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"log"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/bakseter/mandagsmiddag/pkg/config"
 	"github.com/bakseter/mandagsmiddag/pkg/models"
@@ -18,12 +19,18 @@ func main() {
 
 	conf, err := config.New(ctx)
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		logrus.Fatalf("Failed to load config: %v", err)
 	}
 
+	log := logrus.New()
+	log.SetFormatter(&logrus.JSONFormatter{})
+
 	router := gin.New()
-	router.Use(gin.LoggerWithWriter(gin.DefaultWriter, "/metrics"))
-	router.Use(config.ConfigureGinMetrics(conf))
+
+	router.Use(config.LogrusMiddleware(log))
+	router.Use(gin.Recovery())
+	router.Use(config.MetricsMiddleware(conf))
+
 	router.SetTrustedProxies(nil)
 
 	if !conf.Local {
@@ -60,7 +67,7 @@ func main() {
 
 	database, err := models.InitializeDatabase()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	err = database.AutoMigrate(
@@ -71,13 +78,13 @@ func main() {
 		&models.Rating{},
 	)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	if conf.Local {
 		err = insertTestUsers(database)
 		if err != nil {
-			log.Printf("Failed to insert test users: %v", err)
+			logrus.Printf("Failed to insert test users: %v", err)
 		}
 	}
 
@@ -118,7 +125,7 @@ func main() {
 
 	err = router.Run(":" + conf.Port)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 }
 

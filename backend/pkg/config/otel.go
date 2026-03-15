@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/bridges/otellogrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -39,20 +39,20 @@ func ConfigureOpenTelemetry(ctx context.Context) (*ApplicationMetrics, error) {
 		resource.WithSchemaURL(semconv.SchemaURL),
 	)
 	if err != nil {
-		log.Errorf("Failed to create resource: %v", err)
+		logrus.Errorf("Failed to create resource: %v", err)
 
 		return nil, errors.New("FailedToCreateResource")
 	}
 
 	if err := configureLogs(ctx, resource); err != nil {
-		log.Errorf("Failed to configure logs: %v", err)
+		logrus.Errorf("Failed to configure logs: %v", err)
 
 		return nil, errors.New("FailedToConfigureLogs")
 	}
 
 	applicationMetrics, err := configureMetrics(ctx, resource)
 	if err != nil {
-		log.Errorf("Failed to configure metrics: %v", err)
+		logrus.Errorf("Failed to configure metrics: %v", err)
 
 		return nil, errors.New("FailedToConfigureMetrics")
 	}
@@ -78,7 +78,7 @@ func configureLogs(ctx context.Context, resource *resource.Resource) error {
 		SERVICE_NAMESPACE,
 		otellogrus.WithLoggerProvider(loggerProvider),
 	)
-	log.AddHook(hook)
+	logrus.AddHook(hook)
 
 	return nil
 }
@@ -136,7 +136,7 @@ func configureMetrics(ctx context.Context, resource *resource.Resource) (*Applic
 	}, nil
 }
 
-func ConfigureGinMetrics(conf *Config) gin.HandlerFunc {
+func MetricsMiddleware(conf *Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := time.Now()
 		c.Next()
@@ -167,5 +167,27 @@ func ConfigureGinMetrics(conf *Config) gin.HandlerFunc {
 			1,
 			meter.WithAttributes(meterAttributes...),
 		)
+	}
+}
+
+func LogrusMiddleware(log *logrus.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+
+		c.Next()
+
+		latency := time.Since(start)
+
+		// Skip logging for /metrics endpoint to reduce noise in logs
+		if c.Request.URL.Path != "/metrics" {
+			log.WithFields(logrus.Fields{
+				"status":    c.Writer.Status(),
+				"method":    c.Request.Method,
+				"path":      c.Request.URL.Path,
+				"ip":        c.ClientIP(),
+				"latency":   latency,
+				"userAgent": c.Request.UserAgent(),
+			}).Info("request completed")
+		}
 	}
 }
