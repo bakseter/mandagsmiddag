@@ -10,7 +10,7 @@ spec:
       recurring-job.longhorn.io/source: enabled
       recurring-job-group.longhorn.io/hetzner-backup: enabled
   storage:
-    size: 1Gi
+    size: 2Gi
   resources:
     requests:
       cpu: 50m
