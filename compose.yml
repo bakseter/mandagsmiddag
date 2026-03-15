@@ -24,9 +24,13 @@ services:
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
       - LOCAL=true
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
     depends_on:
       database:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     links:
       - database
     develop:
@@ -40,6 +44,15 @@ services:
         - action: rebuild
           path: '**/*.go'
           target: /app
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ['--config=/etc/otelcol-contrib/config.yaml']
+    volumes:
+      - ./otelcol.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - '4317:4317'
+      - '4318:4318'
 
   database:
     image: postgres:18

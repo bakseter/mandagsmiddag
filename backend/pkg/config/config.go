@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -13,10 +15,10 @@ type Config struct {
 	Port               string
 }
 
-func New(ctx context.Context) (*Config, error) {
-	applicationMetrics, err := ConfigureOpenTelemetry(ctx)
+func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context) error, error) {
+	applicationMetrics, shutdownLogs, err := ConfigureOpenTelemetry(ctx, log)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	local := os.Getenv("LOCAL") == "true"
@@ -34,7 +36,7 @@ func New(ctx context.Context) (*Config, error) {
 		return host_, nil
 	}()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	port := func() string {
@@ -51,5 +53,5 @@ func New(ctx context.Context) (*Config, error) {
 		Local:              local,
 		Host:               host,
 		Port:               port,
-	}, nil
+	}, shutdownLogs, nil
 }

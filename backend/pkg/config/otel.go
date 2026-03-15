@@ -2,7 +2,6 @@ package config
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -31,39 +30,41 @@ const (
 	SERVICE_NAMESPACE = "mandagsmiddag"
 )
 
-func ConfigureOpenTelemetry(ctx context.Context) (*ApplicationMetrics, error) {
-	resource, err := resource.New(
+func ConfigureOpenTelemetry(ctx context.Context, log *logrus.Logger) (*ApplicationMetrics, func(context.Context) error, error) {
+	res, err := resource.New(
 		ctx,
 		resource.WithAttributes(semconv.ServiceNameKey.String(SERVICE_NAME)),
 		resource.WithAttributes(semconv.ServiceNamespaceKey.String(SERVICE_NAMESPACE)),
 		resource.WithSchemaURL(semconv.SchemaURL),
 	)
 	if err != nil {
-		logrus.Errorf("Failed to create resource: %v", err)
-
-		return nil, errors.New("FailedToCreateResource")
+		return nil, nil, err
 	}
 
-	if err := configureLogs(ctx, resource); err != nil {
-		logrus.Errorf("Failed to configure logs: %v", err)
-
-		return nil, errors.New("FailedToConfigureLogs")
-	}
-
-	applicationMetrics, err := configureMetrics(ctx, resource)
+	loggerProvider, err := configureLogs(ctx, res, log)
 	if err != nil {
-		logrus.Errorf("Failed to configure metrics: %v", err)
-
-		return nil, errors.New("FailedToConfigureMetrics")
+		return nil, nil, err
 	}
 
-	return applicationMetrics, nil
+	applicationMetrics, err := configureMetrics(ctx, res)
+	if err != nil {
+		_ = loggerProvider.Shutdown(ctx)
+		return nil, nil, err
+	}
+
+	return applicationMetrics, loggerProvider.Shutdown, nil
 }
 
-func configureLogs(ctx context.Context, resource *resource.Resource) error {
-	logExporter, err := otlploggrpc.New(ctx)
+func configureLogs(
+	ctx context.Context,
+	resource *resource.Resource,
+	log *logrus.Logger,
+) (*otelLog.LoggerProvider, error) {
+	logExporter, err := otlploggrpc.New(
+		ctx,
+	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	processor := otelLog.NewBatchProcessor(logExporter)
@@ -75,12 +76,13 @@ func configureLogs(ctx context.Context, resource *resource.Resource) error {
 	global.SetLoggerProvider(loggerProvider)
 
 	hook := otellogrus.NewHook(
-		SERVICE_NAMESPACE,
+		SERVICE_NAMESPACE+"/"+SERVICE_NAME,
 		otellogrus.WithLoggerProvider(loggerProvider),
 	)
-	logrus.AddHook(hook)
 
-	return nil
+	log.AddHook(hook)
+
+	return loggerProvider, nil
 }
 
 func configureMetrics(ctx context.Context, resource *resource.Resource) (*ApplicationMetrics, error) {

@@ -17,13 +17,18 @@ import (
 func main() {
 	ctx := context.Background()
 
-	conf, err := config.New(ctx)
-	if err != nil {
-		logrus.Fatalf("Failed to load config: %v", err)
-	}
-
 	log := logrus.New()
 	log.SetFormatter(&logrus.JSONFormatter{})
+
+	conf, shutdownLogs, err := config.New(ctx, log)
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
+	defer func() {
+		if err := shutdownLogs(ctx); err != nil {
+			log.Errorf("failed to shutdown log provider: %v", err)
+		}
+	}()
 
 	router := gin.New()
 
