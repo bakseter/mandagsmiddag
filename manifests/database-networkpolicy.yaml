@@ -6,7 +6,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/instance: database
+      app.kubernetes.io/instance: mandagsmiddag-database
 
   ingress:
     # Allow traffic from backend
