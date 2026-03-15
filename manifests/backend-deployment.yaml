@@ -17,6 +17,7 @@ spec:
     metadata:
       labels:
         app: backend
+        logs.bakseter.net/scrape: 'false'
     spec:
       containers:
         - name: backend
