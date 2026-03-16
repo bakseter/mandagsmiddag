@@ -12,7 +12,7 @@ type RatingJSON struct {
 	ID          uint `json:"id,omitempty"`
 	UserID      uint `json:"userId,omitempty"`
 	FilmScore   int  `json:"filmScore,omitempty"`
-	DinnerScore int  `json:"dinnerScore,omitempty"`
+	DinnerScore *int `json:"dinnerScore"`
 	DinnerID    uint `json:"dinnerId,omitempty"`
 }
 
@@ -63,11 +63,6 @@ func PutRating(c *gin.Context, database *gorm.DB) {
 	// Set ID if exists, to ensure update to correct Rating
 	if rating.ID > 0 {
 		dbRating.ID = rating.ID
-	}
-
-	// Set DinnerScore if it exists, to ensure update
-	if rating.DinnerScore > 0 {
-		dbRating.DinnerScore = rating.DinnerScore
 	}
 
 	// Set FilmScore if it exists, to ensure update

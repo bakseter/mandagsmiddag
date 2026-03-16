@@ -77,8 +77,7 @@ const DinnerCard = ({ dinner }: Props) => {
         !ratingForDinner &&
         Boolean(dinner.food) &&
         Boolean(dinner.filmTitle) &&
-        dinner.participantIds?.includes(currentUser?.id ?? 0) &&
-        currentUser?.id !== dinner.hostUserId;
+        dinner.participantIds?.includes(currentUser?.id ?? 0);
 
     const canEditDinner =
         currentUser &&

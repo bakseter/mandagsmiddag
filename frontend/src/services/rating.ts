@@ -6,7 +6,7 @@ export interface Rating {
     id: number;
     userId: number;
     filmScore: number;
-    dinnerScore: number;
+    dinnerScore: number | null;
     dinnerId: number;
 }
 
