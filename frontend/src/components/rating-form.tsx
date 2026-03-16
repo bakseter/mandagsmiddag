@@ -1,5 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 
+import { useGetDinnerByIdQuery } from '@/services/dinner';
 import { type Rating, usePutRatingMutation } from '@/services/rating';
 import { useGetCurrentUserQuery, useGetUsersQuery } from '@/services/user';
 
@@ -7,7 +8,7 @@ interface FormValues {
     id: string;
     userId: string;
     dinnerId: string;
-    dinnerScore: number;
+    dinnerScore: number | null;
     filmScore: number;
 }
 
@@ -29,6 +30,8 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
 
     // TODO: Get only the user with userId instead of all
     const { data: users, isLoading: usersAreLoading } = useGetUsersQuery();
+    const { data: dinner, isLoading: dinnersLoading } =
+        useGetDinnerByIdQuery(dinnerId);
 
     const [addRating, { isLoading, isSuccess, error }] = usePutRatingMutation();
 
@@ -40,21 +43,39 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
         return String(currentUser?.id ?? '');
     })();
 
-    const { handleSubmit, control, reset } = useForm<FormValues>({
-        defaultValues: {
-            id: rating ? String(rating.id) : '',
-            dinnerId: String(dinnerId),
-            dinnerScore: rating?.dinnerScore ?? 0,
-            filmScore: rating?.filmScore ?? 0,
-        },
-    });
+    const ratingUserId = currentUser?.isAdmin
+        ? (userId ?? currentUser?.id)
+        : currentUser?.id;
+    const isHost = dinner !== undefined && dinner.hostUserId === ratingUserId;
 
-    if (currentUserLoading || usersAreLoading) {
+    const { handleSubmit, control, reset, setValue, watch } =
+        useForm<FormValues>({
+            defaultValues: {
+                id: rating ? String(rating.id) : '',
+                dinnerId: String(dinnerId),
+                dinnerScore: rating ? rating.dinnerScore : 0,
+                filmScore: rating?.filmScore ?? 0,
+            },
+        });
+
+    const dinnerScore = watch('dinnerScore');
+    const didNotEat = isHost || dinnerScore === null;
+
+    if (currentUserLoading || usersAreLoading || dinnersLoading) {
         return <p>Loading...</p>;
     }
 
     const userBeingImpersonated = users?.find((user) => user.id === userId);
     const isEditMode = Boolean(rating);
+
+    const handleToggleDidNotEat = () => {
+        if (isHost) return; // Host cannot toggle — always disabled
+        if (dinnerScore === null) {
+            setValue('dinnerScore', 0);
+        } else {
+            setValue('dinnerScore', null);
+        }
+    };
 
     // Override userId from search param if user is admin.
 
@@ -124,24 +145,41 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
                         <Controller
                             name="dinnerScore"
                             control={control}
-                            rules={{ required: true, min: 0, max: 10 }}
+                            rules={{
+                                required: !didNotEat,
+                                min: didNotEat ? undefined : 1,
+                                max: didNotEat ? undefined : 10,
+                            }}
                             render={({ field }) => (
                                 <input
                                     type="number"
                                     {...field}
+                                    value={
+                                        field.value === null
+                                            ? ''
+                                            : (field.value ?? '')
+                                    }
                                     onChange={(event) => {
                                         field.onChange(
                                             event.target.valueAsNumber
                                         );
                                     }}
-                                    min={0}
+                                    min={1}
                                     max={10}
                                     step={1}
-                                    placeholder="0–10"
-                                    className={inputClassName}
+                                    placeholder="1–10"
+                                    disabled={didNotEat}
+                                    className={`${inputClassName} disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400`}
                                 />
                             )}
                         />
+                        {didNotEat && (
+                            <p className="mt-1.5 text-xs text-zinc-500">
+                                {isHost
+                                    ? 'Du er vert for denne middagen og kan ikke rate maten.'
+                                    : 'Du har markert at du ikke spiste.'}
+                            </p>
+                        )}
                     </div>
 
                     <div>
@@ -169,6 +207,22 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
                         />
                     </div>
                 </div>
+
+                {!isHost && (
+                    <div>
+                        <button
+                            type="button"
+                            onClick={handleToggleDidNotEat}
+                            className={`inline-flex items-center rounded-xl border px-4 py-2 text-sm font-medium transition ${
+                                didNotEat
+                                    ? 'border-zinc-900 bg-zinc-900 text-white hover:bg-zinc-700'
+                                    : 'border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50'
+                            }`}
+                        >
+                            Jeg spiste ikke
+                        </button>
+                    </div>
+                )}
 
                 <div className="flex items-center gap-3 pt-2">
                     {/* eslint-disable no-nested-ternary */}
