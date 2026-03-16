@@ -44,9 +44,9 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
     })();
 
     const ratingUserId = currentUser?.isAdmin
-        ? (userId ?? currentUser?.id)
+        ? (userId ?? currentUser.id)
         : currentUser?.id;
-    const isHost = dinner !== undefined && dinner.hostUserId === ratingUserId;
+    const isHost = dinner !== undefined && dinner.hostUserId === ratingUserId; // eslint-disable-line no-undefined
 
     const { handleSubmit, control, reset, setValue, watch } =
         useForm<FormValues>({
@@ -69,7 +69,11 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
     const isEditMode = Boolean(rating);
 
     const handleToggleDidNotEat = () => {
-        if (isHost) return; // Host cannot toggle — always disabled
+        // Host cannot toggle — always disabled
+        if (isHost) {
+            return;
+        }
+
         if (dinnerScore === null) {
             setValue('dinnerScore', 0);
         } else {
@@ -147,18 +151,16 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
                             control={control}
                             rules={{
                                 required: !didNotEat,
+                                /* eslint-disable no-magic-numbers,no-undefined */
                                 min: didNotEat ? undefined : 1,
                                 max: didNotEat ? undefined : 10,
+                                /* eslint-enable no-magic-numbers,no-undefined */
                             }}
                             render={({ field }) => (
                                 <input
                                     type="number"
                                     {...field}
-                                    value={
-                                        field.value === null
-                                            ? ''
-                                            : (field.value ?? '')
-                                    }
+                                    value={field.value ?? ''}
                                     onChange={(event) => {
                                         field.onChange(
                                             event.target.valueAsNumber

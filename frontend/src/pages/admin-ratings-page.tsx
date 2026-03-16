@@ -185,12 +185,18 @@ const RatingsPage = () => {
                                                                             }
                                                                         </td>
 
-                                                                         <td className="px-4 py-3">
-                                                                            {rating
-                                                                                ? rating.dinnerScore === null
-                                                                                    ? <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-500">Spiste ikke</span>
-                                                                                    : `${String(rating.dinnerScore)}/10`
-                                                                                : '—'}
+                                                                        <td className="px-4 py-3">
+                                                                            {rating &&
+                                                                                !rating.dinnerScore && (
+                                                                                    <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-500">
+                                                                                        Spiste
+                                                                                        ikke
+                                                                                    </span>
+                                                                                )}
+                                                                            {rating?.dinnerScore &&
+                                                                                `${String(rating.dinnerScore)}/10`}
+                                                                            {!rating &&
+                                                                                '—'}
                                                                         </td>
 
                                                                         <td className="px-4 py-3">
