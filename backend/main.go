@@ -86,6 +86,14 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	// Drop and recreate the dinner_score check constraint to allow NULL values.
+	if err := database.Exec(`ALTER TABLE ratings DROP CONSTRAINT IF EXISTS chk_ratings_dinner_score`).Error; err != nil {
+		logrus.Fatalf("Failed to drop dinner_score constraint: %v", err)
+	}
+	if err := database.Exec(`ALTER TABLE ratings ADD CONSTRAINT chk_ratings_dinner_score CHECK (dinner_score IS NULL OR (dinner_score >= 1 AND dinner_score <= 10))`).Error; err != nil {
+		logrus.Fatalf("Failed to add dinner_score constraint: %v", err)
+	}
+
 	if conf.Local {
 		err = insertTestUsers(database)
 		if err != nil {
