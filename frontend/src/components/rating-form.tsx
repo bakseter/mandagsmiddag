@@ -88,7 +88,8 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
 
             {currentUser?.isAdmin && userBeingImpersonated && (
                 <p className="mb-4 rounded-lg bg-yellow-50 px-4 py-2 text-sm text-yellow-800">
-                    Du {isEditMode ? 'endrer nå' : 'legger nå til'} en rating på vegne av{' '}
+                    Du {isEditMode ? 'endrer nå' : 'legger nå til'} en rating på
+                    vegne av{' '}
                     <span className="font-medium">
                         {userBeingImpersonated.name}
                     </span>
