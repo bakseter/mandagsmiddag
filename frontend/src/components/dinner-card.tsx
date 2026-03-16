@@ -217,7 +217,8 @@ const DinnerCard = ({ dinner }: Props) => {
 
             {/* Add rating */}
             {canAddRating &&
-                !(differenceInWeeks(new Date(), date) <= 1 && isPast(date)) && (
+                differenceInWeeks(new Date(), date) <= 1 &&
+                isPast(date) && (
                     <div className="mt-4">
                         <a
                             href={`/middag/${String(dinner.id)}/rating/ny`}
@@ -232,8 +233,7 @@ const DinnerCard = ({ dinner }: Props) => {
                 )}
 
             {canAddRating &&
-                differenceInWeeks(new Date(), date) <= 1 &&
-                isPast(date) && (
+                !(differenceInWeeks(new Date(), date) <= 1 && isPast(date)) && (
                     <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-100 px-4 py-2 text-sm text-zinc-500">
                         Du rakk ikke å legge inn en rating i tide
                     </div>
