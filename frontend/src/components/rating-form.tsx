@@ -85,7 +85,7 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
                 id: Number(data.id),
                 userId: Number(userIdToUse),
                 dinnerId: Number(data.dinnerId),
-                dinnerScore: data.dinnerScore,
+                dinnerScore: didNotEat ? null : data.dinnerScore,
                 filmScore: data.filmScore,
             };
 
