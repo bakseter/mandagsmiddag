@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/bakseter/mandagsmiddag/pkg/models"
@@ -16,29 +17,39 @@ type RatingJSON struct {
 	DinnerID    uint `json:"dinnerId,omitempty"`
 }
 
-func PutRating(c *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(c)
+func RatingRoutes(router *gin.RouterGroup, database *gorm.DB) {
+	router.GET("/rating", models.WithDatabase(getAllRatings, database))
+	router.GET("/rating/user", models.WithDatabase(getAllRatingsForUser, database))
+	router.GET("/rating/:id", models.WithDatabase(getRatingWithID, database))
+	router.PUT("/rating", models.WithDatabase(putRating, database))
+}
+
+func putRating(ctx *gin.Context, database *gorm.DB) { //nolint:cyclop,funlen
+	authentikUser, err := getAuthentikUser(ctx)
 	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
+		ctx.JSON(401, gin.H{"error": err.Error()})
+
 		return
 	}
 
 	// Check if user exists in database
 	var user models.User
 	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
-		c.JSON(401, gin.H{"error": "user does not exist: " + err.Error()})
+		ctx.JSON(401, gin.H{"error": "user does not exist: " + err.Error()})
+
 		return
 	}
 
 	// Parse rating JSON
 	var rating RatingJSON
-	if err := c.ShouldBindBodyWithJSON(&rating); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindBodyWithJSON(&rating); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+
 		return
 	}
 
 	if rating.UserID != 0 && rating.UserID != user.ID && !user.IsAdmin {
-		c.JSON(403, gin.H{"error": "cannot create or update rating for another user"})
+		ctx.JSON(403, gin.H{"error": "cannot create or update rating for another user"})
 
 		return
 	}
@@ -72,49 +83,59 @@ func PutRating(c *gin.Context, database *gorm.DB) {
 
 	// Upsert by (user_id, dinner_id): update if exists, create if not
 	var existingRating models.Rating
+
 	err = database.Where("user_id = ? AND dinner_id = ?", dbRating.UserID, dbRating.DinnerID).First(&existingRating).Error
-	switch err {
-	case nil:
-		// Update existing rating
+	switch {
+	case err == nil:
 		existingRating.FilmScore = dbRating.FilmScore
+
 		existingRating.DinnerScore = dbRating.DinnerScore
 		if err := database.Save(&existingRating).Error; err != nil {
-			c.JSON(500, gin.H{"error": "failed to update rating: " + err.Error()})
+			ctx.JSON(500, gin.H{"error": "failed to update rating: " + err.Error()})
+
 			return
 		}
-		c.Status(http.StatusOK)
+
+		ctx.Status(http.StatusOK)
+
 		return
-	case gorm.ErrRecordNotFound:
-		// Create new rating
+	case errors.Is(err, gorm.ErrRecordNotFound):
 		if err := database.Create(&dbRating).Error; err != nil {
-			c.JSON(500, gin.H{"error": "failed to create rating: " + err.Error()})
+			ctx.JSON(500, gin.H{"error": "failed to create rating: " + err.Error()})
+
 			return
 		}
-		c.Status(http.StatusCreated)
+
+		ctx.Status(http.StatusCreated)
+
 		return
 	default:
-		c.JSON(500, gin.H{"error": "failed to check existing rating: " + err.Error()})
+		ctx.JSON(500, gin.H{"error": "failed to check existing rating: " + err.Error()})
+
 		return
 	}
 }
 
-func GetAllRatingsForUser(c *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(c)
+func getAllRatingsForUser(ctx *gin.Context, database *gorm.DB) {
+	authentikUser, err := getAuthentikUser(ctx)
 	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
+		ctx.JSON(401, gin.H{"error": err.Error()})
+
 		return
 	}
 
 	// Get user from database
 	var user models.User
 	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(404, gin.H{"error": "user not found"})
-			return
-		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(404, gin.H{"error": "user not found"})
+
 			return
 		}
+
+		ctx.JSON(500, gin.H{"error": "failed to fetch user"})
+
+		return
 	}
 
 	var ratings []models.Rating
@@ -122,16 +143,19 @@ func GetAllRatingsForUser(c *gin.Context, database *gorm.DB) {
 		Where("user_id = ?", user.ID).
 		Order("created_at DESC").
 		Find(&ratings).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to fetch ratings"})
+		ctx.JSON(500, gin.H{"error": "failed to fetch ratings"})
+
 		return
 	}
 
 	if len(ratings) == 0 {
-		c.JSON(200, []RatingJSON{})
+		ctx.JSON(200, []RatingJSON{})
+
 		return
 	}
 
 	var ratingList []RatingJSON
+
 	for _, rating := range ratings {
 		ratingJSON := RatingJSON{
 			ID:          rating.ID,
@@ -142,24 +166,28 @@ func GetAllRatingsForUser(c *gin.Context, database *gorm.DB) {
 		}
 		ratingList = append(ratingList, ratingJSON)
 	}
-	c.JSON(200, ratingList)
+
+	ctx.JSON(200, ratingList)
 }
 
-func GetAllRatings(c *gin.Context, database *gorm.DB) {
+func getAllRatings(ctx *gin.Context, database *gorm.DB) {
 	var ratings []models.Rating
 	if err := database.
 		Order("created_at DESC").
 		Find(&ratings).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to fetch ratings"})
+		ctx.JSON(500, gin.H{"error": "failed to fetch ratings"})
+
 		return
 	}
 
 	if len(ratings) == 0 {
-		c.JSON(200, []RatingJSON{})
+		ctx.JSON(200, []RatingJSON{})
+
 		return
 	}
 
 	var ratingList []RatingJSON
+
 	for _, rating := range ratings {
 		ratingJSON := RatingJSON{
 			ID:          rating.ID,
@@ -170,21 +198,24 @@ func GetAllRatings(c *gin.Context, database *gorm.DB) {
 		}
 		ratingList = append(ratingList, ratingJSON)
 	}
-	c.JSON(200, ratingList)
+
+	ctx.JSON(200, ratingList)
 }
 
-func GetRatingWithId(c *gin.Context, database *gorm.DB) {
+func getRatingWithID(ctx *gin.Context, database *gorm.DB) {
 	var rating models.Rating
-	ratingId := c.Param("id")
+
+	ratingID := ctx.Param("id")
 	if err := database.
-		Where("id = ?", ratingId).
+		Where("id = ?", ratingID).
 		Order("created_at DESC").
 		First(&rating).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(404, gin.H{"error": "dinner not found"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(404, gin.H{"error": "dinner not found"})
 		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch dinner"})
+			ctx.JSON(500, gin.H{"error": "failed to fetch dinner"})
 		}
+
 		return
 	}
 
@@ -196,15 +227,5 @@ func GetRatingWithId(c *gin.Context, database *gorm.DB) {
 		DinnerID:    rating.DinnerID,
 	}
 
-	c.JSON(200, ratingJSON)
-}
-
-func DeleteRatingWithId(c *gin.Context, database *gorm.DB) {
-	ratingId := c.Param("id")
-	if err := database.Delete(&models.Rating{}, ratingId).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to delete rating"})
-		return
-	}
-
-	c.Status(http.StatusNoContent)
+	ctx.JSON(200, ratingJSON)
 }
