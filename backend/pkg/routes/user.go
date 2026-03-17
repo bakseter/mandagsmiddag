@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"net/http"
 	"slices"
 
@@ -16,60 +17,16 @@ type UserJSON struct {
 	IsAdmin bool   `json:"isAdmin,omitempty"`
 }
 
-func PutUser(c *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(c)
-	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
-		return
-	}
-
-	userIsAdmin := slices.Contains(
-		authentikUser.Groups,
-		"mandagsmiddag-admin",
-	)
-
-	// Upsert user in database
-	var user models.User
-	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			newUser := models.User{
-				Email:   authentikUser.Email,
-				Name:    authentikUser.Username,
-				IsAdmin: userIsAdmin,
-			}
-
-			if err := database.Create(&newUser).Error; err != nil {
-				c.JSON(500, gin.H{"error": "failed to create user"})
-				return
-			}
-		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
-			return
-		}
-	} else {
-		updatedUser := models.User{
-			Name:    authentikUser.Username,
-			IsAdmin: userIsAdmin,
-		}
-
-		if err := database.Model(&user).Updates(updatedUser).Error; err != nil {
-			c.JSON(500, gin.H{"error": "failed to update user: " + err.Error()})
-			return
-		}
-	}
-
-	c.JSON(http.StatusOK, UserJSON{
-		ID:      user.ID,
-		Email:   user.Email,
-		Name:    user.Name,
-		IsAdmin: user.IsAdmin,
-	})
+func UserRoutes(router *gin.RouterGroup, database *gorm.DB) {
+	router.GET("/user", models.WithDatabase(getAllUsers, database))
+	router.PUT("/user", models.WithDatabase(putUser, database))
 }
 
-func GetAllUsers(c *gin.Context, database *gorm.DB) {
+func getAllUsers(ctx *gin.Context, database *gorm.DB) {
 	var users []models.User
 	if err := database.Find(&users).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to fetch users"})
+		ctx.JSON(500, gin.H{"error": "failed to fetch users"})
+
 		return
 	}
 
@@ -82,5 +39,65 @@ func GetAllUsers(c *gin.Context, database *gorm.DB) {
 		})
 	}
 
-	c.JSON(http.StatusOK, userList)
+	ctx.JSON(http.StatusOK, userList)
+}
+
+func putUser(ctx *gin.Context, database *gorm.DB) {
+	authentikUser, err := getAuthentikUser(ctx)
+	if err != nil {
+		ctx.JSON(401, gin.H{"error": err.Error()})
+
+		return
+	}
+
+	userIsAdmin := slices.Contains(
+		authentikUser.Groups,
+		"mandagsmiddag-admin",
+	)
+
+	var user models.User
+
+	selectUserErr := database.Where("email = ?", authentikUser.Email).First(&user).Error
+
+	// User not found
+	if selectUserErr != nil && errors.Is(selectUserErr, gorm.ErrRecordNotFound) {
+		newUser := models.User{
+			Email:   authentikUser.Email,
+			Name:    authentikUser.Username,
+			IsAdmin: userIsAdmin,
+		}
+
+		// Create new user
+		if createNewUserErr := database.Create(&newUser).Error; createNewUserErr != nil {
+			ctx.JSON(500, gin.H{"error": "failed to create user: " + createNewUserErr.Error()})
+
+			return
+		}
+	}
+
+	// Other error
+	if selectUserErr != nil {
+		ctx.JSON(500, gin.H{"error": "failed to fetch user: " + selectUserErr.Error()})
+
+		return
+	}
+
+	// User found, update it
+	updatedUser := models.User{
+		Name:    authentikUser.Username,
+		IsAdmin: userIsAdmin,
+	}
+
+	if err := database.Model(&user).Updates(updatedUser).Error; err != nil {
+		ctx.JSON(500, gin.H{"error": "failed to update user: " + err.Error()})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, UserJSON{
+		ID:      user.ID,
+		Email:   user.Email,
+		Name:    user.Name,
+		IsAdmin: user.IsAdmin,
+	})
 }

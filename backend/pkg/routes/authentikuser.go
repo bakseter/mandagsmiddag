@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TODO: Rewrite to middleware //nolint:godox
+
 type AuthentikUser struct {
 	Username     string
 	Groups       []string
@@ -16,7 +18,7 @@ type AuthentikUser struct {
 	UID          string
 }
 
-func getAuthentikUser(c *gin.Context) (*AuthentikUser, error) {
+func getAuthentikUser(ctx *gin.Context) (*AuthentikUser, error) {
 	if os.Getenv("LOCAL") == "true" {
 		return &AuthentikUser{
 			Username:     "Developer",
@@ -27,34 +29,37 @@ func getAuthentikUser(c *gin.Context) (*AuthentikUser, error) {
 		}, nil
 	}
 
-	username := c.GetHeader("X-authentik-username")
+	username := ctx.GetHeader("X-authentik-username")
 	if username == "" {
 		return nil, errors.New("missing X-authentik-username header")
 	}
 
-	groupsHeader := c.GetHeader("X-authentik-groups")
+	groupsHeader := ctx.GetHeader("X-authentik-groups")
 
 	var groups []string
-	for _, value := range strings.Split(groupsHeader, "|") {
+
+	for value := range strings.SplitSeq(groupsHeader, "|") {
 		if value != "" {
 			groups = append(groups, value)
 		}
 	}
 
-	entitlementsHeader := c.GetHeader("X-authentik-entitlements")
+	entitlementsHeader := ctx.GetHeader("X-authentik-entitlements")
+
 	var entitlements []string
-	for _, value := range strings.Split(entitlementsHeader, "|") {
+
+	for value := range strings.SplitSeq(entitlementsHeader, "|") {
 		if value != "" {
 			entitlements = append(entitlements, value)
 		}
 	}
 
-	email := c.GetHeader("X-authentik-email")
+	email := ctx.GetHeader("X-authentik-email")
 	if email == "" {
 		return nil, errors.New("missing X-authentik-email header")
 	}
 
-	uid := c.GetHeader("X-authentik-uid")
+	uid := ctx.GetHeader("X-authentik-uid")
 	if uid == "" {
 		return nil, errors.New("missing X-authentik-uid header")
 	}

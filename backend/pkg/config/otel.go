@@ -26,15 +26,18 @@ type ApplicationMetrics struct {
 }
 
 const (
-	SERVICE_NAME      = "backend"
-	SERVICE_NAMESPACE = "mandagsmiddag"
+	ServiceName      = "backend"
+	ServiceNamespace = "mandagsmiddag"
 )
 
-func ConfigureOpenTelemetry(ctx context.Context, log *logrus.Logger) (*ApplicationMetrics, func(context.Context) error, error) {
+func ConfigureOpenTelemetry(
+	ctx context.Context,
+	log *logrus.Logger,
+) (*ApplicationMetrics, func(context.Context) error, error) {
 	res, err := resource.New(
 		ctx,
-		resource.WithAttributes(semconv.ServiceNameKey.String(SERVICE_NAME)),
-		resource.WithAttributes(semconv.ServiceNamespaceKey.String(SERVICE_NAMESPACE)),
+		resource.WithAttributes(semconv.ServiceNameKey.String(ServiceName)),
+		resource.WithAttributes(semconv.ServiceNamespaceKey.String(ServiceNamespace)),
 		resource.WithSchemaURL(semconv.SchemaURL),
 	)
 	if err != nil {
@@ -46,9 +49,10 @@ func ConfigureOpenTelemetry(ctx context.Context, log *logrus.Logger) (*Applicati
 		return nil, nil, err
 	}
 
-	applicationMetrics, err := configureMetrics(ctx, res)
+	applicationMetrics, err := configureMetrics(res)
 	if err != nil {
 		_ = loggerProvider.Shutdown(ctx)
+
 		return nil, nil, err
 	}
 
@@ -76,7 +80,7 @@ func configureLogs(
 	global.SetLoggerProvider(loggerProvider)
 
 	hook := otellogrus.NewHook(
-		SERVICE_NAMESPACE+"/"+SERVICE_NAME,
+		ServiceNamespace+"/"+ServiceName,
 		otellogrus.WithLoggerProvider(loggerProvider),
 	)
 
@@ -85,10 +89,10 @@ func configureLogs(
 	return loggerProvider, nil
 }
 
-func configureMetrics(ctx context.Context, resource *resource.Resource) (*ApplicationMetrics, error) {
+func configureMetrics(resource *resource.Resource) (*ApplicationMetrics, error) {
 	metricExporter, err := prometheus.New()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Prometheus exporter: %v", err)
+		return nil, fmt.Errorf("failed to create Prometheus exporter: %w", err)
 	}
 
 	meterProvider := metric.NewMeterProvider(
@@ -97,14 +101,14 @@ func configureMetrics(ctx context.Context, resource *resource.Resource) (*Applic
 	)
 	otel.SetMeterProvider(meterProvider)
 
-	metrics := meterProvider.Meter(SERVICE_NAME)
+	metrics := meterProvider.Meter(ServiceName)
 
 	httpRequestsReceivedTotal, err := metrics.Int64Counter(
 		"http_requests_received_total",
 		meter.WithDescription("Total number of HTTP requests received"),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("could not create counter: %s", err)
+		return nil, fmt.Errorf("could not create counter: %w", err)
 	}
 
 	httpRequestDurationSeconds, err := metrics.Float64Histogram(
@@ -129,7 +133,7 @@ func configureMetrics(ctx context.Context, resource *resource.Resource) (*Applic
 		),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("could not create histogram: %s", err)
+		return nil, fmt.Errorf("could not create histogram: %w", err)
 	}
 
 	return &ApplicationMetrics{
@@ -139,14 +143,15 @@ func configureMetrics(ctx context.Context, resource *resource.Resource) (*Applic
 }
 
 func MetricsMiddleware(conf *Config) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		t := time.Now()
-		c.Next()
+
+		ctx.Next()
 
 		latency := time.Since(t)
-		statusCode := c.Writer.Status()
-		method := c.Request.Method
-		endpoint := c.Request.URL.Path
+		statusCode := ctx.Writer.Status()
+		method := ctx.Request.Method
+		endpoint := ctx.Request.URL.Path
 
 		meterAttributes := []attribute.KeyValue{
 			attribute.Key("code").Int(statusCode),
@@ -159,13 +164,13 @@ func MetricsMiddleware(conf *Config) gin.HandlerFunc {
 		}
 
 		conf.ApplicationMetrics.httpRequestDurationSeconds.Record(
-			c.Request.Context(),
+			ctx.Request.Context(),
 			latency.Seconds(),
 			meter.WithAttributes(meterAttributes...),
 		)
 
 		conf.ApplicationMetrics.httpRequestsReceivedTotal.Add(
-			c.Request.Context(),
+			ctx.Request.Context(),
 			1,
 			meter.WithAttributes(meterAttributes...),
 		)
@@ -173,22 +178,22 @@ func MetricsMiddleware(conf *Config) gin.HandlerFunc {
 }
 
 func LogrusMiddleware(log *logrus.Logger) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		start := time.Now()
 
-		c.Next()
+		ctx.Next()
 
 		latency := time.Since(start)
 
 		// Skip logging for /metrics endpoint to reduce noise in logs
-		if c.Request.URL.Path != "/metrics" {
+		if ctx.Request.URL.Path != "/metrics" {
 			log.WithFields(logrus.Fields{
-				"status":    c.Writer.Status(),
-				"method":    c.Request.Method,
-				"path":      c.Request.URL.Path,
-				"ip":        c.ClientIP(),
+				"status":    ctx.Writer.Status(),
+				"method":    ctx.Request.Method,
+				"path":      ctx.Request.URL.Path,
+				"ip":        ctx.ClientIP(),
 				"latency":   latency,
-				"userAgent": c.Request.UserAgent(),
+				"userAgent": ctx.Request.UserAgent(),
 			}).Info("request completed")
 		}
 	}

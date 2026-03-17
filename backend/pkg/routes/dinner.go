@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -19,31 +20,40 @@ type DinnerJSON struct {
 	FilmTitle      string `json:"filmTitle,omitempty"`   // Added
 }
 
-func PutDinner(c *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(c)
+func DinnerRoutes(router *gin.RouterGroup, database *gorm.DB) {
+	router.GET("/dinner", models.WithDatabase(getAllDinners, database))
+	router.GET("/dinner/host/:id", models.WithDatabase(getAllDinnersForUser, database))
+	router.GET("dinner/:id", models.WithDatabase(getDinnerWithID, database))
+	router.PUT("/dinner", models.WithDatabase(putDinner, database))
+	router.DELETE("/dinner/:id", models.WithDatabase(deleteDinnerWithID, database))
+}
+
+func putDinner(ctx *gin.Context, database *gorm.DB) { //nolint:gocognit,cyclop,funlen
+	authentikUser, err := getAuthentikUser(ctx)
 	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
+		ctx.JSON(401, gin.H{"error": err.Error()})
+
 		return
 	}
 
 	// Check if user exists in database
 	var user models.User
 	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(401, gin.H{"error": "user not found in database"})
-
-			return
-		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(401, gin.H{"error": "user not found in database"})
 
 			return
 		}
+
+		ctx.JSON(500, gin.H{"error": "failed to fetch user"})
+
+		return
 	}
 
 	// Parse dinner JSON
 	var dinnerJSON DinnerJSON
-	if err := c.ShouldBindJSON(&dinnerJSON); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&dinnerJSON); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
 
 		return
 	}
@@ -51,41 +61,44 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 	// Parse date string to time.Time
 	parsedDate, err := time.Parse(time.RFC3339, dinnerJSON.Date)
 	if err != nil {
-		c.JSON(400, gin.H{"error": "invalid date format, use ISO 8601 (RFC3339)"})
+		ctx.JSON(400, gin.H{"error": "invalid date format, use ISO 8601 (RFC3339)"})
 
 		return
 	}
 
 	var hostUser models.User
 	if err := database.Where("id = ?", dinnerJSON.HostUserID).First(&hostUser).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(400, gin.H{"error": "host user not found"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(400, gin.H{"error": "host user not found"})
 
 			return
 		}
-		c.JSON(500, gin.H{"error": "failed to fetch host user"})
+
+		ctx.JSON(500, gin.H{"error": "failed to fetch host user"})
 
 		return
 	}
 
 	if hostUser.ID != user.ID && !user.IsAdmin {
-		c.JSON(403, gin.H{"error": "non-admin users can only create or update dinners where they are the host"})
+		ctx.JSON(403, gin.H{"error": "non-admin users can only create or update dinners where they are the host"})
 
 		return
 	}
 
 	// Handle film: find existing or create new
-	var film models.Film
-	var filmID *uint
+	var (
+		film   models.Film
+		filmID *uint
+	)
 
-	if dinnerJSON.FilmIMDBUrl != "" {
+	if dinnerJSON.FilmIMDBUrl != "" { //nolint:nestif
 		// Try to find existing film by IMDB URL
 		err := database.Where("imdb_url = ?", dinnerJSON.FilmIMDBUrl).First(&film).Error
 
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) { //nolint:gocritic
 			// Film doesn't exist, create it
 			if dinnerJSON.FilmTitle == "" {
-				c.JSON(400, gin.H{"error": "film_title is required when creating a new film"})
+				ctx.JSON(400, gin.H{"error": "film_title is required when creating a new film"})
 
 				return
 			}
@@ -96,14 +109,14 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 			}
 
 			if err := database.Create(&film).Error; err != nil {
-				c.JSON(500, gin.H{"error": "failed to create film"})
+				ctx.JSON(500, gin.H{"error": "failed to create film"})
 
 				return
 			}
 
 			filmID = &film.ID
 		} else if err != nil {
-			c.JSON(500, gin.H{"error": "failed to fetch film"})
+			ctx.JSON(500, gin.H{"error": "failed to fetch film"})
 
 			return
 		} else {
@@ -115,13 +128,13 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 
 	var participants []models.User
 	if err := database.Where("id IN ?", dinnerJSON.ParticipantIDs).Find(&participants).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to fetch participants"})
+		ctx.JSON(500, gin.H{"error": "failed to fetch participants"})
 
 		return
 	}
 
 	if len(participants) != len(dinnerJSON.ParticipantIDs) {
-		c.JSON(400, gin.H{"error": "one or more participant IDs not found"})
+		ctx.JSON(400, gin.H{"error": "one or more participant IDs not found"})
 
 		return
 	}
@@ -135,17 +148,17 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 		Participants: participants,
 	}
 
-	if dinnerJSON.ID != 0 {
+	if dinnerJSON.ID != 0 { //nolint:nestif
 		// Update existing dinner
 		var existingDinner models.Dinner
 		if err := database.Where("id = ?", dinnerJSON.ID).First(&existingDinner).Error; err != nil {
-			if err == gorm.ErrRecordNotFound {
-				c.JSON(404, gin.H{"error": "dinner not found for update"})
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				ctx.JSON(404, gin.H{"error": "dinner not found for update"})
 
 				return
 			}
 
-			c.JSON(500, gin.H{"error": "failed to fetch existing dinner for update"})
+			ctx.JSON(500, gin.H{"error": "failed to fetch existing dinner for update"})
 
 			return
 		}
@@ -154,7 +167,7 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 
 		// Update scalar fields first
 		if err := database.Model(&existingDinner).Updates(dbDinner).Error; err != nil {
-			c.JSON(500, gin.H{"error": "failed to update dinner"})
+			ctx.JSON(500, gin.H{"error": "failed to update dinner"})
 
 			return
 		}
@@ -163,28 +176,27 @@ func PutDinner(c *gin.Context, database *gorm.DB) {
 		if err := database.Model(&existingDinner).
 			Association("Participants").
 			Replace(participants); err != nil {
-
-			c.JSON(500, gin.H{"error": "failed to update participants"})
+			ctx.JSON(500, gin.H{"error": "failed to update participants"})
 
 			return
 		}
 
-		c.JSON(200, gin.H{"message": "dinner updated successfully"})
+		ctx.JSON(200, gin.H{"message": "dinner updated successfully"})
 
 		return
 	}
 
 	// Create new dinner
 	if err := database.Create(&dbDinner).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to create dinner"})
+		ctx.JSON(500, gin.H{"error": "failed to create dinner"})
 
 		return
 	}
 
-	c.JSON(201, gin.H{"message": "dinner created successfully"})
+	ctx.JSON(201, gin.H{"message": "dinner created successfully"})
 }
 
-func GetAllDinners(c *gin.Context, database *gorm.DB) {
+func getAllDinners(ctx *gin.Context, database *gorm.DB) {
 	var dinners []models.Dinner
 	if err := database.
 		Preload("Participants", func(db *gorm.DB) *gorm.DB {
@@ -193,18 +205,19 @@ func GetAllDinners(c *gin.Context, database *gorm.DB) {
 		Preload("Film").
 		Order("date DESC").
 		Find(&dinners).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to fetch dinners"})
+		ctx.JSON(500, gin.H{"error": "failed to fetch dinners"})
 
 		return
 	}
 
 	if len(dinners) == 0 {
-		c.JSON(200, []DinnerJSON{})
+		ctx.JSON(200, []DinnerJSON{})
 
 		return
 	}
 
 	var dinnerList []DinnerJSON
+
 	for _, dinner := range dinners {
 		// Extract participant IDs
 		participantIDs := make([]uint, len(dinner.Participants))
@@ -229,32 +242,34 @@ func GetAllDinners(c *gin.Context, database *gorm.DB) {
 		dinnerList = append(dinnerList, dinnerJSON)
 	}
 
-	c.JSON(200, dinnerList)
+	ctx.JSON(200, dinnerList)
 }
 
-func GetAllDinnersForUser(c *gin.Context, database *gorm.DB) {
+func getAllDinnersForUser(ctx *gin.Context, database *gorm.DB) {
 	var dinners []models.Dinner
-	hostId := c.Param("id")
+
+	hostID := ctx.Param("id")
 	if err := database.
-		Where("host_user_id = ?", hostId).
+		Where("host_user_id = ?", hostID).
 		Preload("Participants", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id")
 		}).
 		Preload("Film").
 		Order("date DESC").
 		Find(&dinners).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to fetch dinners"})
+		ctx.JSON(500, gin.H{"error": "failed to fetch dinners"})
 
 		return
 	}
 
 	if len(dinners) == 0 {
-		c.JSON(200, []DinnerJSON{})
+		ctx.JSON(200, []DinnerJSON{})
 
 		return
 	}
 
 	var dinnerList []DinnerJSON
+
 	for _, dinner := range dinners {
 		// Extract participant IDs
 		participantIDs := make([]uint, len(dinner.Participants))
@@ -279,23 +294,25 @@ func GetAllDinnersForUser(c *gin.Context, database *gorm.DB) {
 		dinnerList = append(dinnerList, dinnerJSON)
 	}
 
-	c.JSON(200, dinnerList)
+	ctx.JSON(200, dinnerList)
 }
 
-func GetDinnerWithId(c *gin.Context, database *gorm.DB) {
-	dinnerId := c.Param("id")
+func getDinnerWithID(ctx *gin.Context, database *gorm.DB) {
+	dinnerID := ctx.Param("id")
+
 	var dinner models.Dinner
-	if err := database.Where("id = ?", dinnerId).
+	if err := database.Where("id = ?", dinnerID).
 		Preload("Participants", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id")
 		}).
 		Preload("Film").
 		First(&dinner).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(404, gin.H{"error": "dinner not found"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(404, gin.H{"error": "dinner not found"})
 		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch dinner"})
+			ctx.JSON(500, gin.H{"error": "failed to fetch dinner"})
 		}
+
 		return
 	}
 
@@ -319,15 +336,16 @@ func GetDinnerWithId(c *gin.Context, database *gorm.DB) {
 		dinnerJSON.FilmTitle = dinner.Film.Title
 	}
 
-	c.JSON(200, dinnerJSON)
+	ctx.JSON(200, dinnerJSON)
 }
 
-func DeleteDinnerWithId(c *gin.Context, database *gorm.DB) {
-	dinnerId := c.Param("id")
-	if err := database.Delete(&models.Dinner{}, dinnerId).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to delete dinner"})
+func deleteDinnerWithID(ctx *gin.Context, database *gorm.DB) {
+	dinnerID := ctx.Param("id")
+	if err := database.Delete(&models.Dinner{}, dinnerID).Error; err != nil {
+		ctx.JSON(500, gin.H{"error": "failed to delete dinner"})
+
 		return
 	}
 
-	c.Status(http.StatusNoContent)
+	ctx.Status(http.StatusNoContent)
 }

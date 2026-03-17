@@ -3,15 +3,9 @@ package main
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
-
+	"github.com/bakseter/mandagsmiddag/pkg/api"
 	"github.com/bakseter/mandagsmiddag/pkg/config"
-	"github.com/bakseter/mandagsmiddag/pkg/models"
-	"github.com/bakseter/mandagsmiddag/pkg/routes"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gorm.io/gorm"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -22,144 +16,19 @@ func main() {
 
 	conf, shutdownLogs, err := config.New(ctx, log)
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		log.Errorf("Failed to load config: %v", err)
+
+		return
 	}
+
 	defer func() {
 		if err := shutdownLogs(ctx); err != nil {
 			log.Errorf("failed to shutdown log provider: %v", err)
 		}
 	}()
 
-	router := gin.New()
-
-	router.Use(config.LogrusMiddleware(log))
-	router.Use(gin.Recovery())
-	router.Use(config.MetricsMiddleware(conf))
-
-	router.SetTrustedProxies(nil)
-
-	if !conf.Local {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	headers := []string{
-		"Origin",
-		"Content-Type",
-		"Accept",
-		"Authorization",
-		"X-authentik-username",
-		"X-authentik-groups",
-		"X-authentik-entitlements",
-		"X-authentik-email",
-		"X-authentik-uid",
-	}
-
-	if conf.Local {
-		// Local CORS - permissive
-		router.Use(cors.New(cors.Config{
-			AllowOrigins: []string{"http://localhost:3000", "http://localhost:5173"},
-			AllowMethods: []string{"GET", "PATCH", "PUT", "POST", "DELETE"},
-			AllowHeaders: headers,
-		}))
-	} else {
-		// Production CORS - restrictive
-		router.Use(cors.New(cors.Config{
-			AllowOrigins: []string{conf.Host},
-			AllowMethods: []string{"GET", "PATCH", "PUT", "POST", "DELETE"},
-			AllowHeaders: headers,
-		}))
-	}
-
-	database, err := models.InitializeDatabase()
+	err = api.Start(conf, log)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Errorf("Failed to start API: %v", err)
 	}
-
-	err = database.AutoMigrate(
-		&models.User{},
-		&models.Dinner{},
-		&models.Film{},
-		&models.Penalty{},
-		&models.Rating{},
-	)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	// Drop and recreate the dinner_score check constraint to allow NULL values.
-	if err := database.Exec(`ALTER TABLE ratings DROP CONSTRAINT IF EXISTS chk_ratings_dinner_score`).Error; err != nil {
-		logrus.Fatalf("Failed to drop dinner_score constraint: %v", err)
-	}
-	if err := database.Exec(`ALTER TABLE ratings ADD CONSTRAINT chk_ratings_dinner_score CHECK (dinner_score IS NULL OR (dinner_score >= 1 AND dinner_score <= 10))`).Error; err != nil {
-		logrus.Fatalf("Failed to add dinner_score constraint: %v", err)
-	}
-
-	if conf.Local {
-		err = insertTestUsers(database)
-		if err != nil {
-			logrus.Printf("Failed to insert test users: %v", err)
-		}
-	}
-
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
-
-	api := router.Group("/api")
-	{
-		api.GET("/status", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"status": "ok",
-			})
-		})
-
-		// Dinner API
-		api.GET("/dinner", withDatabase(routes.GetAllDinners, database))
-		api.GET("/dinner/host/:id", withDatabase(routes.GetAllDinnersForUser, database))
-		api.GET("dinner/:id", withDatabase(routes.GetDinnerWithId, database))
-		api.PUT("/dinner", withDatabase(routes.PutDinner, database))
-		api.DELETE("/dinner/:id", withDatabase(routes.DeleteDinnerWithId, database))
-
-		// Rating API
-		api.GET("/rating", withDatabase(routes.GetAllRatings, database))
-		api.GET("/rating/user", withDatabase(routes.GetAllRatingsForUser, database))
-		api.GET("/rating/:id", withDatabase(routes.GetRatingWithId, database))
-		api.PUT("/rating", withDatabase(routes.PutRating, database))
-
-		// Penalty API
-		api.GET("/penalty", withDatabase(routes.GetAllPenalties, database))
-		api.GET("/penalty/user/:id", withDatabase(routes.GetAllPenaltiesForUser, database))
-		api.GET("/penalty/:id", withDatabase(routes.GetPenaltyWithId, database))
-		api.POST("/penalty", withDatabase(routes.PostPenalty, database))
-		// api.DELETE("/transaction/:id", withDatabase(routes.DeleteTransaction, database))
-
-		// User API
-		api.GET("/user", withDatabase(routes.GetAllUsers, database))
-		api.PUT("/user", withDatabase(routes.PutUser, database))
-	}
-
-	err = router.Run(":" + conf.Port)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-}
-
-func withDatabase(fn func(*gin.Context, *gorm.DB), database *gorm.DB) func(*gin.Context) {
-	return func(c *gin.Context) {
-		fn(c, database)
-	}
-}
-
-func insertTestUsers(database *gorm.DB) error {
-	testUsers := []models.User{
-		{Email: "mctest@example.com", Name: "Test McTest", IsAdmin: false},
-		{Email: "mradmin@example.com", Name: "Mr Admin", IsAdmin: true},
-		{Email: "joe@example.com", Name: "Average Joe", IsAdmin: false},
-	}
-
-	for _, user := range testUsers {
-		if err := database.Create(&user).Error; err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

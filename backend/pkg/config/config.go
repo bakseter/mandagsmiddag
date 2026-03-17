@@ -22,30 +22,31 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 	}
 
 	local := os.Getenv("LOCAL") == "true"
+
 	host, err := func() (string, error) {
 		if local {
 			return "http://localhost", nil
 		}
 
-		host_ := os.Getenv("HOST")
+		host := os.Getenv("HOST")
 
-		if host_ == "" {
+		if host == "" {
 			return "", errors.New("HostNotSet")
 		}
 
-		return host_, nil
+		return host, nil
 	}()
 	if err != nil {
 		return nil, nil, err
 	}
 
 	port := func() string {
-		port_ := os.Getenv("PORT")
-		if port_ == "" {
+		port := os.Getenv("PORT")
+		if port == "" {
 			return "8080"
 		}
 
-		return port_
+		return port
 	}()
 
 	return &Config{

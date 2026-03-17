@@ -1,0 +1,63 @@
+version: '2'
+linters:
+  default: all
+  disable:
+    - exhaustruct # TODO: fix and enable again
+    - depguard
+    - err113
+    - mnd
+    - noctx
+    - noinlineerr
+    - wrapcheck
+    - wsl
+  settings:
+    staticcheck:
+      checks:
+        - ST1000
+        - ST1001
+        - ST1003
+        - ST1006
+        - ST1008
+        - ST1011
+        - ST1012
+        - ST1013
+        - ST1015
+        - ST1016
+        - ST1017
+        - ST1018
+        - ST1019
+        - ST1020
+        - ST1021
+        - ST1022
+        - ST1023
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - revive
+        text: 'var-naming: avoid meaningless package names'
+
+      - linters:
+          - godox
+        text: 'Line contains TODO/BUG/FIXME'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

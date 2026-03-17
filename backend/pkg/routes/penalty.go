@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -18,33 +19,44 @@ type PenaltyJSON struct {
 	AssignedAt string `json:"assignedAt,omitempty"`
 }
 
-func PostPenalty(c *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(c)
+func PenaltyRoutes(router *gin.RouterGroup, database *gorm.DB) {
+	router.GET("/penalty", models.WithDatabase(getAllPenalties, database))
+	router.GET("/penalty/user/:id", models.WithDatabase(getAllPenaltiesForUser, database))
+	router.GET("/penalty/:id", models.WithDatabase(getPenaltyWithID, database))
+	router.POST("/penalty", models.WithDatabase(postPenalty, database))
+}
+
+func postPenalty(ctx *gin.Context, database *gorm.DB) {
+	authentikUser, err := getAuthentikUser(ctx)
 	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
+		ctx.JSON(401, gin.H{"error": err.Error()})
+
 		return
 	}
 
 	// Check if user exists in database
 	var user models.User
 	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Create user if not exists
 			user = models.User{Email: authentikUser.Email}
 			if err := database.Create(&user).Error; err != nil {
-				c.JSON(500, gin.H{"error": "failed to create user"})
+				ctx.JSON(500, gin.H{"error": "failed to create user"})
+
 				return
 			}
 		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
+			ctx.JSON(500, gin.H{"error": "failed to fetch user"})
+
 			return
 		}
 	}
 
 	// Parse Penalty JSON
 	var penalty PenaltyJSON
-	if err := c.ShouldBindBodyWithJSON(&penalty); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindBodyWithJSON(&penalty); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -57,30 +69,34 @@ func PostPenalty(c *gin.Context, database *gorm.DB) {
 		AssignedAt:       time.Now(),
 	}
 	if err := database.Create(&dbPenalty).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to create penalty"})
+		ctx.JSON(500, gin.H{"error": "failed to create penalty"})
+
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	ctx.Status(http.StatusCreated)
 }
 
-func GetAllPenaltiesForUser(c *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(c)
+func getAllPenaltiesForUser(ctx *gin.Context, database *gorm.DB) {
+	authentikUser, err := getAuthentikUser(ctx)
 	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
+		ctx.JSON(401, gin.H{"error": err.Error()})
+
 		return
 	}
 
 	// Get user from database
 	var user models.User
 	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(404, gin.H{"error": "user not found"})
-			return
-		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch user"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(404, gin.H{"error": "user not found"})
+
 			return
 		}
+
+		ctx.JSON(500, gin.H{"error": "failed to fetch user"})
+
+		return
 	}
 
 	var penalties []models.Penalty
@@ -89,16 +105,19 @@ func GetAllPenaltiesForUser(c *gin.Context, database *gorm.DB) {
 		Preload("AssignedBy").
 		Order("created_at DESC").
 		Find(&penalties).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to fetch penalties"})
+		ctx.JSON(500, gin.H{"error": "failed to fetch penalties"})
+
 		return
 	}
 
 	if len(penalties) == 0 {
-		c.JSON(200, []PenaltyJSON{})
+		ctx.JSON(200, []PenaltyJSON{})
+
 		return
 	}
 
 	var penaltyList []PenaltyJSON
+
 	for _, penalty := range penalties {
 		penaltyJSON := PenaltyJSON{
 			ID:         penalty.ID,
@@ -110,25 +129,29 @@ func GetAllPenaltiesForUser(c *gin.Context, database *gorm.DB) {
 		}
 		penaltyList = append(penaltyList, penaltyJSON)
 	}
-	c.JSON(200, penaltyList)
+
+	ctx.JSON(200, penaltyList)
 }
 
-func GetAllPenalties(c *gin.Context, database *gorm.DB) {
+func getAllPenalties(ctx *gin.Context, database *gorm.DB) {
 	var penalties []models.Penalty
 	if err := database.
 		Preload("AssignedBy").
 		Order("created_at DESC").
 		Find(&penalties).Error; err != nil {
-		c.JSON(500, gin.H{"error": "failed to fetch penalties"})
+		ctx.JSON(500, gin.H{"error": "failed to fetch penalties"})
+
 		return
 	}
 
 	if len(penalties) == 0 {
-		c.JSON(200, []PenaltyJSON{})
+		ctx.JSON(200, []PenaltyJSON{})
+
 		return
 	}
 
 	var penaltyList []PenaltyJSON
+
 	for _, penalty := range penalties {
 		penaltyJSON := PenaltyJSON{
 			ID:         penalty.ID,
@@ -140,22 +163,25 @@ func GetAllPenalties(c *gin.Context, database *gorm.DB) {
 		}
 		penaltyList = append(penaltyList, penaltyJSON)
 	}
-	c.JSON(200, penaltyList)
+
+	ctx.JSON(200, penaltyList)
 }
 
-func GetPenaltyWithId(c *gin.Context, database *gorm.DB) {
+func getPenaltyWithID(ctx *gin.Context, database *gorm.DB) {
 	var penalty models.Penalty
-	penaltyId := c.Param("id")
+
+	penaltyID := ctx.Param("id")
 	if err := database.
-		Where("id = ?", penaltyId).
+		Where("id = ?", penaltyID).
 		Preload("AssignedBy").
 		Order("created_at DESC").
 		First(&penalty).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(404, gin.H{"error": "dinner not found"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(404, gin.H{"error": "dinner not found"})
 		} else {
-			c.JSON(500, gin.H{"error": "failed to fetch dinner"})
+			ctx.JSON(500, gin.H{"error": "failed to fetch dinner"})
 		}
+
 		return
 	}
 
@@ -168,5 +194,5 @@ func GetPenaltyWithId(c *gin.Context, database *gorm.DB) {
 		AssignedAt: penalty.AssignedAt.Format("2006-01-02 15:04:05"),
 	}
 
-	c.JSON(200, penaltyJSON)
+	ctx.JSON(200, penaltyJSON)
 }

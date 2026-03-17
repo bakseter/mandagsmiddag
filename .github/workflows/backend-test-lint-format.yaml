@@ -1,0 +1,77 @@
+name: Test, lint and format
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'backend/**'
+
+jobs:
+  # TODO: add tests
+  #
+  # test:
+  #   name: Test
+  #   runs-on: ubuntu-latest
+  #   concurrency:
+  #     group: '${{ github.workflow }}-${{ github.ref }}-test'
+  #     cancel-in-progress: true
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v6
+
+  #     - name: Setup Go
+  #       uses: actions/setup-go@v6
+  #       with:
+  #         cache-dependency-path: 'go.sum'
+  #         go-version-file: 'go.mod'
+
+  #     - name: Run tests
+  #       run: make test
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    concurrency:
+      group: '${{ github.workflow }}-${{ github.ref }}-lint'
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          cache-dependency-path: 'backend/go.sum'
+          go-version-file: 'backend/go.mod'
+
+      - name: Run linter
+        uses: golangci/golangci-lint-action@v9
+        with:
+          working-directory: 'backend'
+          args: '--timeout=5m ./...'
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    concurrency:
+      group: '${{ github.workflow }}-${{ github.ref }}-format'
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          cache-dependency-path: 'backend/go.sum'
+          go-version-file: 'backend/go.mod'
+
+      - name: Install gofumpt
+        run: go install mvdan.cc/gofumpt@latest
+
+      - name: Check code formatting
+        run: cd backend && make format-check
