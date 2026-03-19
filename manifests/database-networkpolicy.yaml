@@ -33,3 +33,26 @@ spec:
               protocol: TCP
             - port: '5432'
               protocol: TCP
+
+    # Allow ingress from database replicas
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: mandagsmiddag-database
+      toPorts:
+        - rules:
+            http: []
+          ports:
+            - protocol: TCP
+              port: '5432'
+
+  egress:
+    # Allow egress to database replicas
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: mandagsmiddag-database
+      toPorts:
+        - rules:
+            http: []
+          ports:
+            - protocol: TCP
+              port: '5432'
