@@ -10,6 +10,8 @@ spec:
       recurring-job.longhorn.io/source: enabled
       recurring-job-group.longhorn.io/hetzner-backup: enabled
   affinity:
+    nodeSelector:
+      node.longhorn.io/create-default-disk: 'true'
     enablePodAntiAffinity: true
     topologyKey: bakseter.net/physical-node
     podAntiAffinityType: required
