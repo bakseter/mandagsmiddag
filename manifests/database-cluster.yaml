@@ -4,11 +4,15 @@ metadata:
   name: mandagsmiddag-database
   namespace: mandagsmiddag
 spec:
-  instances: 1
+  instances: 3
   inheritedMetadata:
     labels:
       recurring-job.longhorn.io/source: enabled
       recurring-job-group.longhorn.io/hetzner-backup: enabled
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: bakseter.net/physical-node
+    podAntiAffinityType: required
   storage:
     size: 2Gi
   resources:
