@@ -46,6 +46,20 @@ spec:
               port: '5432'
 
   egress:
+    # Allow egress to kube-dns (needed for DNS resolution)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - rules:
+            http: []
+          ports:
+            - port: '53'
+              protocol: TCP
+            - port: '53'
+              protocol: UDP
+
     # Allow egress to database replicas
     - toEndpoints:
         - matchLabels:
