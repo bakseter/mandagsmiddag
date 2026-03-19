@@ -60,6 +60,10 @@ spec:
             - port: '53'
               protocol: UDP
 
+    # Allow egress to kube-apiserver (needed for getting Cluster CR (?))
+    - toEntities:
+        - kube-apiserver
+
     # Allow egress to database replicas
     - toEndpoints:
         - matchLabels:
