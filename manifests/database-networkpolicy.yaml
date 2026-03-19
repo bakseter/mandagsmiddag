@@ -29,9 +29,9 @@ spec:
         - rules:
             http: []
           ports:
-            - port: '8000'
-              protocol: TCP
             - port: '5432'
+              protocol: TCP
+            - port: '8000'
               protocol: TCP
 
     # Allow ingress from database replicas
@@ -42,8 +42,10 @@ spec:
         - rules:
             http: []
           ports:
-            - protocol: TCP
-              port: '5432'
+            - port: '5432'
+              protocol: TCP
+            - port: '8000'
+              protocol: TCP
 
   egress:
     # Allow egress to kube-dns (needed for DNS resolution)
@@ -72,5 +74,7 @@ spec:
         - rules:
             http: []
           ports:
-            - protocol: TCP
-              port: '5432'
+            - port: '5432'
+              protocol: TCP
+            - port: '8000'
+              protocol: TCP
