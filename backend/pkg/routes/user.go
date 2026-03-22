@@ -88,8 +88,14 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 		IsAdmin: userIsAdmin,
 	}
 
+	// Not changed
 	if user.Name == updatedUser.Name && user.IsAdmin == updatedUser.IsAdmin {
-		ctx.JSON(http.StatusNotModified, gin.H{"message": "user not changed"})
+		ctx.JSON(http.StatusOK, UserJSON{
+			ID:      user.ID,
+			Email:   user.Email,
+			Name:    user.Name,
+			IsAdmin: user.IsAdmin,
+		})
 
 		return
 	}
@@ -103,7 +109,7 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 	ctx.JSON(http.StatusOK, UserJSON{
 		ID:      user.ID,
 		Email:   user.Email,
-		Name:    user.Name,
-		IsAdmin: user.IsAdmin,
+		Name:    updatedUser.Name,
+		IsAdmin: updatedUser.IsAdmin,
 	})
 }
