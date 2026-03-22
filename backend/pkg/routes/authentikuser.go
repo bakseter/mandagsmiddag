@@ -3,6 +3,7 @@ package routes
 import (
 	"errors"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -71,4 +72,11 @@ func getAuthentikUser(ctx *gin.Context) (*AuthentikUser, error) {
 		Email:        email,
 		UID:          uid,
 	}, nil
+}
+
+func (user AuthentikUser) IsAdmin() bool {
+	return slices.Contains(
+		user.Groups,
+		"mandagsmiddag-admin",
+	)
 }

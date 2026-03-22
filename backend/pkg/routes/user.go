@@ -3,7 +3,6 @@ package routes
 import (
 	"errors"
 	"net/http"
-	"slices"
 
 	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/gin-gonic/gin"
@@ -50,10 +49,7 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 		return
 	}
 
-	userIsAdmin := slices.Contains(
-		authentikUser.Groups,
-		"mandagsmiddag-admin",
-	)
+	userIsAdmin := authentikUser.IsAdmin()
 
 	var user models.User
 
@@ -83,10 +79,7 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 	}
 
 	// User found, update it if changed
-	updatedUser := models.User{
-		Name:    authentikUser.Username,
-		IsAdmin: userIsAdmin,
-	}
+	updatedUser := models.User{Name: authentikUser.Username, IsAdmin: userIsAdmin}
 
 	// Not changed
 	if user.Name == updatedUser.Name && user.IsAdmin == updatedUser.IsAdmin {
