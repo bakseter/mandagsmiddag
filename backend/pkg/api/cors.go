@@ -29,7 +29,7 @@ func configureCORS(conf *config.Config) cors.Config {
 	}
 
 	return cors.Config{
-		AllowOrigins: []string{conf.Host, "authentik.bakseter.net"},
+		AllowOrigins: []string{conf.Host, "https://authentik.bakseter.net"},
 		AllowMethods: methods,
 		AllowHeaders: headers,
 	}
