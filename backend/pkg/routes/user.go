@@ -82,10 +82,16 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 		return
 	}
 
-	// User found, update it
+	// User found, update it if changed
 	updatedUser := models.User{
 		Name:    authentikUser.Username,
 		IsAdmin: userIsAdmin,
+	}
+
+	if user.Name == updatedUser.Name && user.IsAdmin == updatedUser.IsAdmin {
+		ctx.JSON(http.StatusNotModified, gin.H{"message": "user not changed"})
+
+		return
 	}
 
 	if err := database.Model(&user).Updates(updatedUser).Error; err != nil {
