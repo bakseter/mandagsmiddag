@@ -17,7 +17,7 @@ func ConfigureDatabase(conf *config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = MigrateDatabase(database)
+	err = migrateDatabase(database)
 	if err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
@@ -66,7 +66,7 @@ func initializeDatabase() (*gorm.DB, error) {
 	return database, nil
 }
 
-func MigrateDatabase(database *gorm.DB) error {
+func migrateDatabase(database *gorm.DB) error {
 	err := database.AutoMigrate(
 		&User{},
 		&Dinner{},

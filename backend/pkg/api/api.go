@@ -43,19 +43,6 @@ func Start(conf *config.Config, log *logrus.Logger) error {
 	return nil
 }
 
-func NewRouter(database *gorm.DB) (*gin.Engine, error) {
-	router := gin.New()
-	router.Use(gin.Recovery())
-
-	if err := router.SetTrustedProxies(nil); err != nil {
-		return nil, err
-	}
-
-	addRoutes(router, database)
-
-	return router, nil
-}
-
 func addRoutes(router *gin.Engine, database *gorm.DB) {
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
