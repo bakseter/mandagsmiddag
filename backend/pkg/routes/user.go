@@ -55,63 +55,47 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 
 	selectUserErr := database.Where("email = ?", authentikUser.Email).First(&user).Error
 
-	// User not found
 	if selectUserErr != nil && errors.Is(selectUserErr, gorm.ErrRecordNotFound) {
-		newUser := models.User{
-			Email:   authentikUser.Email,
-			Name:    authentikUser.Username,
-			IsAdmin: userIsAdmin,
-		}
-
-		// Create new user
-		if createNewUserErr := database.Create(&newUser).Error; createNewUserErr != nil {
-			ctx.JSON(500, gin.H{"error": "failed to create user: " + createNewUserErr.Error()})
-
-			return
-		}
-
-		ctx.JSON(http.StatusOK, UserJSON{
-			ID:      newUser.ID,
-			Email:   newUser.Email,
-			Name:    newUser.Name,
-			IsAdmin: newUser.IsAdmin,
-		})
+		putUserCreate(ctx, database, authentikUser.Email, authentikUser.Username, userIsAdmin)
 
 		return
 	}
 
-	// Other error
 	if selectUserErr != nil {
 		ctx.JSON(500, gin.H{"error": "failed to fetch user: " + selectUserErr.Error()})
 
 		return
 	}
 
-	// User found, update it if changed
-	updatedUser := models.User{Name: authentikUser.Username, IsAdmin: userIsAdmin}
+	putUserUpdate(ctx, database, &user, authentikUser.Username, userIsAdmin)
+}
 
-	// Not changed
-	if user.Name == updatedUser.Name && user.IsAdmin == updatedUser.IsAdmin {
-		ctx.JSON(http.StatusOK, UserJSON{
-			ID:      user.ID,
-			Email:   user.Email,
-			Name:    user.Name,
-			IsAdmin: user.IsAdmin,
-		})
+func putUserCreate(ctx *gin.Context, database *gorm.DB, email, name string, isAdmin bool) {
+	newUser := models.User{Email: email, Name: name, IsAdmin: isAdmin}
+
+	if err := database.Create(&newUser).Error; err != nil {
+		ctx.JSON(500, gin.H{"error": "failed to create user: " + err.Error()})
 
 		return
 	}
 
-	if err := database.Model(&user).Updates(updatedUser).Error; err != nil {
+	ctx.JSON(http.StatusOK, UserJSON{ID: newUser.ID, Email: newUser.Email, Name: newUser.Name, IsAdmin: newUser.IsAdmin})
+}
+
+func putUserUpdate(ctx *gin.Context, database *gorm.DB, user *models.User, name string, isAdmin bool) {
+	updatedUser := models.User{Name: name, IsAdmin: isAdmin}
+
+	if user.Name == updatedUser.Name && user.IsAdmin == updatedUser.IsAdmin {
+		ctx.JSON(http.StatusOK, UserJSON{ID: user.ID, Email: user.Email, Name: user.Name, IsAdmin: user.IsAdmin})
+
+		return
+	}
+
+	if err := database.Model(user).Updates(updatedUser).Error; err != nil {
 		ctx.JSON(500, gin.H{"error": "failed to update user: " + err.Error()})
 
 		return
 	}
 
-	ctx.JSON(http.StatusOK, UserJSON{
-		ID:      user.ID,
-		Email:   user.Email,
-		Name:    updatedUser.Name,
-		IsAdmin: updatedUser.IsAdmin,
-	})
+	ctx.JSON(http.StatusOK, UserJSON{ID: user.ID, Email: user.Email, Name: updatedUser.Name, IsAdmin: updatedUser.IsAdmin})
 }
