@@ -93,7 +93,8 @@ func TestPutUser_NewUser_CreatesUser(t *testing.T) {
 	var body map[string]any
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&body))
 	assert.Equal(t, "new@example.com", body["email"])
-	assert.Equal(t, false, body["isAdmin"])
+	// isAdmin is omitempty on the JSON struct — absent when false
+	assert.NotEqual(t, true, body["isAdmin"])
 
 	var user models.User
 	require.NoError(t, db.Where("email = ?", "new@example.com").First(&user).Error)

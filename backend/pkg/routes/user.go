@@ -69,6 +69,15 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 
 			return
 		}
+
+		ctx.JSON(http.StatusOK, UserJSON{
+			ID:      newUser.ID,
+			Email:   newUser.Email,
+			Name:    newUser.Name,
+			IsAdmin: newUser.IsAdmin,
+		})
+
+		return
 	}
 
 	// Other error

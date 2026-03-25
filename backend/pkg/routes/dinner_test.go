@@ -283,8 +283,13 @@ func TestGetAllDinners_SortedByDateDesc(t *testing.T) {
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&dinners))
 	require.Len(t, dinners, 3)
 
-	// Verify sorted newest first
-	assert.Equal(t, "2024-06-15T00:00:00Z", dinners[0]["date"])
-	assert.Equal(t, "2024-03-10T00:00:00Z", dinners[1]["date"])
-	assert.Equal(t, "2024-01-01T00:00:00Z", dinners[2]["date"])
+	// Verify sorted newest first — parse RFC3339 to compare times regardless of timezone offset
+	t1, err1 := time.Parse(time.RFC3339, dinners[0]["date"].(string))
+	t2, err2 := time.Parse(time.RFC3339, dinners[1]["date"].(string))
+	t3, err3 := time.Parse(time.RFC3339, dinners[2]["date"].(string))
+	require.NoError(t, err1)
+	require.NoError(t, err2)
+	require.NoError(t, err3)
+	assert.True(t, t1.After(t2), "first dinner should be newest")
+	assert.True(t, t2.After(t3), "second dinner should be newer than third")
 }
