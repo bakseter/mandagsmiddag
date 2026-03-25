@@ -19,8 +19,10 @@ async function seedDinner(request: Parameters<typeof test>[1] extends { request:
       hostUserId: devUser.id,
       date: twoDaysAgo,
       food: "E2E Rating Test Dinner",
-      // filmTitle required so canAddRating is true in dinner-card
+      // Both filmTitle + filmImdbUrl required to create a Film record;
+      // filmTitle alone is ignored by the backend
       filmTitle: "E2E Test Film",
+      filmImdbUrl: "https://www.imdb.com/title/tt0000000/",
       participantIds: [devUser.id],
     },
   });

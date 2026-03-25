@@ -35,7 +35,7 @@ test.describe("New dinner", () => {
 
     // Navigate home and verify dinner appears
     await page.goto("/");
-    await expect(page.getByText("E2E Test Pizza")).toBeVisible({
+    await expect(page.getByText("E2E Test Pizza").first()).toBeVisible({
       timeout: 10_000,
     });
   });
