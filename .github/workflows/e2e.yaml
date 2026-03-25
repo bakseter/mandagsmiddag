@@ -1,0 +1,56 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - 'e2e/**'
+      - 'compose.test.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - 'e2e/**'
+      - 'compose.test.yml'
+
+jobs:
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    concurrency:
+      group: '${{ github.workflow }}-${{ github.ref }}-e2e'
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Playwright dependencies
+        run: cd e2e && bun install
+
+      - name: Install Playwright browsers
+        run: cd e2e && bunx playwright install --with-deps chromium
+
+      - name: Start full stack
+        run: docker compose -f compose.test.yml up -d --build
+        timeout-minutes: 5
+
+      - name: Run Playwright tests
+        run: cd e2e && bun test
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7
+
+      - name: Stop full stack
+        if: always()
+        run: docker compose -f compose.test.yml down -v
