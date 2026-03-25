@@ -14,22 +14,29 @@ test.describe("New dinner", () => {
     await page.getByRole("link", { name: /ny middag/i }).click();
     await expect(page).toHaveURL(/\/middag\/ny/);
 
-    // Fill in the form
-    const today = new Date().toISOString().split("T")[0];
-    await page.getByLabel(/dato/i).fill(today);
-    await page.getByLabel(/mat/i).fill("E2E Test Pizza");
+    // Wait for users to load (form shows loading state until GET /api/user completes)
+    await page.waitForLoadState("networkidle");
 
-    // Select host (first option in the list)
-    const hostSelect = page.getByLabel(/vert/i);
-    await hostSelect.selectOption({ index: 1 });
+    // Fill in the form — labels have no htmlFor, use name selectors
+    const today = new Date().toISOString().split("T")[0];
+    await page.locator('input[name="date"]').fill(today);
+    await page.locator('input[name="food"]').fill("E2E Test Pizza");
+
+    // Select host (first real option, skip the placeholder)
+    await page.locator('select[name="hostUserId"]').selectOption({ index: 1 });
 
     // Submit
-    await page.getByRole("button", { name: /lagre/i }).click();
+    await page.getByRole("button", { name: /legg til middag/i }).click();
 
-    // Expect success feedback or redirect to home
-    await expect(page).toHaveURL("/", { timeout: 10_000 });
+    // Expect inline success feedback
+    await expect(page.getByText(/middag lagt til/i)).toBeVisible({
+      timeout: 10_000,
+    });
 
-    // Dinner should now appear on home page
-    await expect(page.getByText("E2E Test Pizza")).toBeVisible();
+    // Navigate home and verify dinner appears
+    await page.goto("/");
+    await expect(page.getByText("E2E Test Pizza")).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });

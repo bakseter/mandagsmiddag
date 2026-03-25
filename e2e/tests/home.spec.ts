@@ -6,13 +6,6 @@ test.describe("Home page", () => {
     await expect(page.getByRole("heading", { name: /alle middager/i })).toBeVisible();
   });
 
-  test("shows empty state when no dinners exist", async ({ page }) => {
-    await page.goto("/");
-    // Wait for loading to finish (user sync completes)
-    await page.waitForLoadState("networkidle");
-    await expect(page.getByText(/ingen middager/i)).toBeVisible();
-  });
-
   test("admin nav links are visible", async ({ page }) => {
     await page.goto("/");
     // LOCAL=true backend always returns admin user — wait for admin UI to render

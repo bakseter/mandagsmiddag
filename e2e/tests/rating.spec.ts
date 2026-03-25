@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 async function seedDinner(request: Parameters<typeof test>[1] extends { request: infer R } ? R : never) {
   const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
 
-  // First sync the local dev user
+  // First sync the local dev user (creates them in DB if first run)
   await request.put("http://localhost:8080/api/user");
 
   // Get users to find the dev user's ID
@@ -19,6 +19,8 @@ async function seedDinner(request: Parameters<typeof test>[1] extends { request:
       hostUserId: devUser.id,
       date: twoDaysAgo,
       food: "E2E Rating Test Dinner",
+      // filmTitle required so canAddRating is true in dinner-card
+      filmTitle: "E2E Test Film",
       participantIds: [devUser.id],
     },
   });
@@ -36,19 +38,23 @@ test.describe("Ratings", () => {
     await page.waitForLoadState("networkidle");
 
     // Find the seeded dinner card and click the rating link
-    const dinnerCard = page.getByText("E2E Rating Test Dinner").first();
-    await expect(dinnerCard).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("E2E Rating Test Dinner").first()).toBeVisible({
+      timeout: 10_000,
+    });
 
-    await page.getByRole("link", { name: /legg til rating/i }).first().click();
+    await page.getByRole("link", { name: "Legg til rating" }).first().click();
+    await expect(page).toHaveURL(/\/rating\/ny/, { timeout: 10_000 });
 
-    // Fill in film score
-    await page.getByLabel(/film/i).fill("8");
+    // Fill in film score — labels have no htmlFor, use name selector
+    await page.locator('input[name="filmScore"]').fill("8");
 
     // Submit
-    await page.getByRole("button", { name: /lagre/i }).click();
+    await page.getByRole("button", { name: /legg til rating/i }).click();
 
-    // Should redirect back
-    await expect(page).toHaveURL("/", { timeout: 10_000 });
+    // Expect inline success message (no redirect)
+    await expect(page.getByText(/rating lagt til/i)).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test("admin ratings page renders", async ({ page }) => {
