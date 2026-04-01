@@ -4,7 +4,6 @@ import RatingForm from '@/components/rating-form';
 import { useGetRatingByIdQuery } from '@/services/rating';
 import { numberToString } from '@/utils/misc';
 
-// eslint-disable-next-line max-statements
 const EditRatingPage = () => {
     const { dinnerId, ratingId } = useParams();
     const [searchParams] = useSearchParams();

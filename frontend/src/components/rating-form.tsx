@@ -1,5 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 
+import FormSubmitStatus from '@/components/form-submit-status';
 import { useGetDinnerByIdQuery } from '@/services/dinner';
 import { type Rating, usePutRatingMutation } from '@/services/rating';
 import { useGetCurrentUserQuery, useGetUsersQuery } from '@/services/user';
@@ -23,7 +24,6 @@ const inputClassName =
 
 const labelClassName = 'mb-1.5 block text-sm font-medium text-zinc-800';
 
-// eslint-disable-next-line max-statements
 const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
     const { data: currentUser, isLoading: currentUserLoading } =
         useGetCurrentUserQuery();
@@ -33,7 +33,14 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
     const { data: dinner, isLoading: dinnersLoading } =
         useGetDinnerByIdQuery(dinnerId);
 
-    const [addRating, { isLoading, isSuccess, error }] = usePutRatingMutation();
+    const [
+        addRating,
+        {
+            isLoading: ratingIsSubmitting,
+            isSuccess: ratingSubmittedSuccessfully,
+            error: ratingSubmitError,
+        },
+    ] = usePutRatingMutation();
 
     const userIdToUse: string = (() => {
         if (currentUser?.isAdmin) {
@@ -226,34 +233,13 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
                     </div>
                 )}
 
-                <div className="flex items-center gap-3 pt-2">
-                    {/* eslint-disable no-nested-ternary */}
-                    <button
-                        type="submit"
-                        className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
-                        disabled={isLoading}
-                    >
-                        {isLoading
-                            ? 'Lagrer...'
-                            : isEditMode
-                              ? 'Oppdater rating'
-                              : 'Legg til rating'}
-                    </button>
-                    {/* eslint-enable no-nested-ternary */}
-
-                    {isSuccess && (
-                        <p className="text-sm text-green-700">
-                            Rating {isEditMode ? 'oppdatert' : 'lagt til'}!
-                        </p>
-                    )}
-
-                    {error && (
-                        <p className="text-sm text-red-600">
-                            En feil oppstod mens ratingen ble{' '}
-                            {isEditMode ? 'oppdatert' : 'lagt til'}.
-                        </p>
-                    )}
-                </div>
+                <FormSubmitStatus
+                    whatIsBeingSubmitted="Rating"
+                    isEditMode={isEditMode}
+                    isSubmitting={ratingIsSubmitting}
+                    submittedSuccessfully={ratingSubmittedSuccessfully}
+                    error={ratingSubmitError}
+                />
             </form>
         </div>
     );

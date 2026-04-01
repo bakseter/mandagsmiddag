@@ -19,7 +19,6 @@ interface Props {
 const getNameById = (users: User[], id: number): User | null =>
     users.find((user) => user.id === id) ?? null;
 
-// eslint-disable-next-line max-statements
 const DinnerCard = ({ dinner }: Props) => {
     const { data: users, isLoading } = useGetUsersQuery();
     const { data: currentUser, isLoading: currentUserIsLoading } =

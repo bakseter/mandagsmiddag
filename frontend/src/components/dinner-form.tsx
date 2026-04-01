@@ -1,6 +1,7 @@
 import { format, formatISO } from 'date-fns';
 import { Controller, useForm } from 'react-hook-form';
 
+import FormSubmitStatus from '@/components/form-submit-status';
 import { type Dinner, usePutDinnerMutation } from '@/services/dinner';
 import { useGetUsersQuery } from '@/services/user';
 
@@ -244,34 +245,13 @@ const DinnerForm = ({ dinner = null }: Props) => {
                     />
                 </div>
 
-                <div className="flex items-center gap-3 pt-2">
-                    {/* eslint-disable no-nested-ternary */}
-                    <button
-                        type="submit"
-                        className="inline-flex items-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
-                        disabled={isLoading}
-                    >
-                        {isLoading
-                            ? 'Lagrer...'
-                            : isEditMode
-                              ? 'Oppdater middag'
-                              : 'Legg til middag'}
-                    </button>
-                    {/* eslint-enable no-nested-ternary */}
-
-                    {isSuccess && (
-                        <p className="text-sm text-green-700">
-                            Middag {isEditMode ? 'oppdatert' : 'lagt til'}.
-                        </p>
-                    )}
-
-                    {error && (
-                        <p className="text-sm text-red-600">
-                            Klarte ikke {isEditMode ? 'oppdatere' : 'legge til'}{' '}
-                            middag.
-                        </p>
-                    )}
-                </div>
+                <FormSubmitStatus
+                    whatIsBeingSubmitted="Middag"
+                    isEditMode={isEditMode}
+                    isSubmitting={isLoading}
+                    submittedSuccessfully={isSuccess}
+                    error={error}
+                />
             </form>
         </div>
     );
