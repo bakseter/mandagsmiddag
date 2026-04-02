@@ -91,9 +91,16 @@ func putDinner(ctx *gin.Context, database *gorm.DB) { //nolint:gocognit,cyclop,f
 		filmID *uint
 	)
 
-	if dinnerJSON.FilmIMDBUrl != "" { //nolint:nestif
+	normalizedIMDBUrl, err := models.NormalizeIMDBUrl(dinnerJSON.FilmIMDBUrl)
+	if err != nil {
+		ctx.JSON(400, gin.H{"error": "invalid IMDB URL format"})
+
+		return
+	}
+
+	if normalizedIMDBUrl != "" { //nolint:nestif
 		// Try to find existing film by IMDB URL
-		err := database.Where("imdb_url = ?", dinnerJSON.FilmIMDBUrl).First(&film).Error
+		err := database.Where("imdb_url = ?", normalizedIMDBUrl).First(&film).Error
 
 		if errors.Is(err, gorm.ErrRecordNotFound) { //nolint:gocritic
 			// Film doesn't exist, create it
@@ -105,7 +112,7 @@ func putDinner(ctx *gin.Context, database *gorm.DB) { //nolint:gocognit,cyclop,f
 
 			film = models.Film{
 				Title:   dinnerJSON.FilmTitle,
-				IMDBUrl: dinnerJSON.FilmIMDBUrl,
+				IMDBUrl: normalizedIMDBUrl,
 			}
 
 			if err := database.Create(&film).Error; err != nil {
