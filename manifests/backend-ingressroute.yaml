@@ -1,17 +1,36 @@
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
 metadata:
   name: backend
   namespace: mandagsmiddag
 spec:
-  entryPoints:
-    - public
-  routes:
-    - kind: Rule
-      match: Host(`mandagsmiddag.no`) && PathPrefix(`/api`)
-      middlewares:
-        - name: authentik
-          namespace: authentik
-      services:
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: public
+      group: gateway.networking.k8s.io # for argocd diff
+      kind: Gateway
+
+  hostnames:
+    - mandagsmiddag.no
+
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api
+
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: authentik
+            namespace: authentik
+
+      backendRefs:
         - name: backend
           port: http
+          group: '' # for argocd diff
+          kind: Service # for argocd diff
+          weight: 1 # for argocd diff
