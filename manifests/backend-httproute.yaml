@@ -18,7 +18,7 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /api
+            value: /api/
 
       filters:
         - type: ExtensionRef
