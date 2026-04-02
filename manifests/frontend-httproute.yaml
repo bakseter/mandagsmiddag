@@ -11,9 +11,6 @@ spec:
       group: gateway.networking.k8s.io # for argocd diff
       kind: Gateway
 
-  hostnames:
-    - mandagsmiddag.no
-
   rules:
     - matches:
         - path:
