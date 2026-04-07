@@ -52,6 +52,12 @@ func postPenalty(ctx *gin.Context, database *gorm.DB) {
 		}
 	}
 
+	if !user.IsAdmin {
+		ctx.JSON(403, gin.H{"error": "only admins can assign penalties"})
+
+		return
+	}
+
 	// Parse Penalty JSON
 	var penalty PenaltyJSON
 	if err := ctx.ShouldBindBodyWithJSON(&penalty); err != nil {

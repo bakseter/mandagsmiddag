@@ -15,6 +15,11 @@ help:
 test:
 	go test -v -cover ./...
 
+## test-integration: Run integration tests (requires a running Postgres, see TEST_DATABASE_* env vars).
+.PHONY: test-integration
+test-integration:
+	go test -v -cover -tags integration ./...
+
 ## lint: Run linter (golangci-lint).
 .PHONY: lint
 lint:

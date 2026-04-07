@@ -11,26 +11,43 @@ on:
       - 'backend/**'
 
 jobs:
-  # TODO: add tests
-  #
-  # test:
-  #   name: Test
-  #   runs-on: ubuntu-latest
-  #   concurrency:
-  #     group: '${{ github.workflow }}-${{ github.ref }}-test'
-  #     cancel-in-progress: true
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v6
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    concurrency:
+      group: '${{ github.workflow }}-${{ github.ref }}-test'
+      cancel-in-progress: true
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TEST_DATABASE_HOST: localhost
+      TEST_DATABASE_NAME: postgres
+      TEST_DATABASE_USERNAME: postgres
+      TEST_DATABASE_PASSWORD: postgres
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  #     - name: Setup Go
-  #       uses: actions/setup-go@v6
-  #       with:
-  #         cache-dependency-path: 'go.sum'
-  #         go-version-file: 'go.mod'
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          cache-dependency-path: 'backend/go.sum'
+          go-version-file: 'backend/go.mod'
 
-  #     - name: Run tests
-  #       run: make test
+      - name: Run integration tests
+        run: cd backend && make test-integration
 
   lint:
     name: Lint
