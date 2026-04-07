@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-
 	"gorm.io/gorm"
 )
 
@@ -39,7 +38,7 @@ func NormalizeIMDBUrl(imdbURL string) (string, error) {
 		return "", err
 	}
 
-	// TODO: Don't use IMDB URL as a catch-all for other activites.
+	// TODO: Don't use IMDB URL as a catch-all for other activities.
 	if !strings.Contains(parsedURL.Host, "imdb.com") {
 		log.Warnf("Host of URL does not contain 'imdb.com', host is '%s'", parsedURL.Host)
 
