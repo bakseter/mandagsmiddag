@@ -57,6 +57,18 @@ export default defineConfig([
             'sort-imports': 'off',
             'simple-import-sort/imports': 'error',
             'simple-import-sort/exports': 'error',
+            'max-statements': [
+                'error',
+                {
+                    max: 20,
+                },
+            ],
+            'max-params': [
+                'error',
+                {
+                    max: 4,
+                },
+            ],
         },
     },
 ]);
