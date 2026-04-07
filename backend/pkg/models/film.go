@@ -1,9 +1,10 @@
 package models
 
 import (
-	"errors"
 	"net/url"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"gorm.io/gorm"
 )
@@ -24,7 +25,7 @@ func NormalizeIMDBUrl(imdbURL string) (string, error) {
 	}
 
 	// If scheme is missing, parsed URL will have empty Scheme and Host, and Path will be entire URL.
-	// We therefore add a scheme if it's missing, so parsing will be more accurate.
+	// We therefore add a scheme if it's missing, so parsing will be correct.
 	imdbURLWithScheme := func() string {
 		if strings.HasPrefix(imdbURL, "http://") || strings.HasPrefix(imdbURL, "https://") {
 			return imdbURL
@@ -38,8 +39,13 @@ func NormalizeIMDBUrl(imdbURL string) (string, error) {
 		return "", err
 	}
 
+	// TODO: Don't use IMDB URL as a catch-all for other activites.
 	if !strings.Contains(parsedURL.Host, "imdb.com") {
-		return "", errors.New("host of URL does not contain 'imdb.com', host is '" + parsedURL.Host + "'")
+		log.Warnf("Host of URL does not contain 'imdb.com', host is '%s'", parsedURL.Host)
+
+		urlWithoutTrailingSlash := strings.TrimSuffix(parsedURL.String(), "/")
+
+		return urlWithoutTrailingSlash, nil
 	}
 
 	pathWithoutTrailingSlash := strings.TrimSuffix(parsedURL.Path, "/")

@@ -46,20 +46,22 @@ func TestNormalizeIMDBUrl(t *testing.T) { //nolint:funlen
 			wantErr: false,
 		},
 		{
-			name:    "invalid URL with non-imdb host",
+			name:    "valid URL with non-imdb host",
 			input:   "https://www.example.com/title/tt0117407",
-			want:    "",
-			wantErr: true,
+			want:    "https://www.example.com/title/tt0117407",
+			wantErr: false,
 		},
 		{
-			name:    "invalid URL with non-imdb host and without scheme",
-			input:   "www.example.com/title/tt0117407",
-			want:    "",
-			wantErr: true,
+			name:    "valid URL with non-imdb host and trailing slash",
+			input:   "https://www.example.com/title/tt0117407/",
+			want:    "https://www.example.com/title/tt0117407",
+			wantErr: false,
 		},
 		{
-			name:    "invalid URL with non-imdb host and mobile subdomain",
-			input:   "m.example.com/title/tt0117407",
+			name: "invalid url",
+			// Pretty ridiculous case, but URL.Parse() accepts alot of things as valid URLs.
+			// This is the first I found that fails parsing.
+			input:   "$1==8123\\:as&11239???",
 			want:    "",
 			wantErr: true,
 		},
