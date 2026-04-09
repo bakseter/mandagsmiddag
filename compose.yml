@@ -1,18 +1,4 @@
 services:
-  frontend:
-    image: ghcr.io/bakseter/mandagsmiddag/frontend:latest
-    build:
-      context: ./frontend
-      args:
-        - VITE_BACKEND_URL=http://localhost:8080/api
-    ports:
-      - '3000:3000'
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./frontend/src
-          target: /app/src
-
   backend:
     image: ghcr.io/bakseter/mandagsmiddag/backend:latest
     build: ./backend
@@ -46,7 +32,7 @@ services:
           target: /app
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:0.149.0@sha256:0fba96233274f6d665ac8831ad99dfe6479a9a20459f6e2719c0d20945773b46
     command: ['--config=/etc/otelcol-contrib/config.yaml']
     volumes:
       - ./otelcol.yaml:/etc/otelcol-contrib/config.yaml
@@ -54,8 +40,26 @@ services:
       - '4317:4317'
       - '4318:4318'
 
+  # Run ollama pull after the container is healthy to download models:
+  #   docker exec ollama ollama pull gemma3:4b
+  ollama:
+    image: ollama/ollama:0.20.3@sha256:87d71eb588a28c747094ca5d011392a3790f6ea9bd9c87594780ad7c65cc7ed1
+    container_name: ollama
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'ollama', 'ps']
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
   database:
-    image: postgres:18-alpine
+    image: postgres:18-alpine@sha256:4da1a4828be12604092fa55311276f08f9224a74a62dcb4708bd7439e2a03911
     ports:
       - '5432:5432'
     environment:
@@ -67,3 +71,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+volumes:
+  ollama_data:

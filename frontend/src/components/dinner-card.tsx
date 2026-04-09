@@ -3,14 +3,14 @@ import { nb } from 'date-fns/locale';
 import { Pencil, SquarePen, Star, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
-import AdminOnly from '@/components/admin-only';
-import { type Dinner, useDeleteDinnerMutation } from '@/services/dinner';
-import { useGetRatingsByUserQuery } from '@/services/rating';
+import { type Dinner, useDeleteDinnerMutation } from '@/api/dinner';
+import { useGetRatingsByUserQuery } from '@/api/rating';
 import {
     useGetCurrentUserQuery,
     useGetUsersQuery,
     type User,
-} from '@/services/user';
+} from '@/api/user';
+import AdminOnly from '@/components/admin-only';
 
 interface Props {
     dinner: Dinner;

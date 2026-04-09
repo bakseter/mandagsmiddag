@@ -33,7 +33,7 @@ func Start(conf *config.Config, log *logrus.Logger) error {
 		return err
 	}
 
-	addRoutes(router, database)
+	addRoutes(router, database, conf)
 
 	err = router.Run(":" + conf.Port)
 	if err != nil {
@@ -43,7 +43,7 @@ func Start(conf *config.Config, log *logrus.Logger) error {
 	return nil
 }
 
-func addRoutes(router *gin.Engine, database *gorm.DB) {
+func addRoutes(router *gin.Engine, database *gorm.DB, conf *config.Config) {
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	api := router.Group("/api")
@@ -58,5 +58,6 @@ func addRoutes(router *gin.Engine, database *gorm.DB) {
 		routes.RatingRoutes(api, database)
 		routes.PenaltyRoutes(api, database)
 		routes.UserRoutes(api, database)
+		routes.ChatRoutes(api, database, conf)
 	}
 }

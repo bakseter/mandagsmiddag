@@ -1,7 +1,7 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 
+import { useGetRatingByIdQuery } from '@/api/rating';
 import RatingForm from '@/components/rating-form';
-import { useGetRatingByIdQuery } from '@/services/rating';
 import { numberToString } from '@/utils/misc';
 
 const EditRatingPage = () => {

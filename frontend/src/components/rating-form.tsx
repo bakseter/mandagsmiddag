@@ -1,9 +1,9 @@
 import { Controller, useForm } from 'react-hook-form';
 
+import { useGetDinnerByIdQuery } from '@/api/dinner';
+import { type Rating, usePutRatingMutation } from '@/api/rating';
+import { useGetCurrentUserQuery, useGetUsersQuery } from '@/api/user';
 import FormSubmitStatus from '@/components/form-submit-status';
-import { useGetDinnerByIdQuery } from '@/services/dinner';
-import { type Rating, usePutRatingMutation } from '@/services/rating';
-import { useGetCurrentUserQuery, useGetUsersQuery } from '@/services/user';
 
 interface FormValues {
     id: string;
