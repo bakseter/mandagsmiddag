@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import { useGetCurrentUserQuery } from '@/api/user';
 import ErrorBoundary from '@/components/error-boundary';
 import Layout from '@/layouts/layout';
 import AddRatingPage from '@/pages/add-rating-page';
@@ -8,7 +9,6 @@ import DinnersPage from '@/pages/dinners-page';
 import EditDinnerPage from '@/pages/edit-dinner-page';
 import EditRatingPage from '@/pages/edit-rating-page';
 import NewDinnerPage from '@/pages/new-dinner-page';
-import { useGetCurrentUserQuery } from '@/services/user';
 
 const App = () => {
     const { data: currentUser } = useGetCurrentUserQuery();

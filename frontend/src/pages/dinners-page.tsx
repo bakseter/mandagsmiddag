@@ -1,5 +1,6 @@
+import { useGetDinnersQuery } from '@/api/dinner';
+import Chat from '@/components/chat';
 import DinnerCard from '@/components/dinner-card';
-import { useGetDinnersQuery } from '@/services/dinner';
 
 const DinnersPage = () => {
     const { data: dinners = [], isLoading, error } = useGetDinnersQuery();
@@ -26,24 +27,29 @@ const DinnersPage = () => {
     );
 
     return (
-        <div className="space-y-8">
-            <section className="space-y-3">
-                <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
-                    Alle middager
-                </h1>
-            </section>
-
-            {sortedDinners.length === 0 ? (
-                <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-zinc-600 shadow-sm">
-                    Ingen middager enda.
-                </div>
-            ) : (
-                <section className="grid gap-5 sm:grid-cols-1 lg:grid-cols-2">
-                    {sortedDinners.map((dinner) => (
-                        <DinnerCard key={dinner.id} dinner={dinner} />
-                    ))}
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <div className="space-y-8">
+                <section className="space-y-3">
+                    <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
+                        Alle middager
+                    </h1>
                 </section>
-            )}
+
+                {sortedDinners.length === 0 ? (
+                    <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-zinc-600 shadow-sm">
+                        Ingen middager enda.
+                    </div>
+                ) : (
+                    <section className="grid gap-5 sm:grid-cols-1 lg:grid-cols-2">
+                        {sortedDinners.map((dinner) => (
+                            <DinnerCard key={dinner.id} dinner={dinner} />
+                        ))}
+                    </section>
+                )}
+            </div>
+            <div className="mt-8 text-sm text-zinc-500">
+                <Chat />
+            </div>
         </div>
     );
 };

@@ -93,8 +93,21 @@ func insertTestUsers(database *gorm.DB) {
 	}
 }
 
-func WithDatabase(fn func(*gin.Context, *gorm.DB), database *gorm.DB) func(*gin.Context) {
+func WithDatabase(
+	fn func(*gin.Context, *gorm.DB),
+	database *gorm.DB,
+) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		fn(ctx, database)
+	}
+}
+
+func WithDatabaseAndConfig(
+	fn func(*gin.Context, *gorm.DB, *config.Config),
+	database *gorm.DB,
+	conf *config.Config,
+) func(*gin.Context) {
+	return func(ctx *gin.Context) {
+		fn(ctx, database, conf)
 	}
 }

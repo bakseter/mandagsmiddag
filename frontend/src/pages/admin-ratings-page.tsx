@@ -3,10 +3,10 @@ import { nb } from 'date-fns/locale';
 import { Plus, SquarePen } from 'lucide-react';
 import { useMemo } from 'react';
 
+import { useGetDinnersQuery } from '@/api/dinner';
+import { useGetRatingsQuery } from '@/api/rating';
+import { useGetUsersQuery, type User } from '@/api/user';
 import AdminOnly from '@/components/admin-only';
-import { useGetDinnersQuery } from '@/services/dinner';
-import { useGetRatingsQuery } from '@/services/rating';
-import { useGetUsersQuery, type User } from '@/services/user';
 
 const getUserById = (users: User[], id: number): User | null =>
     users.find((user) => user.id === id) ?? null;
