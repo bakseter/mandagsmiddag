@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { sendMessage } from '@/api/chatThunk';
@@ -23,7 +24,9 @@ const Chat = () => {
         if (!input.trim() || isStreaming) {
             return;
         }
+
         await dispatch(sendMessage(input.trim()));
+
         setInput('');
     };
 
@@ -59,7 +62,45 @@ const Chat = () => {
                                     : 'bg-zinc-50 border border-zinc-200 text-zinc-900'
                             }`}
                         >
-                            {msg.content}
+                            <ReactMarkdown
+                                components={{
+                                    p: ({ children }) => (
+                                        <p className="mb-1 last:mb-0">
+                                            {children}
+                                        </p>
+                                    ),
+                                    ul: ({ children }) => (
+                                        <ul className="list-disc pl-4 mb-1 space-y-0.5">
+                                            {children}
+                                        </ul>
+                                    ),
+                                    ol: ({ children }) => (
+                                        <ol className="list-decimal pl-4 mb-1 space-y-0.5">
+                                            {children}
+                                        </ol>
+                                    ),
+                                    li: ({ children }) => (
+                                        <li className="text-sm">{children}</li>
+                                    ),
+                                    strong: ({ children }) => (
+                                        <strong className="font-semibold">
+                                            {children}
+                                        </strong>
+                                    ),
+                                    code: ({ children }) => (
+                                        <code className="bg-zinc-100 text-zinc-800 rounded px-1 py-0.5 text-xs font-mono">
+                                            {children}
+                                        </code>
+                                    ),
+                                    pre: ({ children }) => (
+                                        <pre className="bg-zinc-100 rounded-lg p-3 text-xs font-mono overflow-x-auto my-1">
+                                            {children}
+                                        </pre>
+                                    ),
+                                }}
+                            >
+                                {msg.content}
+                            </ReactMarkdown>
                         </div>
                     </div>
                 ))}

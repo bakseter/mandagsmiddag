@@ -1,7 +1,7 @@
 services:
   backend:
     image: ghcr.io/bakseter/mandagsmiddag/backend:latest
-    build: ./backend
+    build: .
     ports:
       - '8080:8080'
     environment:
@@ -12,6 +12,7 @@ services:
       - LOCAL=true
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OLLAMA_MODEL=gemma3:12b
     depends_on:
       database:
         condition: service_healthy
@@ -19,17 +20,6 @@ services:
         condition: service_started
     links:
       - database
-    develop:
-      watch:
-        - action: sync
-          path: ./static
-          target: /app/static
-        - action: sync
-          path: ./templates
-          target: /app/templates
-        - action: rebuild
-          path: '**/*.go'
-          target: /app
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.149.0@sha256:0fba96233274f6d665ac8831ad99dfe6479a9a20459f6e2719c0d20945773b46
@@ -52,11 +42,6 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0:11434
     restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'ollama', 'ps']
-      interval: 10s
-      retries: 5
-      start_period: 10s
 
   database:
     image: postgres:18-alpine@sha256:4da1a4828be12604092fa55311276f08f9224a74a62dcb4708bd7439e2a03911
