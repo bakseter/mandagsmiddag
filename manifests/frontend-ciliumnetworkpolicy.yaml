@@ -15,9 +15,7 @@ spec:
             k8s:io.kubernetes.pod.namespace: traefik
             app.kubernetes.io/name: traefik
       toPorts:
-        - rules:
-            http: []
-          ports:
+        - ports:
             - port: '3000'
               protocol: TCP
 

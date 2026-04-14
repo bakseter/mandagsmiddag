@@ -14,9 +14,7 @@ spec:
         - matchLabels:
             app: backend
       toPorts:
-        - rules:
-            http: []
-          ports:
+        - ports:
             - protocol: TCP
               port: '5432'
 
@@ -26,9 +24,7 @@ spec:
             app.kubernetes.io/name: cloudnative-pg
             k8s:io.kubernetes.pod.namespace: cnpg-system
       toPorts:
-        - rules:
-            http: []
-          ports:
+        - ports:
             - port: '5432'
               protocol: TCP
             - port: '8000'
@@ -39,9 +35,7 @@ spec:
         - matchLabels:
             app.kubernetes.io/instance: mandagsmiddag-database
       toPorts:
-        - rules:
-            http: []
-          ports:
+        - ports:
             - port: '5432'
               protocol: TCP
             - port: '8000'
@@ -54,13 +48,12 @@ spec:
             k8s:io.kubernetes.pod.namespace: kube-system
             k8s-app: kube-dns
       toPorts:
-        - rules:
-            http: []
-          ports:
+        - ports:
             - port: '53'
-              protocol: TCP
-            - port: '53'
-              protocol: UDP
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: '*'
 
     # Allow egress to kube-apiserver (needed for getting Cluster CR (?))
     - toEntities:
@@ -71,9 +64,7 @@ spec:
         - matchLabels:
             app.kubernetes.io/instance: mandagsmiddag-database
       toPorts:
-        - rules:
-            http: []
-          ports:
+        - ports:
             - port: '5432'
               protocol: TCP
             - port: '8000'
