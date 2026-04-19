@@ -51,7 +51,8 @@ const RatingCard = ({ rating }: Props) => {
             )}
 
             <div>
-                <strong>Middagsscore:</strong> {rating.dinnerScore}/10
+                <strong>Middagsscore:</strong>
+                {rating.dinnerScore ? `${String(rating.dinnerScore)}/10` : '-'}
             </div>
 
             {dinner?.filmTitle && (
