@@ -1,83 +1,45 @@
-import { format } from 'date-fns';
-import { nb } from 'date-fns/locale';
-import { useMemo } from 'react';
+import { differenceInWeeks, isPast } from 'date-fns';
+import { SquarePen } from 'lucide-react';
 
-import { useGetDinnerByIdQuery } from '@/services/dinner';
-import { type Rating } from '@/services/rating';
-import { useGetUsersQuery, type User } from '@/services/user';
+import type { Rating } from '@/services/rating';
 
 interface Props {
+    dinnerId: number;
+    dinnerDate: Date;
     rating: Rating;
 }
 
-const getNameById = (users: User[], id: number): User | null =>
-    users.find((ur) => ur.id === id) ?? null;
+const RatingCard = ({ dinnerId, dinnerDate, rating }: Props) => (
+    <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-100 px-4 py-2 text-sm">
+        <div className="mb-2 uppercase text-zinc-500">Din rating</div>
+        <div className=" flex items-center justify-between">
+            <span className="text-sm">
+                <span className="font-bold text-zinc-900">Middag:</span>{' '}
+                {rating.dinnerScore ? `${String(rating.dinnerScore)}/10` : '–'}
+            </span>
 
-const RatingCard = ({ rating }: Props) => {
-    const { data: users, isLoading: usersLoading } = useGetUsersQuery();
-    const { data: dinner, isLoading: dinnerLoading } = useGetDinnerByIdQuery(
-        rating.dinnerId
-    );
-    const user: User | null = useMemo(() => {
-        if (!users || !rating.userId) {
-            return null;
-        }
-        return getNameById(users, rating.userId);
-    }, [rating.userId, users]);
+            <span className="text-sm">
+                <span className="font-bold text-zinc-900">Film:</span>{' '}
+                {rating.filmScore}/10
+            </span>
 
-    const date = dinner?.date ? new Date(dinner.date) : null;
-
-    if (usersLoading || dinnerLoading) {
-        return <p>Laster...</p>;
-    }
-
-    return (
-        <div className="p-4 border rounded shadow-md w-full max-w-md mt-4">
-            <div className="flex justify-between items-center mb-2">
-                <h3 className="text-xl font-semibold">
-                    {user ? user.name : 'Ukjent bruker'}
-                </h3>
-                {date && (
-                    <span className="text-sm text-gray-500">
-                        {format(date, 'dd MMMM yyyy', { locale: nb })}
-                    </span>
-                )}
-            </div>
-
-            {dinner?.food && (
-                <div>
-                    <strong>Matrett:</strong> {dinner.food}
-                </div>
-            )}
-
-            <div>
-                <strong>Middagsscore:</strong>
-                {rating.dinnerScore ? `${String(rating.dinnerScore)}/10` : '-'}
-            </div>
-
-            {dinner?.filmTitle && (
-                <div>
-                    <strong>Film:</strong>
-                    {dinner.filmImdbUrl ? (
+            <div className="flex items-center gap-1">
+                {differenceInWeeks(new Date(), dinnerDate) <= 1 &&
+                    isPast(dinnerDate) && (
                         <a
-                            href={dinner.filmImdbUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:underline ml-1"
+                            href={`/middag/${String(dinnerId)}/rating/${String(
+                                rating.id
+                            )}/rediger`}
+                            title="Rediger rating"
+                            aria-label="Rediger rating"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-200 text-zinc-600 transition hover:bg-zinc-200 hover:text-zinc-900"
                         >
-                            {dinner.filmTitle}
+                            <SquarePen size={16} />
                         </a>
-                    ) : (
-                        <span> {dinner.filmTitle}</span>
                     )}
-                </div>
-            )}
-
-            <div>
-                <strong>Filmscore:</strong> {rating.filmScore}/10
             </div>
         </div>
-    );
-};
+    </div>
+);
 
 export default RatingCard;

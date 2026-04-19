@@ -1,9 +1,10 @@
 import { differenceInWeeks, format, isPast } from 'date-fns';
 import { nb } from 'date-fns/locale';
-import { Pencil, SquarePen, Star, Trash2 } from 'lucide-react';
+import { Pencil, Star, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
 import AdminOnly from '@/components/admin-only';
+import RatingCard from '@/components/rating-card';
 import { type Dinner, useDeleteDinnerMutation } from '@/services/dinner';
 import { useGetRatingsByUserQuery } from '@/services/rating';
 import {
@@ -65,7 +66,7 @@ const DinnerCard = ({ dinner }: Props) => {
         }
     };
 
-    const date = new Date(dinner.date);
+    const dinnerDate = new Date(dinner.date);
 
     const ratingForDinner =
         ratings?.find((rating) => rating.dinnerId === dinner.id) ?? null;
@@ -92,7 +93,7 @@ const DinnerCard = ({ dinner }: Props) => {
                     </h3>
 
                     <span className="mt-1 block text-sm text-zinc-500">
-                        {format(date, 'dd MMMM yyyy', { locale: nb })}
+                        {format(dinnerDate, 'dd MMMM yyyy', { locale: nb })}
                     </span>
                 </div>
 
@@ -171,52 +172,18 @@ const DinnerCard = ({ dinner }: Props) => {
                 )}
             </div>
 
-            {/* Rating card */}
             {!ratingsAreLoading && ratingForDinner && (
-                <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-100 px-4 py-2 text-sm">
-                    <div className="mb-2 uppercase text-zinc-500">
-                        Din rating
-                    </div>
-                    <div className=" flex items-center justify-between">
-                        <span className="text-sm">
-                            <span className="font-bold text-zinc-900">
-                                Middag:
-                            </span>{' '}
-                            {ratingForDinner.dinnerScore}/10
-                        </span>
-
-                        <span className="text-sm">
-                            <span className="font-bold text-zinc-900">
-                                Film:
-                            </span>{' '}
-                            {ratingForDinner.filmScore}/10
-                        </span>
-
-                        <div className="flex items-center gap-1">
-                            {differenceInWeeks(new Date(), date) <= 1 &&
-                                isPast(date) && (
-                                    <a
-                                        href={`/middag/${String(
-                                            dinner.id
-                                        )}/rating/${String(
-                                            ratingForDinner.id
-                                        )}/rediger`}
-                                        title="Rediger rating"
-                                        aria-label="Rediger rating"
-                                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-200 text-zinc-600 transition hover:bg-zinc-200 hover:text-zinc-900"
-                                    >
-                                        <SquarePen size={16} />
-                                    </a>
-                                )}
-                        </div>
-                    </div>
-                </div>
+                <RatingCard
+                    dinnerId={dinner.id}
+                    dinnerDate={dinnerDate}
+                    rating={ratingForDinner}
+                />
             )}
 
             {/* Add rating */}
             {canAddRating &&
-                differenceInWeeks(new Date(), date) <= 1 &&
-                isPast(date) && (
+                differenceInWeeks(new Date(), dinnerDate) <= 1 &&
+                isPast(dinnerDate) && (
                     <div className="mt-4">
                         <a
                             href={`/middag/${String(dinner.id)}/rating/ny`}
@@ -231,7 +198,10 @@ const DinnerCard = ({ dinner }: Props) => {
                 )}
 
             {canAddRating &&
-                !(differenceInWeeks(new Date(), date) <= 1 && isPast(date)) && (
+                !(
+                    differenceInWeeks(new Date(), dinnerDate) <= 1 &&
+                    isPast(dinnerDate)
+                ) && (
                     <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-100 px-4 py-2 text-sm text-zinc-500">
                         Du rakk ikke å legge inn en rating i tide
                     </div>
