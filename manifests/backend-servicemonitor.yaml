@@ -4,7 +4,7 @@ metadata:
   name: backend
   namespace: mandagsmiddag
   labels:
-    release: monitoring
+    release: kube-prometheus-stack
 spec:
   selector:
     matchLabels:
