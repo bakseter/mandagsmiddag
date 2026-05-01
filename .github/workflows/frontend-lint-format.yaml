@@ -1,17 +1,11 @@
-name: Lint & format
+name: 'Frontend: Lint & format'
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'frontend/**'
   pull_request:
     branches: [master]
-    paths:
-      - 'frontend/**'
 
 jobs:
-  lint-format:
+  frontend-lint-format:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
