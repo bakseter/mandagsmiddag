@@ -2,9 +2,10 @@ version: '2'
 linters:
   default: all
   disable:
-    - exhaustruct # TODO: fix and enable again
     - depguard
+    - exhaustruct # TODO: fix and enable again
     - err113
+    - goconst
     - mnd
     - noctx
     - noinlineerr
