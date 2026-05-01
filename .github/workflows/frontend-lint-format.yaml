@@ -6,6 +6,7 @@ on:
 
 jobs:
   frontend-lint-format:
+    name: 'Frontend lint & format'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
