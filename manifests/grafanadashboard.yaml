@@ -1,0 +1,10 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: mandagsmiddag
+  namespace: mandagsmiddag
+spec:
+  title: mandagsmiddag
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
