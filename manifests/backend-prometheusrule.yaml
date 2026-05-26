@@ -10,7 +10,7 @@ spec:
     - name: mandagsmiddag-backend
       rules:
         - alert: BackendHighErrorRate
-          expr: sum(rate(http_requests_received_total{service_namespace="mandagsmiddag",code=~"5.."}[5m])) > 0.05
+          expr: sum(rate(http_requests_received_total{namespace="mandagsmiddag",code=~"5.."}[5m])) > 0.05
           for: 2m
           labels:
             severity: critical
@@ -18,7 +18,7 @@ spec:
             summary: '5xx error rate above 0.05 req/s'
 
         - alert: BackendHighLatency
-          expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service_namespace="mandagsmiddag"}[5m]))) > 1
+          expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace="mandagsmiddag"}[5m]))) > 1
           for: 5m
           labels:
             severity: warning
@@ -26,7 +26,7 @@ spec:
             summary: 'p95 latency above 1s ({{ $value | humanizeDuration }})'
 
         - alert: BackendDown
-          expr: sum(up{service_namespace="mandagsmiddag"}) == 0
+          expr: sum(up{namespace="mandagsmiddag"}) == 0
           for: 1m
           labels:
             severity: critical

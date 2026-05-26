@@ -17,42 +17,42 @@ spec:
         {
           "type": "stat", "title": "Request rate",
           "datasource": "prometheus",
-          "targets": [{"expr": "sum(rate(http_requests_received_total{service_namespace=\"mandagsmiddag\"}[5m]))", "legendFormat": "req/s", "datasource": "prometheus"}],
+          "targets": [{"expr": "sum(rate(http_requests_received_total{namespace=\"mandagsmiddag\"}[5m]))", "legendFormat": "req/s", "datasource": "prometheus"}],
           "fieldConfig": {"defaults": {"unit": "reqps"}},
           "gridPos": {"x":0,"y":0,"w":4,"h":4}
         },
         {
           "type": "stat", "title": "Error rate",
           "datasource": "prometheus",
-          "targets": [{"expr": "sum(rate(http_requests_received_total{service_namespace=\"mandagsmiddag\",code=~\"5..\"}[5m]))", "datasource": "prometheus"}],
+          "targets": [{"expr": "sum(rate(http_requests_received_total{namespace=\"mandagsmiddag\",code=~\"5..\"}[5m]))", "datasource": "prometheus"}],
           "fieldConfig": {"defaults": {"unit": "reqps", "thresholds": {"steps": [{"color":"green","value":0},{"color":"red","value":0.01}]}}},
           "gridPos": {"x":4,"y":0,"w":4,"h":4}
         },
         {
           "type": "stat", "title": "4xx rate",
           "datasource": "prometheus",
-          "targets": [{"expr": "sum(rate(http_requests_received_total{service_namespace=\"mandagsmiddag\",code=~\"4..\"}[5m]))", "datasource": "prometheus"}],
+          "targets": [{"expr": "sum(rate(http_requests_received_total{namespace=\"mandagsmiddag\",code=~\"4..\"}[5m]))", "datasource": "prometheus"}],
           "fieldConfig": {"defaults": {"unit": "reqps", "thresholds": {"steps": [{"color":"green","value":0},{"color":"yellow","value":0.01}]}}},
           "gridPos": {"x":8,"y":0,"w":4,"h":4}
         },
         {
           "type": "stat", "title": "p95 latency",
           "datasource": "prometheus",
-          "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service_namespace=\"mandagsmiddag\"}[5m])))", "datasource": "prometheus"}],
+          "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"mandagsmiddag\"}[5m])))", "datasource": "prometheus"}],
           "fieldConfig": {"defaults": {"unit": "s", "thresholds": {"steps": [{"color":"green","value":0},{"color":"yellow","value":0.5},{"color":"red","value":2}]}}},
           "gridPos": {"x":12,"y":0,"w":4,"h":4}
         },
         {
           "type": "stat", "title": "p99 latency",
           "datasource": "prometheus",
-          "targets": [{"expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{service_namespace=\"mandagsmiddag\"}[5m])))", "datasource": "prometheus"}],
+          "targets": [{"expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"mandagsmiddag\"}[5m])))", "datasource": "prometheus"}],
           "fieldConfig": {"defaults": {"unit": "s", "thresholds": {"steps": [{"color":"green","value":0},{"color":"yellow","value":1},{"color":"red","value":5}]}}},
           "gridPos": {"x":16,"y":0,"w":4,"h":4}
         },
         {
           "type": "stat", "title": "Memory (RSS)",
           "datasource": "prometheus",
-          "targets": [{"expr": "sum(process_resident_memory_bytes{service_namespace=\"mandagsmiddag\"})", "datasource": "prometheus"}],
+          "targets": [{"expr": "sum(process_resident_memory_bytes{namespace=\"mandagsmiddag\"})", "datasource": "prometheus"}],
           "fieldConfig": {"defaults": {"unit": "bytes"}},
           "gridPos": {"x":20,"y":0,"w":4,"h":4}
         },
@@ -60,7 +60,7 @@ spec:
           "type": "timeseries", "title": "Request rate by endpoint",
           "datasource": "prometheus",
           "targets": [
-            {"expr": "sum by (endpoint, method) (rate(http_requests_received_total{service_namespace=\"mandagsmiddag\",code!~\"4..|5..\"}[5m]))", "legendFormat": "{{method}} {{endpoint}}", "datasource": "prometheus"}
+            {"expr": "sum by (endpoint, method) (rate(http_requests_received_total{namespace=\"mandagsmiddag\",code!~\"4..|5..\"}[5m]))", "legendFormat": "{{method}} {{endpoint}}", "datasource": "prometheus"}
           ],
           "fieldConfig": {"defaults": {"unit": "reqps"}},
           "gridPos": {"x":0,"y":4,"w":12,"h":8}
@@ -69,9 +69,9 @@ spec:
           "type": "timeseries", "title": "Latency p50 / p95 / p99",
           "datasource": "prometheus",
           "targets": [
-            {"expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{service_namespace=\"mandagsmiddag\"}[5m])))", "legendFormat": "p50", "datasource": "prometheus"},
-            {"expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service_namespace=\"mandagsmiddag\"}[5m])))", "legendFormat": "p95", "datasource": "prometheus"},
-            {"expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{service_namespace=\"mandagsmiddag\"}[5m])))", "legendFormat": "p99", "datasource": "prometheus"}
+            {"expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"mandagsmiddag\"}[5m])))", "legendFormat": "p50", "datasource": "prometheus"},
+            {"expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"mandagsmiddag\"}[5m])))", "legendFormat": "p95", "datasource": "prometheus"},
+            {"expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"mandagsmiddag\"}[5m])))", "legendFormat": "p99", "datasource": "prometheus"}
           ],
           "fieldConfig": {"defaults": {"unit": "s"}},
           "gridPos": {"x":12,"y":4,"w":12,"h":8}
@@ -80,7 +80,7 @@ spec:
           "type": "timeseries", "title": "Latency p95 per endpoint",
           "datasource": "prometheus",
           "targets": [
-            {"expr": "histogram_quantile(0.95, sum by (endpoint, method, le) (rate(http_request_duration_seconds_bucket{service_namespace=\"mandagsmiddag\"}[5m])))", "legendFormat": "{{method}} {{endpoint}}", "datasource": "prometheus"}
+            {"expr": "histogram_quantile(0.95, sum by (endpoint, method, le) (rate(http_request_duration_seconds_bucket{namespace=\"mandagsmiddag\"}[5m])))", "legendFormat": "{{method}} {{endpoint}}", "datasource": "prometheus"}
           ],
           "fieldConfig": {"defaults": {"unit": "s"}},
           "gridPos": {"x":0,"y":12,"w":12,"h":8}
@@ -89,7 +89,7 @@ spec:
           "type": "timeseries", "title": "Error and 4xx rate",
           "datasource": "prometheus",
           "targets": [
-            {"expr": "sum by (endpoint, method, code) (rate(http_requests_received_total{service_namespace=\"mandagsmiddag\",code=~\"4..|5..\"}[5m]))", "legendFormat": "{{code}} {{method}} {{endpoint}}", "datasource": "prometheus"}
+            {"expr": "sum by (endpoint, method, code) (rate(http_requests_received_total{namespace=\"mandagsmiddag\",code=~\"4..|5..\"}[5m]))", "legendFormat": "{{code}} {{method}} {{endpoint}}", "datasource": "prometheus"}
           ],
           "fieldConfig": {"defaults": {"unit": "reqps"}},
           "gridPos": {"x":12,"y":12,"w":12,"h":8}
@@ -98,9 +98,9 @@ spec:
           "type": "timeseries", "title": "Go heap in use",
           "datasource": "prometheus",
           "targets": [
-            {"expr": "sum(go_memstats_heap_inuse_bytes{service_namespace=\"mandagsmiddag\"})", "legendFormat": "heap in use", "datasource": "prometheus"},
-            {"expr": "sum(go_memstats_heap_alloc_bytes{service_namespace=\"mandagsmiddag\"})", "legendFormat": "heap alloc", "datasource": "prometheus"},
-            {"expr": "sum(go_memstats_next_gc_bytes{service_namespace=\"mandagsmiddag\"})", "legendFormat": "next GC target", "datasource": "prometheus"}
+            {"expr": "sum(go_memstats_heap_inuse_bytes{namespace=\"mandagsmiddag\"})", "legendFormat": "heap in use", "datasource": "prometheus"},
+            {"expr": "sum(go_memstats_heap_alloc_bytes{namespace=\"mandagsmiddag\"})", "legendFormat": "heap alloc", "datasource": "prometheus"},
+            {"expr": "sum(go_memstats_next_gc_bytes{namespace=\"mandagsmiddag\"})", "legendFormat": "next GC target", "datasource": "prometheus"}
           ],
           "fieldConfig": {"defaults": {"unit": "bytes"}},
           "gridPos": {"x":0,"y":20,"w":12,"h":8}
@@ -109,8 +109,8 @@ spec:
           "type": "timeseries", "title": "GC pause p99 / goroutines",
           "datasource": "prometheus",
           "targets": [
-            {"expr": "sum(go_gc_duration_seconds{service_namespace=\"mandagsmiddag\",quantile=\"0.99\"})", "legendFormat": "GC p99 pause", "datasource": "prometheus"},
-            {"expr": "sum(go_goroutines{service_namespace=\"mandagsmiddag\"})", "legendFormat": "goroutines", "datasource": "prometheus"}
+            {"expr": "sum(go_gc_duration_seconds{namespace=\"mandagsmiddag\",quantile=\"0.99\"})", "legendFormat": "GC p99 pause", "datasource": "prometheus"},
+            {"expr": "sum(go_goroutines{namespace=\"mandagsmiddag\"})", "legendFormat": "goroutines", "datasource": "prometheus"}
           ],
           "fieldConfig": {"overrides": [{"matcher": {"id":"byName","options":"goroutines"},"properties": [{"id":"unit","value":"short"},{"id":"custom.axisPlacement","value":"right"}]}], "defaults": {"unit": "s"}},
           "gridPos": {"x":12,"y":20,"w":12,"h":8}
