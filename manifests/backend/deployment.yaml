@@ -10,13 +10,9 @@ metadata:
 spec:
   replicas: 2
   revisionHistoryLimit: 5
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: mandagsmiddag-backend
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: mandagsmiddag-backend
         logs.bakseter.net/scrape: 'false'
     spec:
       containers:

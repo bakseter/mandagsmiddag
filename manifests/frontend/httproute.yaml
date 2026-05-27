@@ -19,12 +19,14 @@ spec:
         - path:
             type: PathPrefix
             value: /
+
       backendRefs:
         - name: mandagsmiddag-frontend
           port: 3000
           group: '' # for argocd diff
           kind: Service # for argocd diff
           weight: 1 # for argocd diff
+
       filters:
         - type: ExtensionRef
           extensionRef:

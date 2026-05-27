@@ -3,13 +3,9 @@ kind: Service
 metadata:
   name: mandagsmiddag-frontend
   namespace: mandagsmiddag
-  labels:
-    app.kubernetes.io/name: mandagsmiddag-frontend
 spec:
+  type: ClusterIP
   ports:
     - name: http
       port: 3000
       targetPort: 3000
-  selector:
-    app.kubernetes.io/name: mandagsmiddag-frontend
-  type: ClusterIP

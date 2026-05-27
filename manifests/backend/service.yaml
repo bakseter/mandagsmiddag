@@ -3,13 +3,9 @@ kind: Service
 metadata:
   name: mandagsmiddag-backend
   namespace: mandagsmiddag
-  labels:
-    app.kubernetes.io/name: mandagsmiddag-backend
 spec:
+  type: ClusterIP
   ports:
     - name: http
       port: 8080
       targetPort: 8080
-  selector:
-    app.kubernetes.io/name: mandagsmiddag-backend
-  type: ClusterIP
