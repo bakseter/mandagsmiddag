@@ -7,7 +7,6 @@ spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/instance: mandagsmiddag-database
-
   ingress:
     # Allow traffic from backend
     - fromEndpoints:
@@ -30,17 +29,19 @@ spec:
             - port: '8000'
               protocol: TCP
 
-    # Allow ingress from database replicas
+    # Allow ingress from database replicas (all ports, for replication ephemeral ports)
     - fromEndpoints:
         - matchLabels:
             app.kubernetes.io/instance: mandagsmiddag-database
-      toPorts:
-        - ports:
-            - port: '5432'
-              protocol: TCP
-            - port: '8000'
-              protocol: TCP
 
+    # Allow ICMP from nodes (health checks / CNI liveness)
+    - fromEntities:
+        - remote-node
+        - host
+      icmps:
+        - fields:
+            - type: 8
+              family: IPv4
   egress:
     # Allow egress to kube-dns (needed for DNS resolution)
     - toEndpoints:
@@ -59,13 +60,7 @@ spec:
     - toEntities:
         - kube-apiserver
 
-    # Allow egress to database replicas
+    # Allow egress to database replicas (all ports, for replication ephemeral ports)
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/instance: mandagsmiddag-database
-      toPorts:
-        - ports:
-            - port: '5432'
-              protocol: TCP
-            - port: '8000'
-              protocol: TCP
