@@ -1,12 +1,12 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: backend
+  name: mandagsmiddag-backend
   namespace: mandagsmiddag
 spec:
   endpointSelector:
     matchLabels:
-      app: backend
+      app.kubernetes.io/name: mandagsmiddag-backend
 
   ingress:
     # Allow ingress from Traefik

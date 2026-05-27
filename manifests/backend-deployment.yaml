@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: mandagsmiddag-backend
   namespace: mandagsmiddag
   annotations:
     keel.sh/match-tag: 'true'
@@ -12,15 +12,15 @@ spec:
   revisionHistoryLimit: 5
   selector:
     matchLabels:
-      app: backend
+      app.kubernetes.io/name: mandagsmiddag-backend
   template:
     metadata:
       labels:
-        app: backend
+        app.kubernetes.io/name: mandagsmiddag-backend
         logs.bakseter.net/scrape: 'false'
     spec:
       containers:
-        - name: backend
+        - name: mandagsmiddag-backend
           image: ghcr.io/bakseter/mandagsmiddag/backend:latest
           ports:
             - name: http
@@ -72,10 +72,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
-                  - key: app
+                  - key: app.kubernetes.io/name
                     operator: In
                     values:
-                      - backend
+                      - mandagsmiddag-backend
               topologyKey: bakseter.net/physical-node
       securityContext:
         fsGroup: 65534

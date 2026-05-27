@@ -8,6 +8,6 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: backend
+      app.kubernetes.io/name: mandagsmiddag-backend
   endpoints:
     - port: http

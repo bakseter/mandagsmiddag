@@ -12,11 +12,11 @@ spec:
     # Allow traffic from backend
     - fromEndpoints:
         - matchLabels:
-            app: backend
+            app.kubernetes.io/name: mandagsmiddag-backend
       toPorts:
         - ports:
-            - protocol: TCP
-              port: '5432'
+            - port: '5432'
+              protocol: TCP
 
     # Allow ingress from CloudNativePG operator
     - fromEndpoints:

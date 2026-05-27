@@ -1,12 +1,12 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: frontend
+  name: mandagsmiddag-frontend
   namespace: mandagsmiddag
 spec:
   endpointSelector:
     matchLabels:
-      app: frontend
+      app.kubernetes.io/name: mandagsmiddag-frontend
 
   ingress:
     # Allow ingress from Traefik
