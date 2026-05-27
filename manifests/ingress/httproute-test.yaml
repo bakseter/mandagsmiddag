@@ -34,7 +34,7 @@ metadata:
 spec:
   parentRefs:
     - name: cloudflared-gateway
-      namespace: envoy-gateway
+      namespace: cloudflared
       group: gateway.networking.k8s.io
       kind: Gateway
 
