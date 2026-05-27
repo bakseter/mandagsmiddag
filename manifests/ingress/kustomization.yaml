@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - middleware.yaml
   - securitypolicy.yaml
+  - httproute-test.yaml
