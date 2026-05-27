@@ -20,7 +20,7 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: frontend
+        - name: mandagsmiddag-frontend
           port: 3000
           group: '' # for argocd diff
           kind: Service # for argocd diff
