@@ -4,16 +4,19 @@ metadata:
   name: authentik-extauth
   namespace: mandagsmiddag
 spec:
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      name: mandagsmiddag-frontend-test # TODO: rename
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      name: mandagsmiddag-backend-test # TODO: rename
   extAuth:
+    headersToExtAuth:
+      - Authorization
+      - Cookie
+      - X-Forwarded-For
+      - X-Forwarded-Host
+      - X-Forwarded-Proto
     http:
-      url: http://ak-outpost-mandagsmiddag.authentik.svc.cluster.local:9000/outpost.goauthentik.io/auth/envoy
+      backendRefs:
+        - name: ak-outpost-mandagsmiddag
+          namespace: authentik
+          port: 9000
+      path: /outpost.goauthentik.io/auth/envoy
       headersToBackend:
         - X-authentik-username
         - X-authentik-groups
@@ -27,9 +30,10 @@ spec:
         - X-authentik-meta-provider
         - X-authentik-meta-app
         - X-authentik-meta-version
-      headersToExtAuth:
-        - Authorization
-        - Cookie
-        - X-Forwarded-For
-        - X-Forwarded-Host
-        - X-Forwarded-Proto
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: mandagsmiddag-frontend-test # TODO: rename
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: mandagsmiddag-backend-test # TODO: rename
