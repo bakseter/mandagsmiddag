@@ -79,20 +79,21 @@ const DinnerCard = ({ dinner }: Props) => {
         Boolean(dinner.filmTitle) &&
         dinner.participantIds?.includes(currentUser?.id ?? 0);
 
-    const canEditDinner =
-        currentUser &&
-        (currentUser.id === dinner.hostUserId || currentUser.isAdmin);
+    const isOwnDinner = currentUser?.id === dinner.hostUserId;
+    const canEditDinner = isOwnDinner || currentUser?.isAdmin;
 
     return (
-        <article className="w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+        <article
+            className={`w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg`}
+        >
             {/* Header */}
             <div className="mb-4 flex items-start justify-between gap-4">
                 <div className="min-w-0">
                     <h3 className="text-lg font-semibold text-zinc-900">
-                        {host ? `Arrangert av ${host.name}` : 'Ingen arrangør'}
+                        {host ? host.name : 'Ingen arrangør'}
                     </h3>
 
-                    <span className="mt-1 block text-sm text-zinc-500">
+                    <span className="mt-1 block text-sm text-zinc-600">
                         {format(dinnerDate, 'dd MMMM yyyy', { locale: nb })}
                     </span>
                 </div>
