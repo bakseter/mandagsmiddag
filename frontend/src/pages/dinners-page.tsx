@@ -1,3 +1,5 @@
+import { isPast } from 'date-fns';
+
 import DinnerCard from '@/components/dinner-card';
 import { useGetDinnersQuery } from '@/services/dinner';
 
@@ -25,25 +27,45 @@ const DinnersPage = () => {
             new Date(second.date).getTime() - new Date(first.date).getTime()
     );
 
-    return (
-        <div className="space-y-8">
-            <section className="space-y-3">
-                <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
-                    Alle middager
-                </h1>
-            </section>
+    const upcomingDinners = sortedDinners.filter(
+        (dinner) => !isPast(new Date(dinner.date))
+    );
 
-            {sortedDinners.length === 0 ? (
-                <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-zinc-600 shadow-sm">
-                    Ingen middager enda.
-                </div>
-            ) : (
-                <section className="grid gap-5 sm:grid-cols-1 lg:grid-cols-2">
-                    {sortedDinners.map((dinner) => (
+    const pastDinners = sortedDinners.filter((dinner) =>
+        isPast(new Date(dinner.date))
+    );
+
+    if ([...upcomingDinners, ...pastDinners].length === 0) {
+        return (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm text-zinc-500 shadow-sm">
+                Ingen middager enda.
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-10">
+            <section className="space-y-4">
+                <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
+                    Kommende middager
+                </h2>
+                <div className="grid gap-5 sm:grid-cols-1 lg:grid-cols-2">
+                    {upcomingDinners.map((dinner) => (
                         <DinnerCard key={dinner.id} dinner={dinner} />
                     ))}
-                </section>
-            )}
+                </div>
+            </section>
+
+            <section className="space-y-4">
+                <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
+                    Tidligere middager
+                </h2>
+                <div className="grid gap-5 sm:grid-cols-1 lg:grid-cols-2">
+                    {pastDinners.map((dinner) => (
+                        <DinnerCard key={dinner.id} dinner={dinner} />
+                    ))}
+                </div>
+            </section>
         </div>
     );
 };
