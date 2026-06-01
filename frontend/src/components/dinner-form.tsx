@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { type Dinner, usePutDinnerMutation } from '@/api/dinner';
 import { useGetUsersQuery } from '@/api/user';
+import FilmSearch from '@/components/film-search';
 import FormSubmitStatus from '@/components/form-submit-status';
 
 interface FormValues {
@@ -36,19 +37,23 @@ const DinnerForm = ({ dinner = null }: Props) => {
 
     const isEditMode = Boolean(dinner);
 
-    const { handleSubmit, control, reset } = useForm<FormValues>({
-        defaultValues: {
-            id: dinner?.id ? String(dinner.id) : '',
-            hostUserId: dinner ? String(dinner.hostUserId) : '',
-            date: dinner?.date
-                ? format(new Date(dinner.date), 'yyyy-MM-dd')
-                : '',
-            food: dinner?.food ?? '',
-            filmTitle: dinner?.filmTitle ?? '',
-            filmImdbUrl: dinner?.filmImdbUrl ?? '',
-            participants: dinner?.participantIds?.map(String) ?? [],
-        },
-    });
+    const { handleSubmit, control, reset, setValue, watch } =
+        useForm<FormValues>({
+            defaultValues: {
+                id: dinner?.id ? String(dinner.id) : '',
+                hostUserId: dinner ? String(dinner.hostUserId) : '',
+                date: dinner?.date
+                    ? format(new Date(dinner.date), 'yyyy-MM-dd')
+                    : '',
+                food: dinner?.food ?? '',
+                filmTitle: dinner?.filmTitle ?? '',
+                filmImdbUrl: dinner?.filmImdbUrl ?? '',
+                participants: dinner?.participantIds?.map(String) ?? [],
+            },
+        });
+
+    const filmTitle = watch('filmTitle');
+    const filmImdbUrl = watch('filmImdbUrl');
 
     const onSubmit = async (data: FormValues) => {
         try {
@@ -166,39 +171,17 @@ const DinnerForm = ({ dinner = null }: Props) => {
                     />
                 </div>
 
-                <div className="grid gap-5 md:grid-cols-2">
-                    <div>
-                        <label className={labelClassName}>Filmtittel</label>
-                        <Controller
-                            name="filmTitle"
-                            control={control}
-                            render={({ field }) => (
-                                <input
-                                    type="text"
-                                    {...field}
-                                    placeholder="For eksempel Interstellar"
-                                    className={inputClassName}
-                                />
-                            )}
-                        />
-                    </div>
-
-                    <div>
-                        <label className={labelClassName}>IMDb-lenke</label>
-                        <Controller
-                            name="filmImdbUrl"
-                            control={control}
-                            render={({ field }) => (
-                                <input
-                                    type="text"
-                                    {...field}
-                                    placeholder="https://www.imdb.com/..."
-                                    className={inputClassName}
-                                />
-                            )}
-                        />
-                    </div>
-                </div>
+                {/* Film search — replaces the two separate filmTitle/filmImdbUrl fields */}
+                <FilmSearch
+                    titleValue={filmTitle}
+                    urlValue={filmImdbUrl}
+                    onTitleChange={(title) => {
+                        setValue('filmTitle', title);
+                    }}
+                    onUrlChange={(url) => {
+                        setValue('filmImdbUrl', url);
+                    }}
+                />
 
                 <div>
                     <label className={labelClassName}>Hvem møtte opp?</label>

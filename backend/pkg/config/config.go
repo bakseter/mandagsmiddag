@@ -15,16 +15,17 @@ import (
 )
 
 type Config struct {
-	ApplicationMetrics *ApplicationMetrics
-	Local              bool
-	Host               string
-	Port               string
-	OIDCIssuer         string
-	OIDCClientID       string
-	HTTPClient         *http.Client
-	IDTokenVerifier    *oidc.IDTokenVerifier
-	Database           *gorm.DB
-	Logger             *logrus.Logger
+	ApplicationMetrics     *ApplicationMetrics
+	Local                  bool
+	Host                   string
+	Port                   string
+	OIDCIssuer             string
+	OIDCClientID           string
+	TMDBAPIReadAccessToken string
+	HTTPClient             *http.Client
+	IDTokenVerifier        *oidc.IDTokenVerifier
+	Database               *gorm.DB
+	Logger                 *logrus.Logger
 }
 
 func resolveHost(local bool) (string, error) {
@@ -90,6 +91,15 @@ func resolveOIDCClientID(local bool) (string, error) {
 	return oidcClientID, nil
 }
 
+func resolveTMDBAPIReadAccessToken() (string, error) {
+	tmdbAPIReadAccessToken := os.Getenv("TMDB_API_READ_ACCESS_TOKEN")
+	if tmdbAPIReadAccessToken == "" {
+		return "", errors.New("TMDBAPIReadAccessToken not set")
+	}
+
+	return tmdbAPIReadAccessToken, nil
+}
+
 func New(ctx context.Context, logger *logrus.Logger) (*Config, func(context.Context) error, error) { //nolint:funlen
 	local := os.Getenv("LOCAL") == "true"
 
@@ -126,6 +136,11 @@ func New(ctx context.Context, logger *logrus.Logger) (*Config, func(context.Cont
 		return nil, nil, err
 	}
 
+	tmdbAPIReadAccessToken, err := resolveTMDBAPIReadAccessToken()
+	if err != nil {
+		return nil, nil, err
+	}
+
 	httpClient := &http.Client{
 		Transport: otelhttp.NewTransport(http.DefaultTransport),
 		Timeout:   10 * time.Second,
@@ -137,16 +152,17 @@ func New(ctx context.Context, logger *logrus.Logger) (*Config, func(context.Cont
 	}
 
 	config := &Config{
-		ApplicationMetrics: applicationMetrics,
-		Local:              local,
-		Host:               host,
-		Port:               port,
-		IDTokenVerifier:    nil,
-		OIDCIssuer:         oidcIssuer,
-		OIDCClientID:       oidcClientID,
-		HTTPClient:         httpClient,
-		Database:           database,
-		Logger:             logger,
+		ApplicationMetrics:     applicationMetrics,
+		Local:                  local,
+		Host:                   host,
+		Port:                   port,
+		IDTokenVerifier:        nil,
+		OIDCIssuer:             oidcIssuer,
+		OIDCClientID:           oidcClientID,
+		TMDBAPIReadAccessToken: tmdbAPIReadAccessToken,
+		HTTPClient:             httpClient,
+		Database:               database,
+		Logger:                 logger,
 	}
 
 	if local {

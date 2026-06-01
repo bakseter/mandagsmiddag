@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import dinnerApi from '@/api/dinner';
 import penaltyApi from '@/api/penalty';
 import ratingApi from '@/api/rating';
+import tmdbApi from '@/api/tmdb';
 import userApi from '@/api/user';
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
         [penaltyApi.reducerPath]: penaltyApi.reducer,
         [ratingApi.reducerPath]: ratingApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
+        [tmdbApi.reducerPath]: tmdbApi.reducer,
     },
     middleware: (getDefaultMiddleware) => [
         ...getDefaultMiddleware(),
@@ -18,6 +20,7 @@ export const store = configureStore({
         penaltyApi.middleware,
         ratingApi.middleware,
         userApi.middleware,
+        tmdbApi.middleware,
     ],
 });
 
