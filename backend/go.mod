@@ -1,6 +1,6 @@
 module github.com/bakseter/mandagsmiddag
 
-go 1.26
+go 1.26.3
 
 require (
 	github.com/gin-contrib/cors v1.7.7
