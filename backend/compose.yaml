@@ -1,18 +1,4 @@
 services:
-  frontend:
-    image: ghcr.io/bakseter/mandagsmiddag/frontend:latest
-    build:
-      context: ./frontend
-      args:
-        - VITE_BACKEND_URL=http://localhost:8080/api
-    ports:
-      - '3000:3000'
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./frontend/src
-          target: /app/src
-
   backend:
     image: ghcr.io/bakseter/mandagsmiddag/backend:latest
     build: ./backend
@@ -45,15 +31,6 @@ services:
           path: '**/*.go'
           target: /app
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    command: ['--config=/etc/otelcol-contrib/config.yaml']
-    volumes:
-      - ./otelcol.yaml:/etc/otelcol-contrib/config.yaml
-    ports:
-      - '4317:4317'
-      - '4318:4318'
-
   database:
     image: postgres:18-alpine
     ports:
@@ -67,3 +44,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ['--config=/etc/otelcol-contrib/config.yaml']
+    volumes:
+      - ./otelcol.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - '4317:4317'
+      - '4318:4318'
