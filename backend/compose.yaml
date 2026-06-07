@@ -1,7 +1,7 @@
 services:
   backend:
     image: ghcr.io/bakseter/mandagsmiddag/backend:latest
-    build: ./backend
+    build: .
     ports:
       - '8080:8080'
     environment:
@@ -19,17 +19,6 @@ services:
         condition: service_started
     links:
       - database
-    develop:
-      watch:
-        - action: sync
-          path: ./static
-          target: /app/static
-        - action: sync
-          path: ./templates
-          target: /app/templates
-        - action: rebuild
-          path: '**/*.go'
-          target: /app
 
   database:
     image: postgres:18-alpine
