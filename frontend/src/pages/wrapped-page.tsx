@@ -133,7 +133,7 @@ const computeStats = (dinners: Dinner[], ratings: Rating[], users: User[]) => {
 
     const bestDinners = pastDinners
         .filter(
-            (dinner) => dinner.food && dinnerScoresByDinnerId[dinner.id]?.length
+            (dinner) => dinner.food && dinnerScoresByDinnerId[dinner.id]?.length // eslint-disable-line @typescript-eslint/no-unnecessary-condition
         )
         .map((dinner) => ({
             dinner,
@@ -153,7 +153,7 @@ const computeStats = (dinners: Dinner[], ratings: Rating[], users: User[]) => {
     const bestFilms = pastDinners
         .filter(
             (dinner) =>
-                dinner.filmTitle && filmScoresByDinnerId[dinner.id]?.length
+                dinner.filmTitle && filmScoresByDinnerId[dinner.id]?.length // eslint-disable-line @typescript-eslint/no-unnecessary-condition
         )
         .map((dinner) => ({
             dinner,
