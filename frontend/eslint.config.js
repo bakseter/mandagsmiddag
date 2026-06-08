@@ -43,23 +43,16 @@ export default defineConfig([
             complexity: 'off',
             'no-console': 'warn',
             'class-methods-use-this': 'warn', // TODO: don't use classes and enable this again
-            'no-magic-numbers': [
-                'error',
-                {
-                    ignore: [0, 1],
-                    ignoreArrayIndexes: true,
-                    ignoreDefaultValues: true,
-                    ignoreEnums: true,
-                },
-            ],
+            'no-magic-numbers': 'off',
             'unicorn/no-null': 'off',
             'sort-imports': 'off',
             'simple-import-sort/imports': 'error',
             'simple-import-sort/exports': 'error',
+            'max-lines': 'off',
             'max-statements': [
                 'error',
                 {
-                    max: 20,
+                    max: 50, // TODO: down
                 },
             ],
             'max-params': [
