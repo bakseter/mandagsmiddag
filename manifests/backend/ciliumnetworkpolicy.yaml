@@ -9,11 +9,11 @@ spec:
       app.kubernetes.io/name: mandagsmiddag-backend
 
   ingress:
-    # Allow ingress from Traefik
+    # Allow ingress from Envoy Gateway
     - fromEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: traefik
-            app.kubernetes.io/name: traefik
+            k8s:io.kubernetes.pod.namespace: envoy-gateway-system
+            gateway.envoyproxy.io/owning-gateway-name: cloudflared-gateway
       toPorts:
         - rules:
             http:
