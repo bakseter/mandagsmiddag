@@ -11,4 +11,3 @@ resources:
   - ./backend
   - ./database
   - ./monitoring
-  - ./ingress
