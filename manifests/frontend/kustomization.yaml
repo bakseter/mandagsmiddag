@@ -11,3 +11,4 @@ resources:
   - deployment.yaml
   - httproute.yaml
   - service.yaml
+  - securitypolicy.yaml
