@@ -158,10 +158,10 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
                             control={control}
                             rules={{
                                 required: !didNotEat,
-                                /* eslint-disable no-undefined */
+                                /* eslint-disable no-magic-numbers,no-undefined */
                                 min: didNotEat ? undefined : 1,
                                 max: didNotEat ? undefined : 10,
-                                /* eslint-enable no-undefined */
+                                /* eslint-enable no-magic-numbers,no-undefined */
                             }}
                             render={({ field }) => (
                                 <input
