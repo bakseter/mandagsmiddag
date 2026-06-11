@@ -5,10 +5,9 @@ metadata:
   namespace: mandagsmiddag
 spec:
   parentRefs:
-    - name: traefik-gateway
-      namespace: traefik
-      sectionName: public
-      group: gateway.networking.k8s.io # for argocd diff
+    - name: cloudflared-gateway
+      namespace: cloudflared
+      group: gateway.networking.k8s.io
       kind: Gateway
 
   hostnames:
@@ -19,15 +18,10 @@ spec:
         - path:
             type: PathPrefix
             value: /api
+
       backendRefs:
         - name: mandagsmiddag-backend
           port: 8080
           group: '' # for argocd diff
           kind: Service # for argocd diff
           weight: 1 # for argocd diff
-      filters:
-        - type: ExtensionRef
-          extensionRef:
-            group: traefik.io
-            kind: Middleware
-            name: authentik
