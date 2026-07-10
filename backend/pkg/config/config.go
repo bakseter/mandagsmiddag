@@ -16,7 +16,7 @@ type Config struct {
 }
 
 func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context) error, error) {
-	applicationMetrics, shutdownLogs, err := ConfigureOpenTelemetry(ctx, log)
+	applicationMetrics, shutdownTelemetry, err := ConfigureOpenTelemetry(ctx, log)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -54,5 +54,5 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 		Local:              local,
 		Host:               host,
 		Port:               port,
-	}, shutdownLogs, nil
+	}, shutdownTelemetry, nil
 }

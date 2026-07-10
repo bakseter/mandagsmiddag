@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,12 +12,15 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/log/global"
 	meter "go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/propagation"
 	otelLog "go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
@@ -26,7 +30,7 @@ type ApplicationMetrics struct {
 }
 
 const (
-	ServiceName      = "backend"
+	ServiceName      = "mandagsmiddag-backend"
 	ServiceNamespace = "mandagsmiddag"
 )
 
@@ -49,14 +53,29 @@ func ConfigureOpenTelemetry(
 		return nil, nil, err
 	}
 
-	applicationMetrics, err := configureMetrics(res)
+	tracerProvider, err := configureTraces(ctx, res)
 	if err != nil {
 		_ = loggerProvider.Shutdown(ctx)
 
 		return nil, nil, err
 	}
 
-	return applicationMetrics, loggerProvider.Shutdown, nil
+	applicationMetrics, err := configureMetrics(res)
+	if err != nil {
+		_ = tracerProvider.Shutdown(ctx)
+		_ = loggerProvider.Shutdown(ctx)
+
+		return nil, nil, err
+	}
+
+	shutdown := func(ctx context.Context) error {
+		return errors.Join(
+			tracerProvider.Shutdown(ctx),
+			loggerProvider.Shutdown(ctx),
+		)
+	}
+
+	return applicationMetrics, shutdown, nil
 }
 
 func configureLogs(
@@ -140,6 +159,35 @@ func configureMetrics(resource *resource.Resource) (*ApplicationMetrics, error) 
 		httpRequestsReceivedTotal:  httpRequestsReceivedTotal,
 		httpRequestDurationSeconds: httpRequestDurationSeconds,
 	}, nil
+}
+
+func configureTraces(
+	ctx context.Context,
+	res *resource.Resource,
+) (*sdktrace.TracerProvider, error) {
+	traceExporter, err := otlptracegrpc.New(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create trace exporter: %w", err)
+	}
+
+	tracerProvider := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(traceExporter),
+		sdktrace.WithResource(res),
+	)
+
+	otel.SetTracerProvider(tracerProvider)
+
+	// CRITICAL: OTel Go defaults to a NO-OP propagator. Without this line, the
+	// traceparent header Envoy Gateway injects is silently ignored and your app
+	// starts a fresh, disconnected trace instead of joining Envoy's span.
+	otel.SetTextMapPropagator(
+		propagation.NewCompositeTextMapPropagator(
+			propagation.TraceContext{},
+			propagation.Baggage{},
+		),
+	)
+
+	return tracerProvider, nil
 }
 
 func MetricsMiddleware(conf *Config) gin.HandlerFunc {

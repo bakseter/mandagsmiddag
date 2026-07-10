@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/bakseter/mandagsmiddag/pkg/config"
 	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/bakseter/mandagsmiddag/pkg/routes"
@@ -8,12 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"gorm.io/gorm"
 )
 
 func Start(conf *config.Config, log *logrus.Logger) error {
 	router := gin.New()
 
+	router.Use(
+		otelgin.Middleware(
+			config.ServiceName,
+			otelgin.WithFilter(func(r *http.Request) bool {
+				return r.URL.Path != "/metrics"
+			}),
+		),
+	)
 	router.Use(config.LogrusMiddleware(log))
 	router.Use(gin.Recovery())
 	router.Use(config.MetricsMiddleware(conf))
