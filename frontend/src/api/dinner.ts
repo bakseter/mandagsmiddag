@@ -1,16 +1,19 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { z } from 'zod';
 
-import { backendUrl } from '@/services/common';
+import { backendUrl } from '@/api/common';
 
-export interface Dinner {
-    id: number;
-    hostUserId: number;
-    participantIds?: number[];
-    date: string;
-    food?: string;
-    filmImdbUrl?: string;
-    filmTitle?: string;
-}
+const dinnerSchema = z.object({
+    id: z.number(),
+    hostUserId: z.number(),
+    participantIds: z.array(z.number()).optional(),
+    date: z.string(),
+    food: z.string().optional(),
+    filmImdbUrl: z.string().optional(),
+    filmTitle: z.string().optional(),
+});
+
+type Dinner = z.infer<typeof dinnerSchema>;
 
 const dinnerApi = createApi({
     reducerPath: 'dinnerApi',
@@ -21,24 +24,29 @@ const dinnerApi = createApi({
     endpoints: (builder) => ({
         getDinners: builder.query<Dinner[], void>({
             query: () => '',
+            transformResponse: (response) =>
+                z.array(dinnerSchema).parse(response),
             providesTags: ['Dinner'],
         }),
 
         getDinnersByHost: builder.query<Dinner[], number>({
             query: (hostId) => `/host/${String(hostId)}`,
+            transformResponse: (response) =>
+                z.array(dinnerSchema).parse(response),
             providesTags: ['Dinner'],
         }),
 
         getDinnerById: builder.query<Dinner, number>({
             query: (dinnerId) => `/${String(dinnerId)}`,
+            transformResponse: (response) => dinnerSchema.parse(response),
             providesTags: ['Dinner'],
         }),
 
         putDinner: builder.mutation<void, Dinner>({
-            query: (dinner) => ({
+            query: (body) => ({
                 method: 'PUT',
                 url: ``,
-                body: dinner,
+                body: dinnerSchema.parse(body),
             }),
             invalidatesTags: ['Dinner'],
         }),
@@ -61,4 +69,5 @@ export const {
     useDeleteDinnerMutation,
 } = dinnerApi;
 
+export { type Dinner };
 export default dinnerApi;

@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import dinnerApi from '@/services/dinner';
-import ratingApi from '@/services/rating';
-import userApi from '@/services/user';
+import dinnerApi from '@/api/dinner';
+import ratingApi from '@/api/rating';
+import userApi from '@/api/user';
 
 export const store = configureStore({
     reducer: {

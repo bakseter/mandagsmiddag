@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 
-import { useGetCurrentUserQuery } from '@/services/user';
+import { useGetCurrentUserQuery } from '@/api/user';
 
 interface Props {
     children: ReactNode;

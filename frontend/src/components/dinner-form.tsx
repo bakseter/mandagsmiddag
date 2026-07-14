@@ -1,9 +1,9 @@
 import { format, formatISO } from 'date-fns';
 import { Controller, useForm } from 'react-hook-form';
 
+import { type Dinner, usePutDinnerMutation } from '@/api/dinner';
+import { useGetUsersQuery } from '@/api/user';
 import FormSubmitStatus from '@/components/form-submit-status';
-import { type Dinner, usePutDinnerMutation } from '@/services/dinner';
-import { useGetUsersQuery } from '@/services/user';
 
 interface FormValues {
     id: string;
@@ -57,7 +57,11 @@ const DinnerForm = ({ dinner = null }: Props) => {
             };
 
             await addDinner(formDinner).unwrap();
-            reset();
+
+            // Resetting form when editing feels like bad UX.
+            if (!isEditMode) {
+                reset();
+            }
         } catch (error_) {
             console.error(error_);
         }
