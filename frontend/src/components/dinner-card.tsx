@@ -94,7 +94,7 @@ const DinnerCard = ({ dinner }: Props) => {
                     </h3>
 
                     <span className="mt-1 block text-sm text-zinc-600">
-                        {format(dinnerDate, 'dd MMMM yyyy', { locale: nb })}
+                        {format(dinnerDate, 'dd. MMMM yyyy', { locale: nb })}
                     </span>
                 </div>
 

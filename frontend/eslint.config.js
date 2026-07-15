@@ -46,7 +46,7 @@ export default defineConfig([
             'no-magic-numbers': [
                 'error',
                 {
-                    ignore: [0, 1],
+                    ignore: [-1, 0, 1],
                     ignoreArrayIndexes: true,
                     ignoreDefaultValues: true,
                     ignoreEnums: true,
