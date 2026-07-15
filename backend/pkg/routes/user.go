@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/bakseter/mandagsmiddag/pkg/config"
 	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -42,11 +43,9 @@ func getAllUsers(ctx *gin.Context, database *gorm.DB) {
 }
 
 func putUser(ctx *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(ctx)
+	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
 		ctx.JSON(401, gin.H{"error": err.Error()})
-
-		return
 	}
 
 	userIsAdmin := authentikUser.IsAdmin()

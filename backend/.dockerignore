@@ -1,2 +1,8 @@
-compose.yml
+.dockerignore
+Dockerfile
+compose.yaml
+.gitignore
+otelcol.yaml
+.golangci.yml
+Makefile
 README.md

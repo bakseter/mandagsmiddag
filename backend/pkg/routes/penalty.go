@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bakseter/mandagsmiddag/pkg/config"
 	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -27,11 +28,9 @@ func PenaltyRoutes(router *gin.RouterGroup, database *gorm.DB) {
 }
 
 func postPenalty(ctx *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(ctx)
+	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
 		ctx.JSON(401, gin.H{"error": err.Error()})
-
-		return
 	}
 
 	// Check if user exists in database
@@ -78,11 +77,9 @@ func postPenalty(ctx *gin.Context, database *gorm.DB) {
 }
 
 func getAllPenaltiesForUser(ctx *gin.Context, database *gorm.DB) {
-	authentikUser, err := getAuthentikUser(ctx)
+	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
 		ctx.JSON(401, gin.H{"error": err.Error()})
-
-		return
 	}
 
 	// Get user from database

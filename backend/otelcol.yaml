@@ -8,7 +8,7 @@ receivers:
 
 exporters:
   debug:
-    verbosity: detailed
+    verbosity: basic
 
 service:
   pipelines:
