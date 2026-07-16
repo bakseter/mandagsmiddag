@@ -1,7 +1,7 @@
 import { Link, Outlet } from 'react-router-dom';
 
+import { useGetCurrentUserQuery } from '@/api/user';
 import ErrorBoundary from '@/components/error-boundary';
-import { useGetCurrentUserQuery } from '@/services/user';
 
 const Layout = () => {
     const { data: currentUser } = useGetCurrentUserQuery();

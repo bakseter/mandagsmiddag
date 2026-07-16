@@ -1,13 +1,16 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { z } from 'zod';
 
-import { backendUrl } from '@/services/common';
+import { backendUrl } from '@/api/common';
 
-export interface User {
-    id: number;
-    email: string;
-    name: string;
-    isAdmin: boolean;
-}
+const userSchema = z.object({
+    id: z.number(),
+    email: z.string(),
+    name: z.string(),
+    isAdmin: z.boolean().optional(),
+});
+
+type User = z.infer<typeof userSchema>;
 
 const userApi = createApi({
     reducerPath: 'userApi',
@@ -18,6 +21,8 @@ const userApi = createApi({
     endpoints: (builder) => ({
         getUsers: builder.query<User[], void>({
             query: () => '',
+            transformResponse: (response) =>
+                z.array(userSchema).parse(response),
             providesTags: ['User'],
         }),
 
@@ -26,10 +31,12 @@ const userApi = createApi({
                 url: '',
                 method: 'PUT',
             }),
+            transformResponse: (response) => userSchema.parse(response),
         }),
     }),
 });
 
 export const { useGetUsersQuery, useGetCurrentUserQuery } = userApi;
+export { type User };
 
 export default userApi;

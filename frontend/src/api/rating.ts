@@ -1,14 +1,17 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { z } from 'zod';
 
-import { backendUrl } from '@/services/common';
+import { backendUrl } from '@/api/common';
 
-export interface Rating {
-    id: number;
-    userId: number;
-    filmScore: number;
-    dinnerScore: number | null;
-    dinnerId: number;
-}
+const ratingSchema = z.object({
+    id: z.number(),
+    userId: z.number(),
+    filmScore: z.number(),
+    dinnerScore: z.number().nullable(),
+    dinnerId: z.number(),
+});
+
+type Rating = z.infer<typeof ratingSchema>;
 
 const ratingApi = createApi({
     reducerPath: 'ratingApi',
@@ -19,24 +22,29 @@ const ratingApi = createApi({
     endpoints: (builder) => ({
         getRatings: builder.query<Rating[], void>({
             query: () => '',
+            transformResponse: (response) =>
+                z.array(ratingSchema).parse(response),
             providesTags: ['Rating'],
         }),
 
         getRatingsByUser: builder.query<Rating[], void>({
             query: () => `/user`,
+            transformResponse: (response) =>
+                z.array(ratingSchema).parse(response),
             providesTags: ['Rating'],
         }),
 
         getRatingById: builder.query<Rating, number>({
             query: (ratingId) => `/${String(ratingId)}`,
+            transformResponse: (response) => ratingSchema.parse(response),
             providesTags: ['Rating'],
         }),
 
         putRating: builder.mutation<void, Rating>({
-            query: (rating) => ({
+            query: (body) => ({
                 method: 'PUT',
                 url: '',
-                body: rating,
+                body: ratingSchema.parse(body),
             }),
             invalidatesTags: ['Rating'],
         }),
@@ -59,4 +67,5 @@ export const {
     useDeleteRatingMutation,
 } = ratingApi;
 
+export { type Rating };
 export default ratingApi;

@@ -1,7 +1,7 @@
 import { differenceInWeeks, isPast } from 'date-fns';
 import { SquarePen } from 'lucide-react';
 
-import type { Rating } from '@/services/rating';
+import type { Rating } from '@/api/rating';
 
 interface Props {
     dinnerId: number;

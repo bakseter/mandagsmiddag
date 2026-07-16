@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 
+import { useGetDinnerByIdQuery } from '@/api/dinner';
 import DinnerForm from '@/components/dinner-form';
-import { useGetDinnerByIdQuery } from '@/services/dinner';
 
 const EditDinnerPage = () => {
     const { dinnerId } = useParams();

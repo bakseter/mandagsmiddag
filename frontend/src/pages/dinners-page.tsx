@@ -1,7 +1,7 @@
 import { isPast } from 'date-fns';
 
+import { useGetDinnersQuery } from '@/api/dinner';
 import DinnerCard from '@/components/dinner-card';
-import { useGetDinnersQuery } from '@/services/dinner';
 
 const DinnersPage = () => {
     const { data: dinners = [], isLoading, error } = useGetDinnersQuery();
