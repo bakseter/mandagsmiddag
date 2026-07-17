@@ -73,14 +73,14 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 
 		bearerToken, err := getBearerToken(ctx)
 		if err != nil {
-			ctx.JSON(401, gin.H{"error": "no or invalid bearer token:" + err.Error()})
+			ctx.AbortWithStatusJSON(401, gin.H{"error": "no or invalid bearer token:" + err.Error()})
 
 			return
 		}
 
 		provider, err := oidc.NewProvider(ctx, conf.OIDCIssuer)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": "failed to query provider metadata:" + err.Error()})
+			ctx.AbortWithStatusJSON(500, gin.H{"error": "failed to query provider metadata:" + err.Error()})
 
 			return
 		}
@@ -92,7 +92,7 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 
 		idToken, err := verifier.Verify(ctx, bearerToken)
 		if err != nil {
-			ctx.JSON(500, gin.H{"error": "failed to verify ID token payload:" + err.Error()})
+			ctx.AbortWithStatusJSON(500, gin.H{"error": "failed to verify ID token payload:" + err.Error()})
 
 			return
 		}
@@ -103,7 +103,7 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 
 		var authentikUser AuthentikUser
 		if err := idToken.Claims(&authentikUser); err != nil {
-			ctx.JSON(500, gin.H{"error": "failed to parse custom claims:" + err.Error()})
+			ctx.AbortWithStatusJSON(500, gin.H{"error": "failed to parse custom claims:" + err.Error()})
 
 			return
 		}
