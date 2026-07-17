@@ -18,11 +18,11 @@ spec:
         - path:
             type: PathPrefix
             value: /
+      backendRefs:
         - group: ''
           kind: Service
           name: mandagsmiddag-frontend
           port: 3000
-          weight: 1
 
     - matches:
         - path:
@@ -33,4 +33,3 @@ spec:
           kind: Service
           name: mandagsmiddag-backend
           port: 8080
-          weight: 1
