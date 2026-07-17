@@ -51,7 +51,7 @@ spec:
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
               value: grpc
             - name: OIDC_ISSUER
-              value: https://authentik.bakseter.no/application/o/five31/
+              value: https://authentik.bakseter.no/application/o/mandagsmiddag/
             - name: OIDC_CLIENT_ID
               value: mandagsmiddag
           resources:
