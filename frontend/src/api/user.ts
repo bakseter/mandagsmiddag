@@ -7,7 +7,7 @@ const userSchema = z.object({
     id: z.number(),
     email: z.string(),
     name: z.string(),
-    isAdmin: z.boolean().optional(),
+    isAdmin: z.boolean().default(false),
 });
 
 type User = z.infer<typeof userSchema>;
