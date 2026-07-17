@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -97,6 +98,9 @@ func configureLogs(
 	)
 
 	global.SetLoggerProvider(loggerProvider)
+
+	log.SetOutput(os.Stdout)
+	log.SetFormatter(&logrus.JSONFormatter{})
 
 	hook := otellogrus.NewHook(
 		ServiceNamespace+"/"+ServiceName,
