@@ -20,6 +20,19 @@ spec:
               protocol: TCP
 
   egress:
+    # Allow DNS lookup for Alloy
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: '53'
+              protocol: ANY
+          rules:
+            dns:
+              - matchName: 'alloy.monitoring.svc.cluster.local'
+
     # Allow sending telemetry via OTLP to Grafana Alloy
     - toEndpoints:
         - matchLabels:
