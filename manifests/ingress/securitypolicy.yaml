@@ -1,0 +1,28 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: mandagsmiddag-oidc
+  namespace: mandagsmiddag
+spec:
+  oidc:
+    provider:
+      issuer: https://authentik.bakseter.no/application/o/mandagsmiddag/
+    clientID: mandagsmiddag
+    clientSecret:
+      # Secret in this namespace with the client secret under key `client-secret`.
+      name: mandagsmiddag-oidc-client-secret
+    redirectURL: https://mandagsmiddag.no/oauth2/callback
+    logoutPath: /logout
+    scopes:
+      - openid
+      - profile
+      - email
+      - offline_access
+    forwardAccessToken: true
+    refreshToken: true
+    cookieDomain: mandagsmiddag.no
+
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: mandagsmiddag

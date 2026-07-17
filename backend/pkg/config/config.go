@@ -13,6 +13,49 @@ type Config struct {
 	Local              bool
 	Host               string
 	Port               string
+	OIDCIssuer         string
+	OIDCClientID       string
+}
+
+func resolveHost(local bool) (string, error) {
+	if local {
+		return "http://localhost", nil
+	}
+
+	host := os.Getenv("HOST")
+
+	if host == "" {
+		return "", errors.New("HostNotSet")
+	}
+
+	return host, nil
+}
+
+func resolvePort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		return "8080"
+	}
+
+	return port
+}
+
+func resolveOIDCIssuer(local bool) (string, error) {
+	oidcIssuer := os.Getenv("OIDC_ISSUER")
+	if oidcIssuer == "" && !local {
+		return "", errors.New("OIDCIssuerNotSet")
+	}
+
+	return oidcIssuer, nil
+}
+
+func resolveOIDCClientID(local bool) (string, error) {
+	oidcClientID := os.Getenv("OIDC_CLIENT_ID")
+	if oidcClientID == "" && !local {
+		return "", errors.New("OIDCClientIDNotSet")
+	}
+
+	return oidcClientID, nil
 }
 
 func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context) error, error) {
@@ -23,36 +66,29 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 
 	local := os.Getenv("LOCAL") == "true"
 
-	host, err := func() (string, error) {
-		if local {
-			return "http://localhost", nil
-		}
-
-		host := os.Getenv("HOST")
-
-		if host == "" {
-			return "", errors.New("HostNotSet")
-		}
-
-		return host, nil
-	}()
+	host, err := resolveHost(local)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	port := func() string {
-		port := os.Getenv("PORT")
-		if port == "" {
-			return "8080"
-		}
+	port := resolvePort()
 
-		return port
-	}()
+	oidcIssuer, err := resolveOIDCIssuer(local)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	oidcClientID, err := resolveOIDCClientID(local)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	return &Config{
 		ApplicationMetrics: applicationMetrics,
 		Local:              local,
 		Host:               host,
 		Port:               port,
+		OIDCIssuer:         oidcIssuer,
+		OIDCClientID:       oidcClientID,
 	}, shutdownTelemetry, nil
 }

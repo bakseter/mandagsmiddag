@@ -61,7 +61,7 @@ spec:
             - port: '5432'
               protocol: TCP
 
-    # Allow sending logs via OTLP to Grafana Alloy
+    # Allow sending telemetry via OTLP to Grafana Alloy
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: monitoring

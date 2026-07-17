@@ -9,6 +9,4 @@ labels:
 resources:
   - ciliumnetworkpolicy.yaml
   - deployment.yaml
-  - httproute.yaml
   - service.yaml
-  - securitypolicy.yaml

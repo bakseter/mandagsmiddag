@@ -26,6 +26,7 @@ func Start(conf *config.Config, log *logrus.Logger) error {
 		),
 	)
 	router.Use(config.LogrusMiddleware(log))
+	router.Use(config.AuthMiddleware(conf, log))
 	router.Use(gin.Recovery())
 	router.Use(config.MetricsMiddleware(conf))
 	router.Use(cors.New(configureCORS(conf)))

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bakseter/mandagsmiddag/pkg/config"
 	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -29,11 +30,9 @@ func DinnerRoutes(router *gin.RouterGroup, database *gorm.DB) {
 }
 
 func putDinner(ctx *gin.Context, database *gorm.DB) { //nolint:gocognit,cyclop,funlen
-	authentikUser, err := getAuthentikUser(ctx)
+	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
-		ctx.JSON(401, gin.H{"error": err.Error()})
-
-		return
+		ctx.JSON(500, gin.H{"error": err.Error()})
 	}
 
 	// Check if user exists in database
