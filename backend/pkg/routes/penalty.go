@@ -31,6 +31,8 @@ func postPenalty(ctx *gin.Context, database *gorm.DB) {
 	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
 		ctx.JSON(401, gin.H{"error": err.Error()})
+
+		return
 	}
 
 	// Check if user exists in database
@@ -80,6 +82,8 @@ func getAllPenaltiesForUser(ctx *gin.Context, database *gorm.DB) {
 	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
 		ctx.JSON(401, gin.H{"error": err.Error()})
+
+		return
 	}
 
 	// Get user from database

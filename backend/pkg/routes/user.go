@@ -46,6 +46,8 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
 		ctx.JSON(401, gin.H{"error": err.Error()})
+
+		return
 	}
 
 	userIsAdmin := authentikUser.IsAdmin()

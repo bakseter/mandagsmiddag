@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -13,6 +14,7 @@ type Config struct {
 	Local              bool
 	Host               string
 	Port               string
+	IDTokenVerifier    *oidc.IDTokenVerifier
 	OIDCIssuer         string
 	OIDCClientID       string
 }
@@ -38,6 +40,20 @@ func resolvePort() string {
 	}
 
 	return port
+}
+
+func configureAuth(ctx context.Context, oidcIssuer string, oidcClientID string) (*oidc.IDTokenVerifier, error) {
+	provider, err := oidc.NewProvider(ctx, oidcIssuer)
+	if err != nil {
+		return nil, errors.New("failed to query provider metadata")
+	}
+
+	config := &oidc.Config{
+		ClientID: oidcClientID,
+	}
+	verifier := provider.Verifier(config)
+
+	return verifier, nil
 }
 
 func resolveOIDCIssuer(local bool) (string, error) {
@@ -83,11 +99,17 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 		return nil, nil, err
 	}
 
+	idTokenVerifier, err := configureAuth(ctx, oidcIssuer, oidcClientID)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	return &Config{
 		ApplicationMetrics: applicationMetrics,
 		Local:              local,
 		Host:               host,
 		Port:               port,
+		IDTokenVerifier:    idTokenVerifier,
 		OIDCIssuer:         oidcIssuer,
 		OIDCClientID:       oidcClientID,
 	}, shutdownTelemetry, nil

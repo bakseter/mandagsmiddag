@@ -32,7 +32,9 @@ func DinnerRoutes(router *gin.RouterGroup, database *gorm.DB) {
 func putDinner(ctx *gin.Context, database *gorm.DB) { //nolint:gocognit,cyclop,funlen
 	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(401, gin.H{"error": err.Error()})
+
+		return
 	}
 
 	// Check if user exists in database

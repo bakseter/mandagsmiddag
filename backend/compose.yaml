@@ -12,6 +12,8 @@ services:
       - LOCAL=true
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OIDC_ISSUER=https://authentik.bakseter.no/application/o/mandagsmiddag/
+      - OIDC_CLIENT_ID=mandagsmiddag
     depends_on:
       database:
         condition: service_healthy
