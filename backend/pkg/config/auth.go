@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"slices"
 	"strings"
@@ -49,12 +50,12 @@ func GetAuthentikUser(ctx *gin.Context) (*AuthentikUser, error) {
 		return nil, errors.New("could not get authentik user from context")
 	}
 
-	authentikUser, ok := authentikUserRaw.(*AuthentikUser)
+	authentikUser, ok := authentikUserRaw.(AuthentikUser)
 	if !ok {
-		return nil, errors.New("could not parse authentik user")
+		return nil, fmt.Errorf("could not parse authentik user: %+v", authentikUserRaw)
 	}
 
-	return authentikUser, nil
+	return &authentikUser, nil
 }
 
 func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
