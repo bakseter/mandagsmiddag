@@ -19,4 +19,13 @@ spec:
             - port: '3000'
               protocol: TCP
 
-  egress: [] # no egress allowed
+  egress:
+    # Allow sending telemetry via OTLP to Grafana Alloy
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: alloy
+      toPorts:
+        - ports:
+            - port: '4317'
+              protocol: TCP

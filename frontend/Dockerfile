@@ -14,12 +14,9 @@ RUN bun run build
 
 
 # Production stage
-FROM nginxinc/nginx-unprivileged:alpine-slim
+FROM nginxinc/nginx-unprivileged:1.31.2-alpine-otel
 
 USER root
-
-RUN apk update && \
-    apk upgrade --no-cache
 
 RUN mkdir -p /tmp/nginx && \
     chown -R nginx:nginx /tmp/nginx

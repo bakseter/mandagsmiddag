@@ -71,6 +71,7 @@ spec:
             - port: '4317'
               protocol: TCP
 
+    # Allow accessing OIDC configuration
     - toFQDNs:
         - matchName: authentik.bakseter.no
       toPorts:
