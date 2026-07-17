@@ -98,18 +98,41 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 			return
 		}
 
+		// Not sure if we need this one, above function might do this.
+		// Leave until we know for sure.
+		if idToken.Issuer != conf.OIDCIssuer {
+			ctx.AbortWithStatusJSON(401, gin.H{"error": "issuer not valid"})
+
+			return
+		}
+
 		// TODO: remove
-		log.Infof("Token Issuer: %s\n", idToken.Issuer)
 		log.Infof("User Subject ID: %s\n", idToken.Subject)
 
-		var authentikUser AuthentikUser
-		if err := idToken.Claims(&authentikUser); err != nil {
+		var claims struct {
+			UID          string   `json:"uid"`
+			Email        string   `json:"email"`
+			Groups       []string `json:"groups"`
+			Entitlements []string `json:"entitlements"`
+		}
+
+		if err := idToken.Claims(&claims); err != nil {
 			ctx.AbortWithStatusJSON(500, gin.H{"error": "failed to parse custom claims:" + err.Error()})
 
 			return
 		}
 
-		log.Infof("Claims: %+v", authentikUser)
+		log.Infof("Got claims: %+v", claims)
+
+		authentikUser := AuthentikUser{
+			UID:          claims.UID,
+			Email:        claims.Email,
+			Groups:       claims.Groups,
+			Entitlements: claims.Entitlements,
+			Username:     idToken.Subject,
+		}
+
+		log.Infof("Set authentikUser: %+v", authentikUser)
 
 		ctx.Set("authentikUser", authentikUser)
 	}
