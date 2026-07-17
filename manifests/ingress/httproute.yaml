@@ -5,7 +5,7 @@ metadata:
   namespace: mandagsmiddag
 spec:
   parentRefs:
-    - name: cloudflared-gateway
+    - name: cloudflared
       namespace: cloudflared
       group: gateway.networking.k8s.io
       kind: Gateway
