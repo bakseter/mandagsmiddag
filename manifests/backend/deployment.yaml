@@ -24,8 +24,8 @@ spec:
           env:
             - name: HOST
               value: https://api.mandagsmiddag.bakseter.net
-            - name: GIN_MODE
-              value: release
+#            - name: GIN_MODE
+#              value: release
             - name: DATABASE_HOST
               valueFrom:
                 secretKeyRef:
