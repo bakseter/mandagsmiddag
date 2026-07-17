@@ -50,6 +50,10 @@ spec:
               value: http://alloy.monitoring.svc.cluster.local:4317
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
               value: grpc
+            - name: OIDC_ISSUER
+              value: https://authentik.bakseter.no/application/o/five31/
+            - name: OIDC_CLIENT_ID
+              value: mandagsmiddag
           resources:
             requests:
               cpu: 25m
