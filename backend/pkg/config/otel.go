@@ -250,7 +250,7 @@ func MetricsMiddleware(conf *Config) gin.HandlerFunc {
 		ctx.Next()
 
 		route := ctx.FullPath()
-		if route == "" || route == "/metrics" {
+		if route == "" || route == "/metrics" || route == "/healthz" {
 			return
 		}
 
@@ -282,12 +282,11 @@ func LogrusMiddleware(log *logrus.Logger) gin.HandlerFunc {
 
 		ctx.Next()
 
-		path := ctx.Request.URL.Path
-		if path == "/metrics" || path == "/healthz" {
+		route := ctx.FullPath()
+		if route == "/metrics" || route == "/healthz" {
 			return
 		}
 
-		route := ctx.FullPath()
 		if route == "" {
 			route = "unmatched"
 		}
