@@ -29,49 +29,95 @@ func (user *AuthentikUser) IsAdmin() bool {
 	)
 }
 
-func getBearerToken(ctx *gin.Context) (string, error) {
-	if token, err := tokenFromHeader(ctx); err == nil {
-		return token, nil
-	}
+const (
+	idTokenCookieName     = "mandagsmiddag-id-token"
+	accessTokenCookieName = "mandagsmiddag-access-token"
+)
 
-	if token, err := tokenFromCookie(ctx); err == nil {
-		return token, nil
-	}
-
-	return "", errors.New("no bearer token in Authorization header or session cookie")
+type tokenSource struct {
+	name  string
+	value string
 }
 
-func tokenFromHeader(ctx *gin.Context) (string, error) {
+func looksLikeJWT(token string) bool {
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return false
+	}
+
+	for _, part := range parts {
+		if part == "" {
+			return false
+		}
+	}
+
+	return true
+}
+
+func getBearerToken(ctx *gin.Context) (string, string, error) {
+	sources := []tokenSource{
+		{name: "id_token_cookie", value: cookieValue(ctx, idTokenCookieName)},
+		{name: "authorization_header", value: headerToken(ctx)},
+		{name: "access_token_cookie", value: cookieValue(ctx, accessTokenCookieName)},
+	}
+
+	var rejected []string
+
+	for _, source := range sources {
+		if source.value == "" {
+			continue
+		}
+
+		if !looksLikeJWT(source.value) {
+			// Record the shape, never the token itself — these are live
+			// credentials and must not reach your logs or Loki.
+			rejected = append(rejected, fmt.Sprintf(
+				"%s(parts=%d,len=%d)",
+				source.name,
+				len(strings.Split(source.value, ".")),
+				len(source.value),
+			))
+
+			continue
+		}
+
+		return source.value, source.name, nil
+	}
+
+	if len(rejected) > 0 {
+		return "", "", fmt.Errorf(
+			"found token(s) but none were well-formed JWTs: %s "+
+				"(parts=1 means an OPAQUE token — configure Authentik to issue "+
+				"JWT access tokens, or rely on the ID token cookie)",
+			strings.Join(rejected, ", "),
+		)
+	}
+
+	return "", "", errors.New("no token in id token cookie, authorization header or access token cookie")
+}
+
+func cookieValue(ctx *gin.Context, name string) string {
+	value, err := ctx.Cookie(name)
+	if err != nil {
+		return ""
+	}
+
+	return value
+}
+
+func headerToken(ctx *gin.Context) string {
 	authHeader := ctx.GetHeader("Authorization")
 	if authHeader == "" {
-		return "", errors.New("no authorization header present")
+		return ""
 	}
 
 	const prefix = "bearer "
 
 	if len(authHeader) > len(prefix) && strings.EqualFold(authHeader[:len(prefix)], prefix) {
-		token := strings.TrimSpace(authHeader[len(prefix):])
-		if token == "" {
-			return "", errors.New("authorization header has empty bearer token")
-		}
-
-		return token, nil
+		return strings.TrimSpace(authHeader[len(prefix):])
 	}
 
-	return "", errors.New("authorization header malformed")
-}
-
-func tokenFromCookie(ctx *gin.Context) (string, error) {
-	token, err := ctx.Cookie("mandagsmiddag-id-token")
-	if err != nil {
-		return "", errors.New("no id token cookie present")
-	}
-
-	if token == "" {
-		return "", errors.New("id token cookie is empty")
-	}
-
-	return token, nil
+	return ""
 }
 
 func GetAuthentikUser(ctx *gin.Context) (*AuthentikUser, error) {
@@ -107,9 +153,9 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 			return
 		}
 
-		bearerToken, err := getBearerToken(ctx)
+		bearerToken, source, err := getBearerToken(ctx)
 		if err != nil {
-			LoggerFrom(ctx, log).WithError(err).Warn("request rejected: no usable token")
+			LoggerFrom(ctx, log).WithError(err).Warn("no usable token")
 			ctx.AbortWithStatusJSON(401, gin.H{"error": "unauthorized"})
 
 			return
@@ -117,7 +163,10 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 
 		idToken, err := conf.IDTokenVerifier.Verify(ctx.Request.Context(), bearerToken)
 		if err != nil {
-			LoggerFrom(ctx, log).WithError(err).Warn("token verification failed")
+			LoggerFrom(ctx, log).
+				WithError(err).
+				WithField("token_source", source).
+				Warn("token verification failed")
 			ctx.AbortWithStatusJSON(401, gin.H{"error": "invalid token"})
 
 			return
