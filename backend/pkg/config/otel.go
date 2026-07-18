@@ -282,7 +282,8 @@ func LogrusMiddleware(log *logrus.Logger) gin.HandlerFunc {
 
 		ctx.Next()
 
-		if ctx.Request.URL.Path == "/metrics" {
+		path := ctx.Request.URL.Path
+		if path == "/metrics" || path == "/healthz" {
 			return
 		}
 
