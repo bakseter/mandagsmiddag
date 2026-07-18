@@ -48,7 +48,6 @@ func resolvePort() string {
 
 func configureAuth(
 	ctx context.Context,
-	log *logrus.Logger,
 	oidcIssuer string,
 	oidcClientID string,
 ) (*oidc.IDTokenVerifier, error) {
@@ -141,7 +140,7 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 		}, shutdownTelemetry, nil
 	}
 
-	idTokenVerifier, err := configureAuth(ctx, log, oidcIssuer, oidcClientID)
+	idTokenVerifier, err := configureAuth(ctx, oidcIssuer, oidcClientID)
 	if err != nil {
 		return fail(err)
 	}

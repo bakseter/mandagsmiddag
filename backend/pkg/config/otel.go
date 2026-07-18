@@ -67,7 +67,7 @@ func instanceID() string {
 }
 
 func newResource(ctx context.Context, log *logrus.Logger) (*resource.Resource, error) {
-	res, err := resource.New(
+	resource, err := resource.New(
 		ctx,
 		resource.WithFromEnv(),
 		resource.WithHost(),
@@ -78,35 +78,25 @@ func newResource(ctx context.Context, log *logrus.Logger) (*resource.Resource, e
 			semconv.ServiceName(ServiceName),
 			semconv.ServiceNamespace(ServiceNamespace),
 			semconv.ServiceVersion(resolveServiceVersion()),
-			// service.instance.id is what distinguishes your two replicas in
-			// Tempo/Loki. HOSTNAME is the pod name inside Kubernetes.
 			semconv.ServiceInstanceID(instanceID()),
 		),
 	)
-	// resource.New returns a USABLE resource alongside a non-fatal error for
-	// schema-URL conflicts and partial detector failures. Treat those as a
-	// warning rather than killing startup over telemetry metadata.
 	if err != nil {
-		if res == nil {
+		if resource == nil {
 			return nil, fmt.Errorf("failed to build otel resource: %w", err)
 		}
 
 		log.Warnf("partial otel resource detection: %v", err)
 	}
 
-	return res, nil
+	return resource, nil
 }
 
 func ConfigureOpenTelemetry(
 	ctx context.Context,
 	log *logrus.Logger,
 ) (*ApplicationMetrics, func(context.Context) error, error) {
-	res, err := resource.New(
-		ctx,
-		resource.WithAttributes(semconv.ServiceNameKey.String(ServiceName)),
-		resource.WithAttributes(semconv.ServiceNamespaceKey.String(ServiceNamespace)),
-		resource.WithSchemaURL(semconv.SchemaURL),
-	)
+	res, err := newResource(ctx, log)
 	if err != nil {
 		return nil, nil, err
 	}
