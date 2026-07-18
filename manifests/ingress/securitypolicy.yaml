@@ -21,11 +21,8 @@ spec:
     forwardAccessToken: true
     refreshToken: true
     cookieDomain: mandagsmiddag.no
-    cookieNames:
-      idToken: mandagsmiddag-id-token
-      accessToken: mandagsmiddag-access-token
 
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: mandagsmiddag-frontend
+      name: mandagsmiddag
