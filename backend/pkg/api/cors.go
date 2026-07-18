@@ -11,11 +11,6 @@ func configureCORS(conf *config.Config) cors.Config {
 		"Content-Type",
 		"Accept",
 		"Authorization",
-		"X-authentik-username",
-		"X-authentik-groups",
-		"X-authentik-entitlements",
-		"X-authentik-email",
-		"X-authentik-uid",
 	}
 
 	methods := []string{"GET", "PATCH", "PUT", "POST", "DELETE"}
@@ -29,7 +24,7 @@ func configureCORS(conf *config.Config) cors.Config {
 	}
 
 	return cors.Config{
-		AllowOrigins: []string{conf.Host, "https://authentik.bakseter.net"},
+		AllowOrigins: []string{conf.Host, "https://authentik.bakseter.no"},
 		AllowMethods: methods,
 		AllowHeaders: headers,
 	}

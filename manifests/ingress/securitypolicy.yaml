@@ -25,4 +25,24 @@ spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: mandagsmiddag
+      name: mandagsmiddag-frontend
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: mandagsmiddag-api-jwt
+  namespace: mandagsmiddag
+spec:
+  jwt:
+    providers:
+      - name: authentik
+        issuer: https://authentik.bakseter.no/application/o/mandagsmiddag/
+        audiences:
+          - mandagsmiddag
+        remoteJWKS:
+          uri: https://authentik.bakseter.no/application/o/mandagsmiddag/jwks/
+
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: mandagsmiddag-backend
