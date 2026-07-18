@@ -71,6 +71,11 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 			return
 		}
 
+		// Not exposed in production
+		if ctx.Request.URL.Path == "/healthz" {
+			return
+		}
+
 		bearerToken, err := getBearerToken(ctx)
 		if err != nil {
 			log.Error(err)
