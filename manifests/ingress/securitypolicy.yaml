@@ -18,7 +18,8 @@ spec:
       - profile
       - email
       - offline_access
-    forwardAccessToken: true
+    forwardAccessToken: false
+    passThroughAuthHeader: false
     refreshToken: true
     cookieDomain: mandagsmiddag.no
 
@@ -49,9 +50,6 @@ spec:
         extractFrom:
           cookies:
             - mandagsmiddag-id-token
-          headers:
-            - name: Authorization
-              valuePrefix: 'Bearer '
 
   targetRefs:
     - group: gateway.networking.k8s.io
