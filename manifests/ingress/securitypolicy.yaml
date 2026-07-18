@@ -18,40 +18,11 @@ spec:
       - profile
       - email
       - offline_access
-    forwardAccessToken: false
-    passThroughAuthHeader: false
+    forwardAccessToken: true
     refreshToken: true
     cookieDomain: mandagsmiddag.no
 
-    cookieNames:
-      idToken: mandagsmiddag-id-token
-      accessToken: mandagsmiddag-access-token
-
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: mandagsmiddag-frontend
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: mandagsmiddag-jwt
-  namespace: mandagsmiddag
-spec:
-  jwt:
-    providers:
-      - name: authentik
-        issuer: https://authentik.bakseter.no/application/o/mandagsmiddag/
-        audiences:
-          - mandagsmiddag
-        remoteJWKS:
-          uri: https://authentik.bakseter.no/application/o/mandagsmiddag/jwks/
-
-        extractFrom:
-          cookies:
-            - mandagsmiddag-id-token
-
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      name: mandagsmiddag-backend
+      name: mandagsmiddag
