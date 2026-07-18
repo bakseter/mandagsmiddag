@@ -14,49 +14,48 @@ import (
 	"gorm.io/gorm"
 )
 
-func Start(conf *config.Config, log *logrus.Logger) error {
+func NewRouter(conf *config.Config, log *logrus.Logger) (*gin.Engine, error) {
+	if !conf.Local {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	router := gin.New()
 
 	router.Use(
 		otelgin.Middleware(
 			config.ServiceName,
-			otelgin.WithFilter(func(r *http.Request) bool {
-				return r.URL.Path != "/metrics"
+			otelgin.WithFilter(func(request *http.Request) bool {
+				return request.URL.Path != "/metrics"
 			}),
 		),
 	)
-	router.Use(config.LogrusMiddleware(log))
-	router.Use(config.AuthMiddleware(conf, log))
 	router.Use(gin.Recovery())
-	router.Use(config.MetricsMiddleware(conf))
 	router.Use(cors.New(configureCORS(conf)))
+	router.Use(config.LogrusMiddleware(log))
+	router.Use(config.MetricsMiddleware(conf))
+	router.Use(config.AuthMiddleware(conf, log))
 
 	err := router.SetTrustedProxies(nil)
 	if err != nil {
-		return err
-	}
-
-	if !conf.Local {
-		gin.SetMode(gin.ReleaseMode)
+		return nil, err
 	}
 
 	database, err := models.ConfigureDatabase(conf)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	addRoutes(router, database)
 
-	err = router.Run(":" + conf.Port)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return router, nil
 }
 
 func addRoutes(router *gin.Engine, database *gorm.DB) {
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	router.GET("/healthz", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
 
 	api := router.Group("/api")
 	{

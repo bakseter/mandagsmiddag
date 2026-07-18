@@ -9,10 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 func ConfigureDatabase(conf *config.Config) (*gorm.DB, error) {
 	database, err := initializeDatabase()
+	if err != nil {
+		return nil, err
+	}
+
+	err = database.Use(tracing.NewPlugin(tracing.WithoutMetrics()))
 	if err != nil {
 		return nil, err
 	}

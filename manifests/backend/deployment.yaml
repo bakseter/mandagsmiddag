@@ -23,9 +23,12 @@ spec:
               containerPort: 8080
           env:
             - name: HOST
-              value: https://api.mandagsmiddag.bakseter.net
-#            - name: GIN_MODE
-#              value: release
+              value: https://mandagsmiddag.no
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+
             - name: DATABASE_HOST
               valueFrom:
                 secretKeyRef:
@@ -46,14 +49,34 @@ spec:
                 secretKeyRef:
                   name: mandagsmiddag-database-app
                   key: dbname
-            - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: http://alloy.monitoring.svc.cluster.local:4317
-            - name: OTEL_EXPORTER_OTLP_PROTOCOL
-              value: grpc
+
             - name: OIDC_ISSUER
               value: https://authentik.bakseter.no/application/o/mandagsmiddag/
             - name: OIDC_CLIENT_ID
               value: mandagsmiddag
+
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://alloy.monitoring.svc.cluster.local:4317
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+            - name: OTEL_METRICS_EXEMPLAR_FILTER
+              value: trace_based
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: deployment.environment.name=production,k8s.cluster.name=homelab
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            failureThreshold: 30
+            periodSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
           resources:
             requests:
               cpu: 25m
@@ -67,6 +90,7 @@ spec:
             capabilities:
               drop:
                 - ALL
+      terminationGracePeriodSeconds: 45
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
