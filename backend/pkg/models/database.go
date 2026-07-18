@@ -101,6 +101,6 @@ func insertTestUsers(database *gorm.DB) {
 
 func WithDatabase(fn func(*gin.Context, *gorm.DB), database *gorm.DB) func(*gin.Context) {
 	return func(ctx *gin.Context) {
-		fn(ctx, database)
+		fn(ctx, database.WithContext(ctx.Request.Context()))
 	}
 }
