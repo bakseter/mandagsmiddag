@@ -20,6 +20,7 @@ func NewRouter(conf *config.Config, log *logrus.Logger) (*gin.Engine, error) {
 	}
 
 	router := gin.New()
+	router.ContextWithFallback = true
 
 	router.Use(
 		otelgin.Middleware(
@@ -33,7 +34,6 @@ func NewRouter(conf *config.Config, log *logrus.Logger) (*gin.Engine, error) {
 	router.Use(cors.New(configureCORS(conf)))
 	router.Use(config.LogrusMiddleware(log))
 	router.Use(config.MetricsMiddleware(conf))
-	router.Use(config.AuthMiddleware(conf, log))
 
 	err := router.SetTrustedProxies(nil)
 	if err != nil {
@@ -45,12 +45,17 @@ func NewRouter(conf *config.Config, log *logrus.Logger) (*gin.Engine, error) {
 		return nil, err
 	}
 
-	addRoutes(router, database)
+	addRoutes(conf, log, router, database)
 
 	return router, nil
 }
 
-func addRoutes(router *gin.Engine, database *gorm.DB) {
+func addRoutes(
+	conf *config.Config,
+	log *logrus.Logger,
+	router *gin.Engine,
+	database *gorm.DB,
+) {
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	router.GET("/healthz", func(c *gin.Context) {
@@ -58,6 +63,7 @@ func addRoutes(router *gin.Engine, database *gorm.DB) {
 	})
 
 	api := router.Group("/api")
+	api.Use(config.AuthMiddleware(conf, log))
 	{
 		api.GET("/status", func(c *gin.Context) {
 			c.JSON(200, gin.H{

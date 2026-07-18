@@ -3,10 +3,14 @@ package config
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type Config struct {
@@ -42,8 +46,21 @@ func resolvePort() string {
 	return port
 }
 
-func configureAuth(ctx context.Context, oidcIssuer string, oidcClientID string) (*oidc.IDTokenVerifier, error) {
-	provider, err := oidc.NewProvider(ctx, oidcIssuer)
+func configureAuth(
+	ctx context.Context,
+	log *logrus.Logger,
+	oidcIssuer string,
+	oidcClientID string,
+) (*oidc.IDTokenVerifier, error) {
+	client := &http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+		Timeout:   10 * time.Second,
+	}
+
+	provider, err := oidc.NewProvider(
+		oidc.ClientContext(ctx, client),
+		oidcIssuer,
+	)
 	if err != nil {
 		return nil, errors.New("failed to query provider metadata")
 	}
@@ -75,12 +92,23 @@ func resolveOIDCClientID(local bool) (string, error) {
 }
 
 func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context) error, error) {
+	local := os.Getenv("LOCAL") == "true"
+
 	applicationMetrics, shutdownTelemetry, err := ConfigureOpenTelemetry(ctx, log)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to configure opentelemetry: %w", err)
 	}
 
-	local := os.Getenv("LOCAL") == "true"
+	fail := func(err error) (*Config, func(context.Context) error, error) {
+		flushCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		if shutdownErr := shutdownTelemetry(flushCtx); shutdownErr != nil {
+			log.Errorf("failed to shut down telemetry during startup failure: %w", shutdownErr)
+		}
+
+		return nil, nil, err
+	}
 
 	host, err := resolveHost(local)
 	if err != nil {
@@ -99,9 +127,23 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 		return nil, nil, err
 	}
 
-	idTokenVerifier, err := configureAuth(ctx, oidcIssuer, oidcClientID)
+	if local {
+		log.Warn("LOCAL=true: skipping OIDC setup, auth middleware will inject dummy user")
+
+		return &Config{
+			ApplicationMetrics: applicationMetrics,
+			Local:              local,
+			Host:               host,
+			Port:               port,
+			IDTokenVerifier:    nil,
+			OIDCIssuer:         oidcIssuer,
+			OIDCClientID:       oidcClientID,
+		}, shutdownTelemetry, nil
+	}
+
+	idTokenVerifier, err := configureAuth(ctx, log, oidcIssuer, oidcClientID)
 	if err != nil {
-		return nil, nil, err
+		return fail(err)
 	}
 
 	return &Config{
@@ -112,5 +154,5 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 		IDTokenVerifier:    idTokenVerifier,
 		OIDCIssuer:         oidcIssuer,
 		OIDCClientID:       oidcClientID,
-	}, shutdownTelemetry, nil
+	}, nil, nil
 }

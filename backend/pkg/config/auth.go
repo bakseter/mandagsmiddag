@@ -78,16 +78,18 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 
 		bearerToken, err := getBearerToken(ctx)
 		if err != nil {
-			LoggerFrom(ctx, log).Error(err)
-			ctx.AbortWithStatusJSON(401, gin.H{"error": "no or invalid bearer token:" + err.Error()})
+			errMsg := "no or invalid bearer token"
+			LoggerFrom(ctx, log).WithError(err).Error(errMsg)
+			ctx.AbortWithStatusJSON(401, gin.H{"error": errMsg + ":" + err.Error()})
 
 			return
 		}
 
-		idToken, err := conf.IDTokenVerifier.Verify(ctx, bearerToken)
+		idToken, err := conf.IDTokenVerifier.Verify(ctx.Request.Context(), bearerToken)
 		if err != nil {
-			LoggerFrom(ctx, log).Error(err)
-			ctx.AbortWithStatusJSON(500, gin.H{"error": "failed to verify ID token payload:" + err.Error()})
+			errMsg := "failed to verify ID token payload"
+			LoggerFrom(ctx, log).WithError(err).Error(errMsg)
+			ctx.AbortWithStatusJSON(500, gin.H{"error": errMsg + ":" + err.Error()})
 
 			return
 		}
@@ -95,8 +97,9 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 		// Not sure if we need this one, above function might do this.
 		// Leave until we know for sure.
 		if idToken.Issuer != conf.OIDCIssuer {
-			LoggerFrom(ctx, log).Errorf("issuer not valid: %s != %s", idToken.Issuer, conf.OIDCIssuer)
-			ctx.AbortWithStatusJSON(401, gin.H{"error": "issuer not valid"})
+			err := fmt.Errorf("issuer not valid: %s != %s", idToken.Issuer, conf.OIDCIssuer)
+			LoggerFrom(ctx, log).WithError(err)
+			ctx.AbortWithStatusJSON(401, gin.H{"error": err.Error()})
 
 			return
 		}
@@ -109,8 +112,9 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
 		}
 
 		if err := idToken.Claims(&claims); err != nil {
-			LoggerFrom(ctx, log).Error(err)
-			ctx.AbortWithStatusJSON(500, gin.H{"error": "failed to parse custom claims"})
+			errMsg := "failed to parse custom claims"
+			LoggerFrom(ctx, log).WithError(err).Error(errMsg)
+			ctx.AbortWithStatusJSON(500, gin.H{"error": errMsg})
 
 			return
 		}
