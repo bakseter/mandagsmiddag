@@ -14,7 +14,7 @@ RUN bun run build
 
 
 # Production stage
-FROM nginxinc/nginx-unprivileged:1.31.2-alpine-otel
+FROM nginxinc/nginx-unprivileged:1.31.3-alpine-otel
 
 USER root
 
