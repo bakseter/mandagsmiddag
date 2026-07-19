@@ -88,7 +88,7 @@ func GetAuthentikUser(ctx *gin.Context) (*AuthentikUser, error) {
 	return &authentikUser, nil
 }
 
-func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc {
+func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc { //nolint:funlen
 	return func(ctx *gin.Context) {
 		if conf.Local {
 			ctx.Set(

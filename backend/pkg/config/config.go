@@ -90,7 +90,7 @@ func resolveOIDCClientID(local bool) (string, error) {
 	return oidcClientID, nil
 }
 
-func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context) error, error) {
+func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context) error, error) { //nolint:funlen
 	local := os.Getenv("LOCAL") == "true"
 
 	applicationMetrics, shutdownTelemetry, err := ConfigureOpenTelemetry(ctx, log)
@@ -98,12 +98,12 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 		return nil, nil, fmt.Errorf("failed to configure opentelemetry: %w", err)
 	}
 
-	fail := func(err error) (*Config, func(context.Context) error, error) {
+	fail := func(err error) (*Config, func(context.Context) error, error) { //nolint:contextcheck
 		flushCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
 		if shutdownErr := shutdownTelemetry(flushCtx); shutdownErr != nil {
-			log.Errorf("failed to shut down telemetry during startup failure: %w", shutdownErr)
+			log.Errorf("failed to shut down telemetry during startup failure: %s", shutdownErr.Error())
 		}
 
 		return nil, nil, err

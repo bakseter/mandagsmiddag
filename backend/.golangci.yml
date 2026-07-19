@@ -6,11 +6,14 @@ linters:
     - exhaustruct # TODO: fix and enable again
     - err113
     - goconst
+    - gomodguard
     - mnd
     - noctx
     - noinlineerr
     - wrapcheck
     - wsl
+  enable:
+    - gomodguard_v2
   settings:
     staticcheck:
       checks:

@@ -25,7 +25,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
-	"go.opentelemetry.io/otel/trace"
 )
 
 type ApplicationMetrics struct {
@@ -306,6 +305,8 @@ func LoggerFrom(ctx *gin.Context, log *logrus.Logger) *logrus.Entry {
 	return log.WithContext(ctx.Request.Context())
 }
 
+/*
 func SpanFrom(ctx context.Context, name string) (context.Context, trace.Span) {
 	return otel.Tracer(ServiceName).Start(ctx, name)
 }
+*/

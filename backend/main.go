@@ -23,7 +23,7 @@ func main() {
 	os.Exit(run())
 }
 
-func run() int {
+func run() int { //nolint:cyclop,funlen
 	log := logrus.New()
 	log.SetFormatter(&logrus.JSONFormatter{})
 
