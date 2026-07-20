@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, isPast } from 'date-fns';
 import { nb } from 'date-fns/locale';
 import { Plus, SquarePen } from 'lucide-react';
 import { useMemo } from 'react';
@@ -18,13 +18,15 @@ const RatingsPage = () => {
     const { data: ratings = [], isLoading: ratingsLoading } =
         useGetRatingsQuery();
 
-    const sortedDinners = useMemo(
+    const sortedPastDinners = useMemo(
         () =>
-            dinners.toSorted(
-                (first, second) =>
-                    new Date(second.date).getTime() -
-                    new Date(first.date).getTime()
-            ),
+            dinners
+                .toSorted(
+                    (first, second) =>
+                        new Date(second.date).getTime() -
+                        new Date(first.date).getTime()
+                )
+                .filter((dinner) => isPast(new Date(dinner.date))),
         [dinners]
     );
 
@@ -45,19 +47,19 @@ const RatingsPage = () => {
                     </h1>
                     <p className="max-w-3xl text-sm leading-6 text-zinc-600">
                         Se hvilke deltakere som allerede har rating på en
-                        middag, og legg til manglende ratings under migrering.
+                        middag, og legg til manglende ratings om nødvendig.
                     </p>
                 </section>
 
-                {sortedDinners.length === 0 && (
+                {sortedPastDinners.length === 0 && (
                     <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-zinc-600 shadow-sm">
-                        Ingen middager enda.
+                        Ingen middager har blitt arrangert enda.
                     </div>
                 )}
 
-                {sortedDinners.length > 0 && (
+                {sortedPastDinners.length > 0 && (
                     <div className="space-y-6">
-                        {sortedDinners.map((dinner) => {
+                        {sortedPastDinners.map((dinner) => {
                             const host = getUserById(users, dinner.hostUserId);
 
                             const participants =
@@ -74,14 +76,13 @@ const RatingsPage = () => {
                                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                                             <div>
                                                 <h2 className="text-lg font-semibold text-zinc-900">
-                                                    {host
-                                                        ? `Arrangert av ${host.name}`
-                                                        : 'Ingen arrangør'}
+                                                    {host?.name ??
+                                                        'Ingen arrangør'}
                                                 </h2>
                                                 <p className="mt-1 text-sm text-zinc-500">
                                                     {format(
                                                         new Date(dinner.date),
-                                                        'dd MMMM yyyy',
+                                                        'dd. MMMM yyyy',
                                                         { locale: nb }
                                                     )}
                                                 </p>
