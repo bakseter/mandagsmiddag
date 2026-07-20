@@ -9,7 +9,7 @@ import DinnerCard from '@/components/dinner-card';
 const DinnersPage = () => {
     const { data: dinners = [], isLoading, error } = useGetDinnersQuery();
     // TODO: only fetch the host's name by id instead of all users
-    const { data: users = [] } = useGetUsersQuery();
+    const { data: users = [] } = useGetUsersQuery({});
     const [showUpcomingDinners, setShowUpcomingDinners] = useState(false);
     const [showPastDinners, setShowPastDinners] = useState(false);
 

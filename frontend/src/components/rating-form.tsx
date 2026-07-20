@@ -29,7 +29,7 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
         useGetCurrentUserQuery();
 
     // TODO: Get only the user with userId instead of all
-    const { data: users, isLoading: usersAreLoading } = useGetUsersQuery();
+    const { data: users, isLoading: usersAreLoading } = useGetUsersQuery({});
     const { data: dinner, isLoading: dinnersLoading } =
         useGetDinnerByIdQuery(dinnerId);
 

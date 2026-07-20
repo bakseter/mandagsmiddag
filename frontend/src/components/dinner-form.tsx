@@ -25,7 +25,13 @@ const inputClassName =
 const labelClassName = 'mb-1.5 block text-sm font-medium text-zinc-800';
 
 const DinnerForm = ({ dinner = null }: Props) => {
-    const { data: users, isLoading: usersLoading } = useGetUsersQuery();
+    const { data: hostUsers, isLoading: hostUsersLoading } = useGetUsersQuery({
+        dummy: true,
+    });
+    // Same as above, just without dummy users
+    const { data: participantUsers, isLoading: participantUsersLoading } =
+        useGetUsersQuery({});
+
     const [addDinner, { isLoading, isSuccess, error }] = usePutDinnerMutation();
 
     const isEditMode = Boolean(dinner);
@@ -67,7 +73,7 @@ const DinnerForm = ({ dinner = null }: Props) => {
         }
     };
 
-    if (usersLoading) {
+    if (hostUsersLoading || participantUsersLoading) {
         return (
             <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
                 <p className="text-sm text-zinc-600">Laster brukere...</p>
@@ -113,9 +119,12 @@ const DinnerForm = ({ dinner = null }: Props) => {
                                     required
                                 >
                                     <option value="">Velg arrangør</option>
-                                    {users?.map((user) => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.name}
+                                    {hostUsers?.map((hostUser) => (
+                                        <option
+                                            key={hostUser.id}
+                                            value={hostUser.id}
+                                        >
+                                            {hostUser.name}
                                         </option>
                                     ))}
                                 </select>
@@ -199,50 +208,58 @@ const DinnerForm = ({ dinner = null }: Props) => {
                         render={({ field }) => (
                             <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3">
                                 <div className="grid gap-2 sm:grid-cols-2">
-                                    {users?.map((user) => {
-                                        const checked = field.value.includes(
-                                            String(user.id)
-                                        );
+                                    {participantUsers?.map(
+                                        (participantUser) => {
+                                            const checked =
+                                                field.value.includes(
+                                                    String(participantUser.id)
+                                                );
 
-                                        return (
-                                            <label
-                                                key={user.id}
-                                                className="flex items-center gap-3 rounded-xl border border-transparent bg-white px-3 py-2 text-sm text-zinc-700 transition hover:border-zinc-200"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    value={user.id}
-                                                    checked={checked}
-                                                    onChange={(event) => {
-                                                        const id = String(
-                                                            user.id
-                                                        );
-
-                                                        if (
-                                                            event.target.checked
-                                                        ) {
-                                                            field.onChange([
-                                                                ...field.value,
-                                                                id,
-                                                            ]);
-                                                        } else {
-                                                            field.onChange(
-                                                                field.value.filter(
-                                                                    (
-                                                                        value: string
-                                                                    ) =>
-                                                                        value !==
-                                                                        id
-                                                                )
-                                                            );
+                                            return (
+                                                <label
+                                                    key={participantUser.id}
+                                                    className="flex items-center gap-3 rounded-xl border border-transparent bg-white px-3 py-2 text-sm text-zinc-700 transition hover:border-zinc-200"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        value={
+                                                            participantUser.id
                                                         }
-                                                    }}
-                                                    className="h-4 w-4 rounded border-zinc-300"
-                                                />
-                                                <span>{user.name}</span>
-                                            </label>
-                                        );
-                                    })}
+                                                        checked={checked}
+                                                        onChange={(event) => {
+                                                            const id = String(
+                                                                participantUser.id
+                                                            );
+
+                                                            if (
+                                                                event.target
+                                                                    .checked
+                                                            ) {
+                                                                field.onChange([
+                                                                    ...field.value,
+                                                                    id,
+                                                                ]);
+                                                            } else {
+                                                                field.onChange(
+                                                                    field.value.filter(
+                                                                        (
+                                                                            value: string
+                                                                        ) =>
+                                                                            value !==
+                                                                            id
+                                                                    )
+                                                                );
+                                                            }
+                                                        }}
+                                                        className="h-4 w-4 rounded border-zinc-300"
+                                                    />
+                                                    <span>
+                                                        {participantUser.name}
+                                                    </span>
+                                                </label>
+                                            );
+                                        }
+                                    )}
                                 </div>
                             </div>
                         )}

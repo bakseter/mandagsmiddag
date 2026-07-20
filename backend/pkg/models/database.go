@@ -89,9 +89,11 @@ func migrateDatabase(database *gorm.DB) error {
 
 func insertTestUsers(database *gorm.DB) {
 	testUsers := []User{
-		{Email: "mctest@example.com", Name: "Test McTest", IsAdmin: false},
-		{Email: "mradmin@example.com", Name: "Mr Admin", IsAdmin: true},
-		{Email: "joe@example.com", Name: "Average Joe", IsAdmin: false},
+		{Email: "mctest@acme.com", Name: "Test McTest", IsAdmin: false},
+		{Email: "mradmin@acme.com", Name: "Mr Admin", IsAdmin: true},
+		{Email: "joe@acme.com", Name: "Average Joe", IsAdmin: false},
+		// Dummy users
+		{Email: "kino@example.com", Name: "Kino", IsAdmin: false},
 	}
 
 	for _, user := range testUsers {

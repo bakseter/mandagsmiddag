@@ -95,7 +95,7 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc { //nolint
 				"authentikUser",
 				AuthentikUser{
 					UID:          "900347b8a29876b45ca6f75722635ecfedf0e931c6022e3a29a8aa13fb5516fb",
-					Email:        "dev@example.com",
+					Email:        "dev@acme.com",
 					Username:     "Developer",
 					Groups:       []string{"group1", "mandagsmiddag-admins", "group2"},
 					Entitlements: []string{"entitlement1", "entitlement2"},
