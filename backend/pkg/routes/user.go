@@ -2,7 +2,10 @@ package routes
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/bakseter/mandagsmiddag/pkg/config"
 	"github.com/bakseter/mandagsmiddag/pkg/models"
@@ -30,13 +33,29 @@ func getAllUsers(ctx *gin.Context, database *gorm.DB) {
 		return
 	}
 
+	dummyStr := ctx.Query("dummy")
+
+	dummy, err := strconv.ParseBool(dummyStr)
+	if err != nil {
+		ctx.JSON(400, gin.H{"error": fmt.Sprintf("bad value for query parameter 'dummy': %s'", dummyStr)})
+	}
+
 	var userList []UserJSON
+
 	for _, user := range users {
-		userList = append(userList, UserJSON{
-			ID:    user.ID,
-			Email: user.Email,
-			Name:  user.Name,
-		})
+		// Ignore dummy user.
+		//
+		// They are used to signify a host that isn't an actual person,
+		// e.g. the user named 'Kino' will host when going to the cinema.
+		//
+		// All dummy users have the email domain 'example.com'.
+		if dummy || !strings.HasSuffix(user.Email, "@example.com") {
+			userList = append(userList, UserJSON{
+				ID:    user.ID,
+				Email: user.Email,
+				Name:  user.Name,
+			})
+		}
 	}
 
 	ctx.JSON(http.StatusOK, userList)

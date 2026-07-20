@@ -19,8 +19,11 @@ const userApi = createApi({
     }),
     tagTypes: ['User'],
     endpoints: (builder) => ({
-        getUsers: builder.query<User[], void>({
-            query: () => '',
+        getUsers: builder.query<User[], { dummy?: boolean }>({
+            query: ({ dummy = false }) => ({
+                url: '',
+                params: { dummy },
+            }),
             transformResponse: (response) =>
                 z.array(userSchema).parse(response),
             providesTags: ['User'],

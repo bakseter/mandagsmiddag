@@ -14,7 +14,7 @@ const getUserById = (users: User[], id: number): User | null =>
 const RatingsPage = () => {
     const { data: dinners = [], isLoading: dinnersLoading } =
         useGetDinnersQuery();
-    const { data: users = [], isLoading: usersLoading } = useGetUsersQuery();
+    const { data: users = [], isLoading: usersLoading } = useGetUsersQuery({});
     const { data: ratings = [], isLoading: ratingsLoading } =
         useGetRatingsQuery();
 

@@ -21,7 +21,7 @@ const getNameById = (users: User[], id: number): User | null =>
     users.find((user) => user.id === id) ?? null;
 
 const DinnerCard = ({ dinner }: Props) => {
-    const { data: users, isLoading } = useGetUsersQuery();
+    const { data: users, isLoading } = useGetUsersQuery({ dummy: false });
     const { data: currentUser, isLoading: currentUserIsLoading } =
         useGetCurrentUserQuery();
     const { data: ratings, isLoading: ratingsAreLoading } =
