@@ -4,11 +4,13 @@ import { useGetCurrentUserQuery } from '@/api/user';
 import ErrorBoundary from '@/components/error-boundary';
 import Layout from '@/layouts/layout';
 import AddRatingPage from '@/pages/add-rating-page';
+import AdminPenaltyPage from '@/pages/admin-penalty-page';
 import AdminRatingsPage from '@/pages/admin-ratings-page';
 import DinnersPage from '@/pages/dinners-page';
 import EditDinnerPage from '@/pages/edit-dinner-page';
 import EditRatingPage from '@/pages/edit-rating-page';
 import NewDinnerPage from '@/pages/new-dinner-page';
+import NewPenaltyPage from '@/pages/new-penalty-page';
 
 const App = () => {
     const { data: currentUser } = useGetCurrentUserQuery();
@@ -45,6 +47,16 @@ const App = () => {
                                 <Route
                                     path="/admin/ratings"
                                     element={<AdminRatingsPage />}
+                                />
+
+                                <Route
+                                    path="/admin/penalty"
+                                    element={<AdminPenaltyPage />}
+                                />
+
+                                <Route
+                                    path="/admin/penalty/ny"
+                                    element={<NewPenaltyPage />}
                                 />
                             </>
                         )}
