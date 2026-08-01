@@ -56,6 +56,12 @@ func postPenalty(ctx *gin.Context, conf *config.Config) {
 		}
 	}
 
+	if !user.IsAdmin {
+		ctx.JSON(403, gin.H{"error": "only admins can assign score adjustments"})
+
+		return
+	}
+
 	// Parse Penalty JSON
 	var penalty PenaltyJSON
 	if err := ctx.ShouldBindBodyWithJSON(&penalty); err != nil {
