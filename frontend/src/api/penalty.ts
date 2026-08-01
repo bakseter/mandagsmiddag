@@ -3,6 +3,17 @@ import { z } from 'zod';
 
 import { backendUrl } from '@/api/common';
 
+const penaltySchema = z.object({
+    id: z.number(),
+    userId: z.number(),
+    points: z.number(),
+    reason: z.string(),
+    assignedBy: z.string(),
+    assignedAt: z.string(),
+});
+
+type Penalty = z.infer<typeof penaltySchema>;
+
 const penaltyInputSchema = z.object({
     userId: z.number(),
     points: z.number().int(),
@@ -18,6 +29,13 @@ const penaltyApi = createApi({
     }),
     tagTypes: ['Penalty'],
     endpoints: (builder) => ({
+        getPenalties: builder.query<Penalty[], void>({
+            query: () => '',
+            transformResponse: (response) =>
+                z.array(penaltySchema).parse(response),
+            providesTags: ['Penalty'],
+        }),
+
         postPenalty: builder.mutation<void, PenaltyInput>({
             query: (body) => ({
                 method: 'POST',
@@ -29,6 +47,6 @@ const penaltyApi = createApi({
     }),
 });
 
-export const { usePostPenaltyMutation } = penaltyApi;
-export { type PenaltyInput };
+export const { useGetPenaltiesQuery, usePostPenaltyMutation } = penaltyApi;
+export { type Penalty, type PenaltyInput };
 export default penaltyApi;
