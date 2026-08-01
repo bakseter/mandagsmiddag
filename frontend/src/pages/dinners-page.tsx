@@ -43,9 +43,9 @@ const DinnersPage = () => {
             new Date(second.date).getTime() - new Date(first.date).getTime()
     );
 
-    const upcomingDinners = sortedDinners.filter(
-        (dinner) => !isPast(new Date(dinner.date))
-    );
+    const upcomingDinners = sortedDinners
+        .filter((dinner) => !isPast(new Date(dinner.date)))
+        .toReversed();
     const pastDinners = sortedDinners.filter((dinner) =>
         isPast(new Date(dinner.date))
     );
