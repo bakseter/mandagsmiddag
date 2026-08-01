@@ -1,18 +1,19 @@
-package models
+package config
 
 import (
 	"errors"
 	"fmt"
 	"os"
 
-	"github.com/bakseter/mandagsmiddag/pkg/config"
+	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/plugin/opentelemetry/tracing"
 )
 
-func ConfigureDatabase(conf *config.Config) (*gorm.DB, error) {
+func configureDatabase(local bool) (*gorm.DB, error) {
 	database, err := initializeDatabase()
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func ConfigureDatabase(conf *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 
-	if conf.Local {
+	if local {
 		insertTestUsers(database)
 	}
 
@@ -74,11 +75,11 @@ func initializeDatabase() (*gorm.DB, error) {
 
 func migrateDatabase(database *gorm.DB) error {
 	err := database.AutoMigrate(
-		&User{},
-		&Dinner{},
-		&Film{},
-		&Penalty{},
-		&Rating{},
+		&models.User{},
+		&models.Dinner{},
+		&models.Film{},
+		&models.Penalty{},
+		&models.Rating{},
 	)
 	if err != nil {
 		return err
@@ -88,12 +89,13 @@ func migrateDatabase(database *gorm.DB) error {
 }
 
 func insertTestUsers(database *gorm.DB) {
-	testUsers := []User{
+	testUsers := []models.User{
 		{Email: "mctest@acme.com", Name: "Test McTest", IsAdmin: false},
 		{Email: "mradmin@acme.com", Name: "Mr Admin", IsAdmin: true},
 		{Email: "joe@acme.com", Name: "Average Joe", IsAdmin: false},
 		// Dummy users
 		{Email: "kino@example.com", Name: "Kino", IsAdmin: false},
+		//
 	}
 
 	for _, user := range testUsers {
@@ -101,8 +103,19 @@ func insertTestUsers(database *gorm.DB) {
 	}
 }
 
-func WithDatabase(fn func(*gin.Context, *gorm.DB), database *gorm.DB) func(*gin.Context) {
+func WithConfig(fn func(*gin.Context, *Config), conf *Config) func(*gin.Context) {
 	return func(ctx *gin.Context) {
-		fn(ctx, database.WithContext(ctx.Request.Context()))
+		// Connects gin context to gorm context (for tracing)
+		ctx.Set("db", conf.Database.WithContext(ctx.Request.Context()))
+		fn(ctx, conf)
 	}
+}
+
+func DB(ctx *gin.Context) *gorm.DB {
+	database, ok := ctx.MustGet("db").(*gorm.DB)
+	if !ok {
+		log.Fatal("failed to convert database to correct type from context")
+	}
+
+	return database
 }

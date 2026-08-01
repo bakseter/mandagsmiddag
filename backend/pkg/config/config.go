@@ -11,6 +11,7 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"gorm.io/gorm"
 )
 
 type Config struct {
@@ -18,9 +19,12 @@ type Config struct {
 	Local              bool
 	Host               string
 	Port               string
-	IDTokenVerifier    *oidc.IDTokenVerifier
 	OIDCIssuer         string
 	OIDCClientID       string
+	HTTPClient         *http.Client
+	IDTokenVerifier    *oidc.IDTokenVerifier
+	Database           *gorm.DB
+	Logger             *logrus.Logger
 }
 
 func resolveHost(local bool) (string, error) {
@@ -48,16 +52,12 @@ func resolvePort() string {
 
 func configureAuth(
 	ctx context.Context,
+	httpClient *http.Client,
 	oidcIssuer string,
 	oidcClientID string,
 ) (*oidc.IDTokenVerifier, error) {
-	client := &http.Client{
-		Transport: otelhttp.NewTransport(http.DefaultTransport),
-		Timeout:   10 * time.Second,
-	}
-
 	provider, err := oidc.NewProvider(
-		oidc.ClientContext(ctx, client),
+		oidc.ClientContext(ctx, httpClient),
 		oidcIssuer,
 	)
 	if err != nil {
@@ -90,10 +90,10 @@ func resolveOIDCClientID(local bool) (string, error) {
 	return oidcClientID, nil
 }
 
-func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context) error, error) { //nolint:funlen
+func New(ctx context.Context, logger *logrus.Logger) (*Config, func(context.Context) error, error) { //nolint:funlen
 	local := os.Getenv("LOCAL") == "true"
 
-	applicationMetrics, shutdownTelemetry, err := ConfigureOpenTelemetry(ctx, log)
+	applicationMetrics, shutdownTelemetry, err := ConfigureOpenTelemetry(ctx, logger)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to configure opentelemetry: %w", err)
 	}
@@ -103,7 +103,7 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 		defer cancel()
 
 		if shutdownErr := shutdownTelemetry(flushCtx); shutdownErr != nil {
-			log.Errorf("failed to shut down telemetry during startup failure: %s", shutdownErr.Error())
+			logger.Errorf("failed to shut down telemetry during startup failure: %s", shutdownErr.Error())
 		}
 
 		return nil, nil, err
@@ -126,32 +126,41 @@ func New(ctx context.Context, log *logrus.Logger) (*Config, func(context.Context
 		return nil, nil, err
 	}
 
-	if local {
-		log.Warn("LOCAL=true: skipping OIDC setup, auth middleware will inject dummy user")
-
-		return &Config{
-			ApplicationMetrics: applicationMetrics,
-			Local:              local,
-			Host:               host,
-			Port:               port,
-			IDTokenVerifier:    nil,
-			OIDCIssuer:         oidcIssuer,
-			OIDCClientID:       oidcClientID,
-		}, shutdownTelemetry, nil
+	httpClient := &http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+		Timeout:   10 * time.Second,
 	}
 
-	idTokenVerifier, err := configureAuth(ctx, oidcIssuer, oidcClientID)
+	database, err := configureDatabase(local)
 	if err != nil {
-		return fail(err)
+		return nil, nil, err
 	}
 
-	return &Config{
+	config := &Config{
 		ApplicationMetrics: applicationMetrics,
 		Local:              local,
 		Host:               host,
 		Port:               port,
-		IDTokenVerifier:    idTokenVerifier,
+		IDTokenVerifier:    nil,
 		OIDCIssuer:         oidcIssuer,
 		OIDCClientID:       oidcClientID,
-	}, nil, nil
+		HTTPClient:         httpClient,
+		Database:           database,
+		Logger:             logger,
+	}
+
+	if local {
+		logger.Warn("LOCAL=true: skipping OIDC setup, auth middleware will inject dummy user")
+
+		return config, shutdownTelemetry, nil
+	}
+
+	idTokenVerifier, err := configureAuth(ctx, httpClient, oidcIssuer, oidcClientID)
+	if err != nil {
+		return fail(err)
+	}
+
+	config.IDTokenVerifier = idTokenVerifier
+
+	return config, shutdownTelemetry, nil
 }

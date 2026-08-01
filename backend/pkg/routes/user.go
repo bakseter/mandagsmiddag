@@ -20,14 +20,15 @@ type UserJSON struct {
 	IsAdmin bool   `json:"isAdmin,omitempty"`
 }
 
-func UserRoutes(router *gin.RouterGroup, database *gorm.DB) {
-	router.GET("/user", models.WithDatabase(getAllUsers, database))
-	router.PUT("/user", models.WithDatabase(putUser, database))
+func UserRoutes(router *gin.RouterGroup, conf *config.Config) {
+	router.GET("/user", config.WithConfig(getAllUsers, conf))
+	router.PUT("/user", config.WithConfig(putUser, conf))
 }
 
-func getAllUsers(ctx *gin.Context, database *gorm.DB) {
+func getAllUsers(ctx *gin.Context, conf *config.Config) {
 	var users []models.User
-	if err := database.Find(&users).Error; err != nil {
+	if err := config.DB(ctx).Find(&users).Error; err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to fetch users")
 		ctx.JSON(500, gin.H{"error": "failed to fetch users"})
 
 		return
@@ -37,7 +38,10 @@ func getAllUsers(ctx *gin.Context, database *gorm.DB) {
 
 	dummy, err := strconv.ParseBool(dummyStr)
 	if err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Errorf("bad value for query parameter 'dummy': %s", dummyStr)
 		ctx.JSON(400, gin.H{"error": fmt.Sprintf("bad value for query parameter 'dummy': %s'", dummyStr)})
+
+		return
 	}
 
 	var userList []UserJSON
@@ -58,12 +62,13 @@ func getAllUsers(ctx *gin.Context, database *gorm.DB) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, userList)
+	ctx.JSON(200, userList)
 }
 
-func putUser(ctx *gin.Context, database *gorm.DB) {
+func putUser(ctx *gin.Context, conf *config.Config) { //nolint:funlen
 	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("user not authenticated")
 		ctx.JSON(401, gin.H{"error": err.Error()})
 
 		return
@@ -73,7 +78,7 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 
 	var user models.User
 
-	selectUserErr := database.Where("email = ?", authentikUser.Email).First(&user).Error
+	selectUserErr := config.DB(ctx).Where("email = ?", authentikUser.Email).First(&user).Error
 
 	// User not found
 	if selectUserErr != nil && errors.Is(selectUserErr, gorm.ErrRecordNotFound) {
@@ -84,8 +89,9 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 		}
 
 		// Create new user
-		if createNewUserErr := database.Create(&newUser).Error; createNewUserErr != nil {
-			ctx.JSON(500, gin.H{"error": "failed to create user: " + createNewUserErr.Error()})
+		if createNewUserErr := config.DB(ctx).Create(&newUser).Error; createNewUserErr != nil {
+			config.LoggerFrom(ctx, conf.Logger).WithError(createNewUserErr).Error("failed to create user")
+			ctx.JSON(500, gin.H{"error": "failed to create user"})
 
 			return
 		}
@@ -93,7 +99,8 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 
 	// Other error
 	if selectUserErr != nil {
-		ctx.JSON(500, gin.H{"error": "failed to fetch user: " + selectUserErr.Error()})
+		config.LoggerFrom(ctx, conf.Logger).WithError(selectUserErr).Error("failed to create user")
+		ctx.JSON(500, gin.H{"error": "failed to fetch user"})
 
 		return
 	}
@@ -113,13 +120,14 @@ func putUser(ctx *gin.Context, database *gorm.DB) {
 		return
 	}
 
-	if err := database.Model(&user).Updates(updatedUser).Error; err != nil {
-		ctx.JSON(500, gin.H{"error": "failed to update user: " + err.Error()})
+	if err := config.DB(ctx).Model(&user).Updates(updatedUser).Error; err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to update user")
+		ctx.JSON(500, gin.H{"error": "failed to update user"})
 
 		return
 	}
 
-	ctx.JSON(http.StatusOK, UserJSON{
+	ctx.JSON(200, UserJSON{
 		ID:      user.ID,
 		Email:   user.Email,
 		Name:    updatedUser.Name,

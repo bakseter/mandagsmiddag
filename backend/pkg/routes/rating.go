@@ -18,16 +18,17 @@ type RatingJSON struct {
 	DinnerID    uint `json:"dinnerId,omitempty"`
 }
 
-func RatingRoutes(router *gin.RouterGroup, database *gorm.DB) {
-	router.GET("/rating", models.WithDatabase(getAllRatings, database))
-	router.GET("/rating/user", models.WithDatabase(getAllRatingsForUser, database))
-	router.GET("/rating/:id", models.WithDatabase(getRatingWithID, database))
-	router.PUT("/rating", models.WithDatabase(putRating, database))
+func RatingRoutes(router *gin.RouterGroup, conf *config.Config) {
+	router.GET("/rating", config.WithConfig(getAllRatings, conf))
+	router.GET("/rating/user", config.WithConfig(getAllRatingsForUser, conf))
+	router.GET("/rating/:id", config.WithConfig(getRatingWithID, conf))
+	router.PUT("/rating", config.WithConfig(putRating, conf))
 }
 
-func putRating(ctx *gin.Context, database *gorm.DB) { //nolint:cyclop,funlen
+func putRating(ctx *gin.Context, conf *config.Config) { //nolint:cyclop,funlen
 	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("user not authenticated")
 		ctx.JSON(401, gin.H{"error": err.Error()})
 
 		return
@@ -35,7 +36,8 @@ func putRating(ctx *gin.Context, database *gorm.DB) { //nolint:cyclop,funlen
 
 	// Check if user exists in database
 	var user models.User
-	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
+	if err := config.DB(ctx).Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("user does not exist")
 		ctx.JSON(401, gin.H{"error": "user does not exist: " + err.Error()})
 
 		return
@@ -44,13 +46,17 @@ func putRating(ctx *gin.Context, database *gorm.DB) { //nolint:cyclop,funlen
 	// Parse rating JSON
 	var rating RatingJSON
 	if err := ctx.ShouldBindBodyWithJSON(&rating); err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed parsing rating json")
 		ctx.JSON(400, gin.H{"error": err.Error()})
 
 		return
 	}
 
 	if rating.UserID != 0 && rating.UserID != user.ID && !user.IsAdmin {
-		ctx.JSON(403, gin.H{"error": "cannot create or update rating for another user"})
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error(
+			"cannot create or update rating for another user unless admin",
+		)
+		ctx.JSON(403, gin.H{"error": "cannot create or update rating for another user unless admin"})
 
 		return
 	}
@@ -85,13 +91,19 @@ func putRating(ctx *gin.Context, database *gorm.DB) { //nolint:cyclop,funlen
 	// Upsert by (user_id, dinner_id): update if exists, create if not
 	var existingRating models.Rating
 
-	err = database.Where("user_id = ? AND dinner_id = ?", dbRating.UserID, dbRating.DinnerID).First(&existingRating).Error
+	err = config.DB(ctx).Where(
+		"user_id = ? AND dinner_id = ?",
+		dbRating.UserID,
+		dbRating.DinnerID,
+	).First(&existingRating).Error
+
 	switch {
 	case err == nil:
 		existingRating.FilmScore = dbRating.FilmScore
 
 		existingRating.DinnerScore = dbRating.DinnerScore
-		if err := database.Save(&existingRating).Error; err != nil {
+		if err := config.DB(ctx).Save(&existingRating).Error; err != nil {
+			config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to update rating")
 			ctx.JSON(500, gin.H{"error": "failed to update rating: " + err.Error()})
 
 			return
@@ -101,7 +113,8 @@ func putRating(ctx *gin.Context, database *gorm.DB) { //nolint:cyclop,funlen
 
 		return
 	case errors.Is(err, gorm.ErrRecordNotFound):
-		if err := database.Create(&dbRating).Error; err != nil {
+		if err := config.DB(ctx).Create(&dbRating).Error; err != nil {
+			config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to create rating")
 			ctx.JSON(500, gin.H{"error": "failed to create rating: " + err.Error()})
 
 			return
@@ -111,15 +124,17 @@ func putRating(ctx *gin.Context, database *gorm.DB) { //nolint:cyclop,funlen
 
 		return
 	default:
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to check existing rating")
 		ctx.JSON(500, gin.H{"error": "failed to check existing rating: " + err.Error()})
 
 		return
 	}
 }
 
-func getAllRatingsForUser(ctx *gin.Context, database *gorm.DB) {
+func getAllRatingsForUser(ctx *gin.Context, conf *config.Config) {
 	authentikUser, err := config.GetAuthentikUser(ctx)
 	if err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("user not authenticated")
 		ctx.JSON(401, gin.H{"error": err.Error()})
 
 		return
@@ -127,23 +142,26 @@ func getAllRatingsForUser(ctx *gin.Context, database *gorm.DB) {
 
 	// Get user from database
 	var user models.User
-	if err := database.Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
+	if err := config.DB(ctx).Where("email = ?", authentikUser.Email).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("user not found")
 			ctx.JSON(404, gin.H{"error": "user not found"})
 
 			return
 		}
 
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to fetch user")
 		ctx.JSON(500, gin.H{"error": "failed to fetch user"})
 
 		return
 	}
 
 	var ratings []models.Rating
-	if err := database.
+	if err := config.DB(ctx).
 		Where("user_id = ?", user.ID).
 		Order("created_at DESC").
 		Find(&ratings).Error; err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to fetch ratings")
 		ctx.JSON(500, gin.H{"error": "failed to fetch ratings"})
 
 		return
@@ -171,11 +189,12 @@ func getAllRatingsForUser(ctx *gin.Context, database *gorm.DB) {
 	ctx.JSON(200, ratingList)
 }
 
-func getAllRatings(ctx *gin.Context, database *gorm.DB) {
+func getAllRatings(ctx *gin.Context, conf *config.Config) {
 	var ratings []models.Rating
-	if err := database.
+	if err := config.DB(ctx).
 		Order("created_at DESC").
 		Find(&ratings).Error; err != nil {
+		config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to fetch ratings")
 		ctx.JSON(500, gin.H{"error": "failed to fetch ratings"})
 
 		return
@@ -203,17 +222,19 @@ func getAllRatings(ctx *gin.Context, database *gorm.DB) {
 	ctx.JSON(200, ratingList)
 }
 
-func getRatingWithID(ctx *gin.Context, database *gorm.DB) {
+func getRatingWithID(ctx *gin.Context, conf *config.Config) {
 	var rating models.Rating
 
 	ratingID := ctx.Param("id")
-	if err := database.
+	if err := config.DB(ctx).
 		Where("id = ?", ratingID).
 		Order("created_at DESC").
 		First(&rating).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("dinner not found")
 			ctx.JSON(404, gin.H{"error": "dinner not found"})
 		} else {
+			config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to fetch dinner")
 			ctx.JSON(500, gin.H{"error": "failed to fetch dinner"})
 		}
 
