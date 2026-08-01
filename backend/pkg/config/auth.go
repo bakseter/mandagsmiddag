@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 type AuthentikUser struct {
@@ -88,7 +87,7 @@ func GetAuthentikUser(ctx *gin.Context) (*AuthentikUser, error) {
 	return &authentikUser, nil
 }
 
-func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc { //nolint:funlen
+func AuthMiddleware(conf *Config) gin.HandlerFunc { //nolint:funlen
 	return func(ctx *gin.Context) {
 		if conf.Local {
 			ctx.Set(
@@ -109,7 +108,7 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc { //nolint
 
 		bearerToken, err := getBearerToken(ctx)
 		if err != nil {
-			LoggerFrom(ctx, log).WithError(err).Warn("request rejected: no usable token")
+			LoggerFrom(ctx, conf.Logger).WithError(err).Error("request rejected: no usable token")
 			ctx.AbortWithStatusJSON(401, gin.H{"error": "unauthorized"})
 
 			return
@@ -117,17 +116,17 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc { //nolint
 
 		idToken, err := conf.IDTokenVerifier.Verify(ctx.Request.Context(), bearerToken)
 		if err != nil {
-			LoggerFrom(ctx, log).WithError(err).Warn("token verification failed")
+			LoggerFrom(ctx, conf.Logger).WithError(err).Error("token verification failed")
 			ctx.AbortWithStatusJSON(401, gin.H{"error": "invalid token"})
 
 			return
 		}
 
 		if idToken.Issuer != conf.OIDCIssuer {
-			LoggerFrom(ctx, log).
+			LoggerFrom(ctx, conf.Logger).
 				WithField("expected_issuer", conf.OIDCIssuer).
 				WithField("token_issuer", idToken.Issuer).
-				Warn("issuer mismatch")
+				Error("issuer mismatch")
 			ctx.AbortWithStatusJSON(401, gin.H{"error": "invalid issuer"})
 
 			return
@@ -141,7 +140,7 @@ func AuthMiddleware(conf *Config, log *logrus.Logger) gin.HandlerFunc { //nolint
 		}
 
 		if err := idToken.Claims(&claims); err != nil {
-			LoggerFrom(ctx, log).WithError(err).Error("failed to parse custom claims")
+			LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to parse custom claims")
 			ctx.AbortWithStatusJSON(500, gin.H{"error": "failed to parse claims"})
 
 			return

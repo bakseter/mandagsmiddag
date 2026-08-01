@@ -4,17 +4,14 @@ import (
 	"net/http"
 
 	"github.com/bakseter/mandagsmiddag/pkg/config"
-	"github.com/bakseter/mandagsmiddag/pkg/models"
 	"github.com/bakseter/mandagsmiddag/pkg/routes"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"gorm.io/gorm"
 )
 
-func NewRouter(conf *config.Config, log *logrus.Logger) (*gin.Engine, error) {
+func NewRouter(conf *config.Config) (*gin.Engine, error) {
 	if !conf.Local {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -32,7 +29,7 @@ func NewRouter(conf *config.Config, log *logrus.Logger) (*gin.Engine, error) {
 	)
 	router.Use(gin.Recovery())
 	router.Use(cors.New(configureCORS(conf)))
-	router.Use(config.LogrusMiddleware(log))
+	router.Use(config.LogrusMiddleware(conf.Logger))
 	router.Use(config.MetricsMiddleware(conf))
 
 	err := router.SetTrustedProxies(nil)
@@ -40,21 +37,14 @@ func NewRouter(conf *config.Config, log *logrus.Logger) (*gin.Engine, error) {
 		return nil, err
 	}
 
-	database, err := models.ConfigureDatabase(conf)
-	if err != nil {
-		return nil, err
-	}
-
-	addRoutes(conf, log, router, database)
+	addRoutes(conf, router)
 
 	return router, nil
 }
 
 func addRoutes(
 	conf *config.Config,
-	log *logrus.Logger,
 	router *gin.Engine,
-	database *gorm.DB,
 ) {
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
@@ -63,7 +53,7 @@ func addRoutes(
 	})
 
 	api := router.Group("/api")
-	api.Use(config.AuthMiddleware(conf, log))
+	api.Use(config.AuthMiddleware(conf))
 	{
 		api.GET("/status", func(c *gin.Context) {
 			c.JSON(200, gin.H{
@@ -71,9 +61,9 @@ func addRoutes(
 			})
 		})
 
-		routes.DinnerRoutes(api, database)
-		routes.RatingRoutes(api, database)
-		routes.PenaltyRoutes(api, database)
-		routes.UserRoutes(api, database)
+		routes.DinnerRoutes(api, conf)
+		routes.RatingRoutes(api, conf)
+		routes.PenaltyRoutes(api, conf)
+		routes.UserRoutes(api, conf)
 	}
 }

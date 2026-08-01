@@ -24,8 +24,8 @@ func main() {
 }
 
 func run() int { //nolint:cyclop,funlen
-	log := logrus.New()
-	log.SetFormatter(&logrus.JSONFormatter{})
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
 
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
@@ -34,9 +34,9 @@ func run() int { //nolint:cyclop,funlen
 	)
 	defer stop()
 
-	conf, shutdownTelemetry, err := config.New(ctx, log)
+	conf, shutdownTelemetry, err := config.New(ctx, logger)
 	if err != nil {
-		log.Errorf("failed to load config: %v", err)
+		logger.Errorf("failed to load config: %v", err)
 
 		return 1
 	}
@@ -46,13 +46,13 @@ func run() int { //nolint:cyclop,funlen
 		defer cancel()
 
 		if err := shutdownTelemetry(flushCtx); err != nil {
-			log.Errorf("failed to shut down telemetry providers: %v", err)
+			logger.Errorf("failed to shut down telemetry providers: %v", err)
 		}
 	}()
 
-	router, err := api.NewRouter(conf, log)
+	router, err := api.NewRouter(conf)
 	if err != nil {
-		log.Errorf("failed to build router: %v", err)
+		logger.Errorf("failed to build router: %v", err)
 
 		return 1
 	}
@@ -66,7 +66,7 @@ func run() int { //nolint:cyclop,funlen
 	serverErr := make(chan error, 1)
 
 	go func() {
-		log.WithContext(ctx).Infof("listening on :%s", conf.Port)
+		logger.WithContext(ctx).Infof("listening on :%s", conf.Port)
 
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			serverErr <- err
@@ -78,24 +78,24 @@ func run() int { //nolint:cyclop,funlen
 	select {
 	case err, ok := <-serverErr:
 		if ok && err != nil {
-			log.Errorf("server error: %v", err)
+			logger.Errorf("server error: %v", err)
 
 			return 1
 		}
 	case <-ctx.Done():
-		log.WithContext(ctx).Info("shutdown signal received, draining connections")
+		logger.WithContext(ctx).Info("shutdown signal received, draining connections")
 	}
 
 	drainCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
 	if err := server.Shutdown(drainCtx); err != nil {
-		log.Errorf("graceful shutdown failed: %v", err)
+		logger.Errorf("graceful shutdown failed: %v", err)
 
 		return 1
 	}
 
-	log.Info("shutdown complete")
+	logger.Info("shutdown complete")
 
 	return 0
 }

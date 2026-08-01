@@ -280,15 +280,15 @@ func LogrusMiddleware(log *logrus.Logger) gin.HandlerFunc {
 			route = "unmatched"
 		}
 
-		entry := log.WithContext(ctx.Request.Context()).WithFields(logrus.Fields{
-			"status":     ctx.Writer.Status(),
-			"method":     ctx.Request.Method,
-			"path":       ctx.Request.URL.Path,
-			"route":      route,
-			"ip":         ctx.ClientIP(),
-			"latency_ms": float64(time.Since(start).Microseconds()) / 1000.0,
-			"userAgent":  ctx.Request.UserAgent(),
-		})
+		entry := log.WithContext(ctx.Request.Context()).WithFields(
+			logrus.Fields{
+				"status":     ctx.Writer.Status(),
+				"method":     ctx.Request.Method,
+				"path":       ctx.Request.URL.Path,
+				"route":      route,
+				"latency_ms": float64(time.Since(start).Microseconds()) / 1000.0,
+			},
+		)
 
 		switch {
 		case ctx.Writer.Status() >= http.StatusInternalServerError:
