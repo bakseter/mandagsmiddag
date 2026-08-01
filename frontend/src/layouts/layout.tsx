@@ -33,6 +33,13 @@ const Layout = () => {
                                 >
                                     Se ratings
                                 </Link>
+
+                                <Link
+                                    to="/admin/penalty/ny"
+                                    className="rounded-lg bg-zinc-900 md:px-3 px-1 py-2 text-white transition-colors hover:bg-zinc-700"
+                                >
+                                    Ekstrapoeng
+                                </Link>
                             </>
                         )}
                     </nav>
