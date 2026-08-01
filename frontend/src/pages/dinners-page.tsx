@@ -51,7 +51,7 @@ const DinnersPage = () => {
     );
 
     const lastDinner = pastDinners.at(0);
-    const nextDinner = upcomingDinners.at(-1);
+    const nextDinner = upcomingDinners.at(0);
     const nextDinnerHost = users.find(
         (user) => user.id === nextDinner?.hostUserId
     );
