@@ -1,4 +1,5 @@
 import { Controller, useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
 
 import { usePostPenaltyMutation } from '@/api/penalty';
 import { useGetUsersQuery } from '@/api/user';
@@ -16,6 +17,9 @@ const inputClassName =
 const labelClassName = 'mb-1.5 block text-sm font-medium text-zinc-800';
 
 const PenaltyForm = () => {
+    const [searchParams] = useSearchParams();
+    const preselectedUserId = searchParams.get('userId') ?? '';
+
     const { data: users, isLoading: usersLoading } = useGetUsersQuery({});
 
     const [
@@ -25,7 +29,7 @@ const PenaltyForm = () => {
 
     const { handleSubmit, control, reset } = useForm<FormValues>({
         defaultValues: {
-            userId: '',
+            userId: preselectedUserId,
             points: 0,
             reason: '',
         },
@@ -45,6 +49,7 @@ const PenaltyForm = () => {
 
             reset();
         } catch (error_) {
+            // eslint-disable-next-line no-console
             console.error(error_);
         }
     };
@@ -93,7 +98,7 @@ const PenaltyForm = () => {
                         control={control}
                         rules={{
                             required: true,
-                            validate: (v) => v !== 0 || 'Poeng kan ikke være 0',
+                            validate: (value) => value !== 0 || 'Poeng kan ikke være 0',
                         }}
                         render={({ field }) => (
                             <input
