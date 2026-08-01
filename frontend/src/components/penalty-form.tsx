@@ -7,7 +7,7 @@ import FormSubmitStatus from '@/components/form-submit-status';
 
 interface FormValues {
     userId: string;
-    points: number;
+    points: string;
     reason: string;
 }
 
@@ -30,7 +30,7 @@ const PenaltyForm = () => {
     const { handleSubmit, control, reset } = useForm<FormValues>({
         defaultValues: {
             userId: preselectedUserId,
-            points: 0,
+            points: '',
             reason: '',
         },
     });
@@ -43,7 +43,7 @@ const PenaltyForm = () => {
         try {
             await postPenalty({
                 userId: Number(data.userId),
-                points: data.points,
+                points: Number(data.points),
                 reason: data.reason,
             }).unwrap();
 
@@ -98,15 +98,19 @@ const PenaltyForm = () => {
                         control={control}
                         rules={{
                             required: true,
-                            validate: (value) => value !== 0 || 'Poeng kan ikke være 0',
+                            validate: (value) => {
+                                const number = Number(value);
+                                return (
+                                    (Number.isInteger(number) &&
+                                        number !== 0) ||
+                                    'Må være et heltall som ikke er 0'
+                                );
+                            },
                         }}
                         render={({ field }) => (
                             <input
                                 type="number"
                                 {...field}
-                                onChange={(event) => {
-                                    field.onChange(event.target.valueAsNumber);
-                                }}
                                 step={1}
                                 placeholder="f.eks. 2 eller -1"
                                 className={inputClassName}
