@@ -10,5 +10,6 @@ resources:
   - ciliumnetworkpolicy.yaml
   - deployment.yaml
   - prometheusrule.yaml
+  - sealedsecret.yaml
   - service.yaml
   - servicemonitor.yaml
