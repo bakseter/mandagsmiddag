@@ -71,9 +71,11 @@ spec:
             - port: '4317'
               protocol: TCP
 
-    # Allow accessing OIDC configuration
     - toFQDNs:
+        # Allow accessing OIDC configuration
         - matchName: authentik.bakseter.no
+        # Allow accessing TMDB API
+        - matchName: api.themoviedb.org
       toPorts:
         - ports:
             - port: '443'
