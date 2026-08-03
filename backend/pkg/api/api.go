@@ -65,5 +65,6 @@ func addRoutes(
 		routes.RatingRoutes(api, conf)
 		routes.PenaltyRoutes(api, conf)
 		routes.UserRoutes(api, conf)
+		routes.TmdbRoutes(api, conf)
 	}
 }

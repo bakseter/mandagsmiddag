@@ -9,7 +9,8 @@ RUN apk add --no-cache ca-certificates
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . .
+COPY pkg ./pkg
+COPY main.go ./
 RUN go build -o ./out/executable .
 
 

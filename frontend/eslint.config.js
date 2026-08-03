@@ -39,6 +39,12 @@ export default defineConfig([
             'no-ternary': 'off',
             '@typescript-eslint/no-invalid-void-type': 'off', // used by RTK Query
             'max-lines-per-function': 'off',
+            'max-lines': [
+                'error',
+                {
+                    max: 400,
+                },
+            ],
             'no-warning-comments': 'off',
             complexity: 'off',
             'no-console': 'warn',

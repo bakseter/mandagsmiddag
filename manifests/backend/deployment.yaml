@@ -59,6 +59,11 @@ spec:
               value: trace_based
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: deployment.environment.name=production,k8s.cluster.name=homelab
+            - name: TMDB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mandagsmiddag-secret
+                  key: tmdb-api-key
           startupProbe:
             httpGet:
               path: /healthz
