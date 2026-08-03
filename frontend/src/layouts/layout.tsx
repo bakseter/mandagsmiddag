@@ -12,7 +12,7 @@ const Layout = () => {
                 <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
                     <Link
                         to="/"
-                        className="text-lg font-semibold tracking-tight text-zinc-900 transition-colors hover:text-zinc-600"
+                        className="md:text-lg text-md font-semibold tracking-tight text-zinc-900 transition-colors hover:text-zinc-600"
                     >
                         Mandagsmiddag
                     </Link>
@@ -31,14 +31,14 @@ const Layout = () => {
                                     to="/admin/ratings"
                                     className="rounded-lg bg-zinc-900 md:px-3 px-1 py-2 text-white transition-colors hover:bg-zinc-700"
                                 >
-                                    Se ratings
+                                    Ratings
                                 </Link>
 
                                 <Link
                                     to="/admin/penalty"
                                     className="rounded-lg bg-zinc-900 md:px-3 px-1 py-2 text-white transition-colors hover:bg-zinc-700"
                                 >
-                                    Ekstrapoeng
+                                    Poeng
                                 </Link>
                             </>
                         )}
