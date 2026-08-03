@@ -82,7 +82,7 @@ func tmdbSearch(ctx *gin.Context, conf *config.Config) {
 		return
 	}
 
-	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", conf.TMDBAPIReadAccessToken))
+	request.Header.Add("Authorization", "Bearer "+conf.TMDBAPIReadAccessToken)
 
 	response, err := conf.HTTPClient.Do(request)
 	if err != nil {
@@ -93,7 +93,7 @@ func tmdbSearch(ctx *gin.Context, conf *config.Config) {
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode != 200 {
+	if response.StatusCode != 200 { //nolint:usestdlibvars
 		config.LoggerFrom(ctx, conf.Logger).Errorf(
 			"TMDB request failed: statuscode=%d, response=%s",
 			response.StatusCode,
@@ -137,7 +137,7 @@ func tmdbExternalIDs(ctx *gin.Context, conf *config.Config) {
 		return
 	}
 
-	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", conf.TMDBAPIReadAccessToken))
+	request.Header.Add("Authorization", "Bearer "+conf.TMDBAPIReadAccessToken)
 
 	response, err := conf.HTTPClient.Do(request)
 	if err != nil {
@@ -148,7 +148,7 @@ func tmdbExternalIDs(ctx *gin.Context, conf *config.Config) {
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode != 200 {
+	if response.StatusCode != 200 { //nolint:usestdlibvars
 		config.LoggerFrom(ctx, conf.Logger).Errorf(
 			"TMDB request failed: statuscode=%d, response=%s",
 			response.StatusCode,
