@@ -16,7 +16,7 @@ services:
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
       - OTEL_METRICS_EXEMPLAR_FILTER=trace_based
       - OTEL_RESOURCE_ATTRIBUTES='deployment.environment.name=local'
-      - TMDB_API_READ_ACCESS_TOKEN=${TMDB_API_READ_ACCESS_TOKEN}
+      - TMDB_API_READ_ACCESS_TOKEN=${TMDB_API_READ_ACCESS_TOKEN:?TMDB API read access token is required}
     depends_on:
       database:
         condition: service_healthy

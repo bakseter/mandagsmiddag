@@ -1,4 +1,5 @@
 import { format, formatISO } from 'date-fns';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { type Dinner, usePutDinnerMutation } from '@/api/dinner';
@@ -34,6 +35,7 @@ const DinnerForm = ({ dinner = null }: Props) => {
         useGetUsersQuery({});
 
     const [addDinner, { isLoading, isSuccess, error }] = usePutDinnerMutation();
+    const [disableFilmSearch, setDisableFilmSearch] = useState(false);
 
     const isEditMode = Boolean(dinner);
 
@@ -171,17 +173,73 @@ const DinnerForm = ({ dinner = null }: Props) => {
                     />
                 </div>
 
-                {/* Film search — replaces the two separate filmTitle/filmImdbUrl fields */}
-                <FilmSearch
-                    titleValue={filmTitle}
-                    urlValue={filmImdbUrl}
-                    onTitleChange={(title) => {
-                        setValue('filmTitle', title);
-                    }}
-                    onUrlChange={(url) => {
-                        setValue('filmImdbUrl', url);
-                    }}
-                />
+                {disableFilmSearch && (
+                    <div className="grid gap-5 md:grid-cols-2">
+                        <div>
+                            <label className={`${labelClassName} italic`}>
+                                Filmtittel
+                            </label>
+                            <Controller
+                                name="filmTitle"
+                                control={control}
+                                render={({ field }) => (
+                                    <input
+                                        type="text"
+                                        {...field}
+                                        className={inputClassName}
+                                    />
+                                )}
+                            />
+                        </div>
+
+                        <div>
+                            <label className={`${labelClassName} italic`}>
+                                IMDb-lenke
+                            </label>
+                            <Controller
+                                name="filmImdbUrl"
+                                control={control}
+                                render={({ field }) => (
+                                    <input
+                                        type="text"
+                                        {...field}
+                                        className={inputClassName}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {!disableFilmSearch && (
+                    <FilmSearch
+                        titleValue={filmTitle}
+                        urlValue={filmImdbUrl}
+                        onTitleChange={(title) => {
+                            setValue('filmTitle', title);
+                        }}
+                        onUrlChange={(url) => {
+                            setValue('filmImdbUrl', url);
+                        }}
+                    />
+                )}
+
+                <div>
+                    <button
+                        className="mx-2"
+                        type="button"
+                        onClick={() => {
+                            setDisableFilmSearch(!disableFilmSearch);
+                        }}
+                        className={`inline-flex items-center rounded-xl border px-4 py-2 text-xs font-medium transition ${
+                            disableFilmSearch
+                                ? 'border-zinc-900 bg-zinc-900 text-white hover:bg-zinc-700'
+                                : 'border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50'
+                        }`}
+                    >
+                        Jeg vil skrive inn film og lenke manuelt
+                    </button>
+                </div>
 
                 <div>
                     <label className={labelClassName}>Hvem møtte opp?</label>

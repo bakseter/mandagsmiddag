@@ -6,3 +6,4 @@ otelcol.yaml
 .golangci.yml
 Makefile
 README.md
+.env

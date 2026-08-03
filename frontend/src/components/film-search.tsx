@@ -190,11 +190,9 @@ const FilmSearch = ({
                     value={isFetchingImdb ? 'Henter IMDb-lenke…' : urlValue}
                     readOnly
                     placeholder="Fylles ut automatisk"
-                    className={`${inputClassName} cursor-default bg-zinc-50 text-zinc-500`}
+                    className={`${inputClassName} cursor-default bg-zinc-200 text-zinc-500`}
                 />
             </div>
-
-            <div></div>
         </div>
     );
 };
