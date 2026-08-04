@@ -23,7 +23,7 @@ func NewRouter(conf *config.Config) (*gin.Engine, error) {
 		otelgin.Middleware(
 			config.ServiceName,
 			otelgin.WithFilter(func(request *http.Request) bool {
-				return request.URL.Path != "/metrics"
+				return request.URL.Path != "/metrics" && request.URL.Path != "/healthz"
 			}),
 		),
 	)
@@ -47,7 +47,6 @@ func addRoutes(
 	router *gin.Engine,
 ) {
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
-
 	router.GET("/healthz", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})

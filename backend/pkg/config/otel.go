@@ -272,12 +272,8 @@ func LogrusMiddleware(log *logrus.Logger) gin.HandlerFunc {
 		ctx.Next()
 
 		route := ctx.FullPath()
-		if route == "/metrics" || route == "/healthz" {
+		if route == "" || route == "/metrics" || route == "/healthz" {
 			return
-		}
-
-		if route == "" {
-			route = "unmatched"
 		}
 
 		entry := log.WithContext(ctx.Request.Context()).WithFields(

@@ -55,9 +55,7 @@ spec:
         - matchLabels:
             app.kubernetes.io/instance: mandagsmiddag-database
       toPorts:
-        - rules:
-            http: []
-          ports:
+        - ports:
             - port: '5432'
               protocol: TCP
 
