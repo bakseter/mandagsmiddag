@@ -1,4 +1,5 @@
 import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 import { useGetDinnerByIdQuery } from '@/api/dinner';
 import { type Rating, usePutRatingMutation } from '@/api/rating';

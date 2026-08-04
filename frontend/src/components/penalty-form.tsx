@@ -1,5 +1,5 @@
 import { Controller, useForm } from 'react-hook-form';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { usePostPenaltyMutation } from '@/api/penalty';
 import { useGetUsersQuery } from '@/api/user';

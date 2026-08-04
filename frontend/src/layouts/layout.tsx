@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router';
 
 import { useGetCurrentUserQuery } from '@/api/user';
 import ErrorBoundary from '@/components/error-boundary';

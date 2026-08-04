@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router';
 
 import RatingForm from '@/components/rating-form';
 import { numberToString } from '@/utils/misc';

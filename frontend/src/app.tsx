@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router';
 
 import { useGetCurrentUserQuery } from '@/api/user';
 import ErrorBoundary from '@/components/error-boundary';

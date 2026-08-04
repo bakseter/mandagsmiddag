@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import { useGetDinnerByIdQuery } from '@/api/dinner';
 import DinnerForm from '@/components/dinner-form';
