@@ -137,6 +137,7 @@ func AuthMiddleware(conf *Config) gin.HandlerFunc { //nolint:funlen
 			Email        string   `json:"email"`
 			Groups       []string `json:"groups"`
 			Entitlements []string `json:"entitlements"`
+			Name         string   `json:"name"`
 		}
 
 		if err := idToken.Claims(&claims); err != nil {
@@ -151,7 +152,7 @@ func AuthMiddleware(conf *Config) gin.HandlerFunc { //nolint:funlen
 			Email:        claims.Email,
 			Groups:       claims.Groups,
 			Entitlements: claims.Entitlements,
-			Username:     idToken.Subject,
+			Username:     claims.Name,
 		})
 
 		ctx.Next()
