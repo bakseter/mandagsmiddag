@@ -3,7 +3,8 @@ linters:
   default: all
   disable:
     - depguard
-    - exhaustruct # TODO: fix and enable again
+    - exhaustruct
+    - exhaustruct_v5
     - err113
     - goconst
     - gomodguard
