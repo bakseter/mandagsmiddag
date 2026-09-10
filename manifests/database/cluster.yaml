@@ -9,7 +9,7 @@ spec:
   instances: 3
   affinity:
     nodeSelector:
-      node.longhorn.io/create-default-disk: 'true'
+      node.longhorn.io/create-default-disk: 'config'
     enablePodAntiAffinity: true
     topologyKey: bakseter.net/physical-node
     podAntiAffinityType: required
