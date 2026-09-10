@@ -4,6 +4,7 @@
   "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
   "commitMessagePrefix": "⬆️",
   "prHourlyLimit": 0,
+  "prConcurrentLimit": 0,
   "minimumReleaseAge": "3 days",
   "rangeStrategy": "pin",
   "packageRules": [
@@ -16,6 +17,11 @@
       "description": "Automerge devDependencies",
       "matchDepTypes": ["devDependencies"],
       "automerge": true
+    },
+    {
+      "description": "Only Docker Hub returns image timestamps; without this, GHCR/Quay/ECR/registry.k8s.io are held forever",
+      "matchDatasources": ["docker"],
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
     }
   ]
 }
