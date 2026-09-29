@@ -12,5 +12,5 @@ spec:
     local:
       rules:
         - limit:
-            requests: 120
+            requests: 60
             unit: Minute
