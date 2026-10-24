@@ -2,7 +2,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { useGetDinnerByIdQuery } from '@/api/dinner';
 import { type Rating, usePutRatingMutation } from '@/api/rating';
-import { useGetCurrentUserQuery, useGetUsersQuery } from '@/api/user';
+import { useGetCurrentUserQuery, useGetUserByIdQuery } from '@/api/user';
 import FormSubmitStatus from '@/components/form-submit-status';
 
 interface FormValues {
@@ -28,8 +28,9 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
     const { data: currentUser, isLoading: currentUserLoading } =
         useGetCurrentUserQuery();
 
-    // TODO: Get only the user with userId instead of all
-    const { data: users, isLoading: usersAreLoading } = useGetUsersQuery({});
+    const { data: userBeingImpersonated } = useGetUserByIdQuery(userId ?? 0, {
+        skip: !userId,
+    });
     const { data: dinner, isLoading: dinnersLoading } =
         useGetDinnerByIdQuery(dinnerId);
 
@@ -68,11 +69,10 @@ const RatingForm = ({ dinnerId, rating = null, userId = null }: Props) => {
     const dinnerScore = watch('dinnerScore');
     const didNotEat = isHost || dinnerScore === null;
 
-    if (currentUserLoading || usersAreLoading || dinnersLoading) {
+    if (currentUserLoading || dinnersLoading) {
         return <p>Loading...</p>;
     }
 
-    const userBeingImpersonated = users?.find((user) => user.id === userId);
     const isEditMode = Boolean(rating);
 
     const handleToggleDidNotEat = () => {

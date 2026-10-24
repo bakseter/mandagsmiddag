@@ -22,6 +22,7 @@ type UserJSON struct {
 
 func UserRoutes(router *gin.RouterGroup, conf *config.Config) {
 	router.GET("/user", config.WithConfig(getAllUsers, conf))
+	router.GET("/user/:id", config.WithConfig(getUserWithID, conf))
 	router.PUT("/user", config.WithConfig(putUser, conf))
 }
 
@@ -63,6 +64,30 @@ func getAllUsers(ctx *gin.Context, conf *config.Config) {
 	}
 
 	ctx.JSON(200, userList)
+}
+
+func getUserWithID(ctx *gin.Context, conf *config.Config) {
+	userID := ctx.Param("id")
+
+	var user models.User
+	if err := config.DB(ctx).Where("id = ?", userID).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("user not found")
+			ctx.JSON(404, gin.H{"error": "user not found"})
+		} else {
+			config.LoggerFrom(ctx, conf.Logger).WithError(err).Error("failed to fetch user")
+			ctx.JSON(500, gin.H{"error": "failed to fetch user"})
+		}
+
+		return
+	}
+
+	ctx.JSON(200, UserJSON{
+		ID:      user.ID,
+		Email:   user.Email,
+		Name:    user.Name,
+		IsAdmin: user.IsAdmin,
+	})
 }
 
 func putUser(ctx *gin.Context, conf *config.Config) { //nolint:funlen

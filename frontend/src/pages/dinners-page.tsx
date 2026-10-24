@@ -3,15 +3,34 @@ import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
 import { useGetDinnersQuery } from '@/api/dinner';
-import { useGetUsersQuery } from '@/api/user';
+import { useGetUserByIdQuery } from '@/api/user';
 import DinnerCard from '@/components/dinner-card';
 
 const DinnersPage = () => {
     const { data: dinners = [], isLoading, error } = useGetDinnersQuery();
-    // TODO: only fetch the host's name by id instead of all users
-    const { data: users = [] } = useGetUsersQuery({});
     const [showUpcomingDinners, setShowUpcomingDinners] = useState(false);
     const [showPastDinners, setShowPastDinners] = useState(false);
+
+    // Newest first
+    const sortedDinners = dinners.toSorted(
+        (first, second) =>
+            new Date(second.date).getTime() - new Date(first.date).getTime()
+    );
+
+    const upcomingDinners = sortedDinners
+        .filter((dinner) => !isPast(new Date(dinner.date)))
+        .toReversed();
+    const pastDinners = sortedDinners.filter((dinner) =>
+        isPast(new Date(dinner.date))
+    );
+
+    const lastDinner = pastDinners.at(0);
+    const nextDinner = upcomingDinners.at(0);
+
+    const { data: nextDinnerHost } = useGetUserByIdQuery(
+        nextDinner?.hostUserId ?? 0,
+        { skip: !nextDinner }
+    );
 
     if (isLoading) {
         return (
@@ -36,25 +55,6 @@ const DinnersPage = () => {
             </div>
         );
     }
-
-    // Newest first
-    const sortedDinners = dinners.toSorted(
-        (first, second) =>
-            new Date(second.date).getTime() - new Date(first.date).getTime()
-    );
-
-    const upcomingDinners = sortedDinners
-        .filter((dinner) => !isPast(new Date(dinner.date)))
-        .toReversed();
-    const pastDinners = sortedDinners.filter((dinner) =>
-        isPast(new Date(dinner.date))
-    );
-
-    const lastDinner = pastDinners.at(0);
-    const nextDinner = upcomingDinners.at(0);
-    const nextDinnerHost = users.find(
-        (user) => user.id === nextDinner?.hostUserId
-    );
 
     const remainingUpcoming = upcomingDinners.filter(
         (dinner) => dinner.id !== nextDinner?.id
