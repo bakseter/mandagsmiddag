@@ -29,6 +29,12 @@ const userApi = createApi({
             providesTags: ['User'],
         }),
 
+        getUserById: builder.query<User, number>({
+            query: (id) => `/${String(id)}`,
+            transformResponse: (response) => userSchema.parse(response),
+            providesTags: ['User'],
+        }),
+
         getCurrentUser: builder.query<User, void>({
             query: () => ({
                 url: '',
@@ -39,7 +45,8 @@ const userApi = createApi({
     }),
 });
 
-export const { useGetUsersQuery, useGetCurrentUserQuery } = userApi;
+export const { useGetUsersQuery, useGetUserByIdQuery, useGetCurrentUserQuery } =
+    userApi;
 export { type User };
 
 export default userApi;
