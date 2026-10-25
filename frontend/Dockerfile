@@ -15,7 +15,7 @@ COPY . .
 RUN pnpm build
 
 
-FROM nginxinc/nginx-unprivileged:1.31.7-alpine-slim@sha256:a8cb0f33d51fa107c96fd2bd3a71aaf564ec131e9d2bdf8700944f0ed8b170d7
+FROM nginx/nginx-unprivileged:1.31.8-alpine-otel@sha256:40255e08d3a89b39942d6a5cdf503fcfe1c4fc8748db3e9d1b3e4c66a572c3a3
 
 USER root
 
