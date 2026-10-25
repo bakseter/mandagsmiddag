@@ -7,7 +7,7 @@ Dinner on a monday.
 Prerequisites:
 
 - Docker
-- Bun
+- pnpm
 
 ### Frontend
 
@@ -15,8 +15,8 @@ Run the frontend like this:
 
 ```bash
 cd frontend
-bun install
-bun dev
+pnpm install
+pnpm dev
 ```
 
 ### Backend
