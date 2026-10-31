@@ -17,7 +17,7 @@ jobs:
         with:
           working-directory: 'frontend'
           version: '12.16.1'
-          runtime: 'node@24.22.2'
+          runtime: 'node@26.13.0'
           cache: 'true'
 
       - name: Run lint
