@@ -4,7 +4,7 @@ go 1.26.10
 
 require (
 	github.com/coreos/go-oidc/v3 v3.21.0
-	github.com/gin-contrib/cors v1.7.9
+	github.com/gin-contrib/cors v1.7.10
 	github.com/gin-gonic/gin v1.12.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/sirupsen/logrus v1.10.2
