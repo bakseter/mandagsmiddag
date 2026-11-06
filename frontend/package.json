@@ -11,7 +11,7 @@
         "format": "prettier --write ."
     },
     "dependencies": {
-        "@reduxjs/toolkit": "2.13.0",
+        "@reduxjs/toolkit": "2.14.0",
         "@tailwindcss/vite": "4.3.4",
         "date-fns": "4.4.0",
         "lucide-react": "1.67.0",
