@@ -1,7 +1,11 @@
+import { MessageCircle, Plus, Star, Trophy } from 'lucide-react';
 import { Link, Outlet } from 'react-router';
 
 import { useGetCurrentUserQuery } from '@/api/user';
 import ErrorBoundary from '@/components/error-boundary';
+
+const navLinkClass =
+    'rounded-lg bg-zinc-900 p-2 text-white transition-colors hover:bg-zinc-700';
 
 const Layout = () => {
     const { data: currentUser } = useGetCurrentUserQuery();
@@ -17,28 +21,43 @@ const Layout = () => {
                         Mandagsmiddag
                     </Link>
 
-                    <nav className="flex items-center lg:gap-5 gap-2 md:text-md text-xs font-medium text-zinc-600">
+                    <nav className="flex items-center gap-2">
+                        <Link
+                            to="/chat"
+                            title="Chat"
+                            aria-label="Chat"
+                            className={navLinkClass}
+                        >
+                            <MessageCircle size={18} />
+                        </Link>
+
                         {currentUser?.isAdmin && (
                             <>
                                 <Link
                                     to="/middag/ny"
-                                    className="rounded-lg bg-zinc-900 md:px-3 px-1 py-2 text-white transition-colors hover:bg-zinc-700"
+                                    title="Ny middag"
+                                    aria-label="Ny middag"
+                                    className={navLinkClass}
                                 >
-                                    Ny middag
+                                    <Plus size={18} />
                                 </Link>
 
                                 <Link
                                     to="/admin/ratings"
-                                    className="rounded-lg bg-zinc-900 md:px-3 px-1 py-2 text-white transition-colors hover:bg-zinc-700"
+                                    title="Ratings"
+                                    aria-label="Ratings"
+                                    className={navLinkClass}
                                 >
-                                    Ratings
+                                    <Star size={18} />
                                 </Link>
 
                                 <Link
                                     to="/admin/penalty"
-                                    className="rounded-lg bg-zinc-900 md:px-3 px-1 py-2 text-white transition-colors hover:bg-zinc-700"
+                                    title="Poeng"
+                                    aria-label="Poeng"
+                                    className={navLinkClass}
                                 >
-                                    Poeng
+                                    <Trophy size={18} />
                                 </Link>
                             </>
                         )}

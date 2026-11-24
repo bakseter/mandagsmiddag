@@ -6,6 +6,7 @@ import Layout from '@/layouts/layout';
 import AddRatingPage from '@/pages/add-rating-page';
 import AdminPenaltyPage from '@/pages/admin-penalty-page';
 import AdminRatingsPage from '@/pages/admin-ratings-page';
+import ChatPage from '@/pages/chat-page';
 import DinnersPage from '@/pages/dinners-page';
 import EditDinnerPage from '@/pages/edit-dinner-page';
 import EditRatingPage from '@/pages/edit-rating-page';
@@ -21,6 +22,8 @@ const App = () => {
                 <Routes>
                     <Route element={<Layout />}>
                         <Route path="/" element={<DinnersPage />} />
+
+                        <Route path="/chat" element={<ChatPage />} />
 
                         <Route
                             path="/middag/:dinnerId/rediger"

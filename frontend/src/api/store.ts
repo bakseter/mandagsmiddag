@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import dinnerApi from '@/api/dinner';
+import messageApi from '@/api/message';
 import penaltyApi from '@/api/penalty';
 import ratingApi from '@/api/rating';
 import tmdbApi from '@/api/tmdb';
@@ -9,6 +10,7 @@ import userApi from '@/api/user';
 export const store = configureStore({
     reducer: {
         [dinnerApi.reducerPath]: dinnerApi.reducer,
+        [messageApi.reducerPath]: messageApi.reducer,
         [penaltyApi.reducerPath]: penaltyApi.reducer,
         [ratingApi.reducerPath]: ratingApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
@@ -17,6 +19,7 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) => [
         ...getDefaultMiddleware(),
         dinnerApi.middleware,
+        messageApi.middleware,
         penaltyApi.middleware,
         ratingApi.middleware,
         userApi.middleware,
