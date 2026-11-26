@@ -61,6 +61,7 @@ func addRoutes(
 		})
 
 		routes.DinnerRoutes(api, conf)
+		routes.MessageRoutes(api, conf)
 		routes.RatingRoutes(api, conf)
 		routes.PenaltyRoutes(api, conf)
 		routes.UserRoutes(api, conf)

@@ -80,6 +80,7 @@ func migrateDatabase(database *gorm.DB) error {
 		&models.Film{},
 		&models.Penalty{},
 		&models.Rating{},
+		&models.Message{},
 	)
 	if err != nil {
 		return err
