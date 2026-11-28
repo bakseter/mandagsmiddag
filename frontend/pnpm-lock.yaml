@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@reduxjs/toolkit':
         specifier: 2.15.0
-        version: 2.15.0(@types/react@19.3.1)(react-redux@9.3.1(@types/react@19.3.1)(react@19.3.1)(redux@5.0.1))(react@19.3.1)
+        version: 2.15.0(@types/react@19.3.2)(react-redux@9.3.1(@types/react@19.3.2)(react@19.3.1)(redux@5.0.1))(react@19.3.1)
       '@tailwindcss/vite':
         specifier: 4.3.5
         version: 4.3.5(vite@8.3.8(@types/node@26.6.10)(jiti@2.7.0)(yaml@2.9.1))
@@ -19,7 +19,7 @@ importers:
         version: 4.4.0
       lucide-react:
         specifier: 1.79.0
-        version: 1.79.0(@types/react@19.3.1)(react@19.3.1)
+        version: 1.79.0(@types/react@19.3.2)(react@19.3.1)
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -28,13 +28,13 @@ importers:
         version: 19.3.1(react@19.3.1)
       react-hook-form:
         specifier: 7.92.0
-        version: 7.92.0(@types/react@19.3.1)(react@19.3.1)
+        version: 7.92.0(@types/react@19.3.2)(react@19.3.1)
       react-redux:
         specifier: 9.3.1
-        version: 9.3.1(@types/react@19.3.1)(react@19.3.1)(redux@5.0.1)
+        version: 9.3.1(@types/react@19.3.2)(react@19.3.1)(redux@5.0.1)
       react-router:
         specifier: 8.5.2
-        version: 8.5.2(@types/react-dom@19.3.0(@types/react@19.3.1))(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 8.5.2(@types/react-dom@19.3.0(@types/react@19.3.2))(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       tailwindcss:
         specifier: 4.3.5
         version: 4.3.5
@@ -49,11 +49,11 @@ importers:
         specifier: 26.6.10
         version: 26.6.10
       '@types/react':
-        specifier: 19.3.1
-        version: 19.3.1
+        specifier: 19.3.2
+        version: 19.3.2
       '@types/react-dom':
         specifier: 19.3.0
-        version: 19.3.0(@types/react@19.3.1)
+        version: 19.3.0(@types/react@19.3.2)
       '@vitejs/plugin-react':
         specifier: 5.2.0
         version: 5.2.0(vite@8.3.8(@types/node@26.6.10)(jiti@2.7.0)(yaml@2.9.1))
@@ -547,8 +547,8 @@ packages:
     peerDependencies:
       '@types/react': ^19.3.0
 
-  '@types/react@19.3.1':
-    resolution: {integrity: sha512-HNTkBIm8zmHX8LUXX2vtZ/ONzehrV1J3abl2fUIiZ5qxTYRCj/z+rDeFwOltqCLl9lRdUTKWT41OLtYuFV/Arg==}
+  '@types/react@19.3.2':
+    resolution: {integrity: sha512-0QJbb58RxWJL3VAa5tvk7QhJamz0S+MpFL2xDuF/+THRR+kldyhPjRZ1iwvK45AEHZ1BVGS3otPsl7QlNVRizQ==}
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
@@ -1580,7 +1580,7 @@ snapshots:
 
   '@oxc-project/types@0.156.0': {}
 
-  '@reduxjs/toolkit@2.15.0(@types/react@19.3.1)(react-redux@9.3.1(@types/react@19.3.1)(react@19.3.1)(redux@5.0.1))(react@19.3.1)':
+  '@reduxjs/toolkit@2.15.0(@types/react@19.3.2)(react-redux@9.3.1(@types/react@19.3.2)(react@19.3.1)(redux@5.0.1))(react@19.3.1)':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@standard-schema/utils': 0.3.0
@@ -1589,9 +1589,9 @@ snapshots:
       redux-thunk: 3.1.0(redux@5.0.1)
       reselect: 5.3.0
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       react: 19.3.1
-      react-redux: 9.3.1(@types/react@19.3.1)(react@19.3.1)(redux@5.0.1)
+      react-redux: 9.3.1(@types/react@19.3.2)(react@19.3.1)(redux@5.0.1)
 
   '@remix-run/route-pattern@0.22.1': {}
 
@@ -1759,11 +1759,11 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
-  '@types/react-dom@19.3.0(@types/react@19.3.1)':
+  '@types/react-dom@19.3.0(@types/react@19.3.2)':
     dependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
-  '@types/react@19.3.1':
+  '@types/react@19.3.2':
     dependencies:
       csstype: 3.2.3
 
@@ -2234,11 +2234,11 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@1.79.0(@types/react@19.3.1)(react@19.3.1):
+  lucide-react@1.79.0(@types/react@19.3.2)(react@19.3.1):
     dependencies:
       react: 19.3.1
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
   magic-string@1.4.5:
     dependencies:
@@ -2317,31 +2317,31 @@ snapshots:
       react: 19.3.1
       scheduler: 0.28.0
 
-  react-hook-form@7.92.0(@types/react@19.3.1)(react@19.3.1):
+  react-hook-form@7.92.0(@types/react@19.3.2)(react@19.3.1):
     dependencies:
       react: 19.3.1
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
-  react-redux@9.3.1(@types/react@19.3.1)(react@19.3.1)(redux@5.0.1):
+  react-redux@9.3.1(@types/react@19.3.2)(react@19.3.1)(redux@5.0.1):
     dependencies:
       '@types/use-sync-external-store': 0.0.6
       react: 19.3.1
       use-sync-external-store: 1.7.0(react@19.3.1)
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       redux: 5.0.1
 
   react-refresh@0.18.0: {}
 
-  react-router@8.5.2(@types/react-dom@19.3.0(@types/react@19.3.1))(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  react-router@8.5.2(@types/react-dom@19.3.0(@types/react@19.3.2))(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       '@remix-run/route-pattern': 0.22.1
       cookie-es: 3.1.1
       react: 19.3.1
     optionalDependencies:
-      '@types/react': 19.3.1
-      '@types/react-dom': 19.3.0(@types/react@19.3.1)
+      '@types/react': 19.3.2
+      '@types/react-dom': 19.3.0(@types/react@19.3.2)
       react-dom: 19.3.1(react@19.3.1)
 
   react@19.3.1: {}
